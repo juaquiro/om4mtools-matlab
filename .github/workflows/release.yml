@@ -1,0 +1,74 @@
+name: Release Pipeline
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  full-suite:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v7
+        with: { fetch-depth: 0 }
+
+      - name: Determine diff base
+        id: range
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            git fetch origin "${{ github.base_ref }}" --depth=1
+            echo "base=origin/${{ github.base_ref }}" >> "$GITHUB_OUTPUT"
+          else
+            before="${{ github.event.before }}"
+            if [ -z "$before" ] || [ "$before" = "0000000000000000000000000000000000000000" ]; then
+              echo "base=HEAD" >> "$GITHUB_OUTPUT"
+            else
+              echo "base=$before" >> "$GITHUB_OUTPUT"
+            fi
+          fi
+
+      - name: Run convention checks
+        run: bash .github/scripts/check-conventions.sh "${{ steps.range.outputs.base }}"
+
+      - name: Read version from src/Contents.m
+        id: version
+        run: |
+          v=$(grep -oE '% Version [0-9]+\.[0-9]+\.[0-9]+' src/Contents.m | awk '{print $3}')
+          if [ -z "$v" ]; then
+            echo "::error::Could not read a 'Version X.Y.Z' line from src/Contents.m"
+            exit 1
+          fi
+          echo "version=$v" >> "$GITHUB_OUTPUT"
+
+      - name: Require a version bump on this release/hotfix PR
+        if: github.event_name == 'pull_request'
+        run: |
+          if git diff --quiet origin/main -- src/Contents.m; then
+            echo "::error::src/Contents.m is unchanged vs main -- bump the Version line as part of this release/hotfix PR (see Appendix_Branching_Model_Bootstrap.md, Scenario 3/4)"
+            exit 1
+          fi
+
+  tag-and-release:
+    needs: full-suite
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    permissions: { contents: write }
+    steps:
+      - uses: actions/checkout@v7
+        with: { fetch-depth: 0 }
+
+      - name: Tag and create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          VERSION="${{ needs.full-suite.outputs.version }}"
+          if git rev-parse "v$VERSION" >/dev/null 2>&1; then
+            echo "Tag v$VERSION already exists -- skipping (no version bump since last release)."
+            exit 0
+          fi
+          git tag "v$VERSION"
+          git push origin "v$VERSION"
+          gh release create "v$VERSION" --generate-notes

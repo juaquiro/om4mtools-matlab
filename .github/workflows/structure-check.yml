@@ -1,0 +1,32 @@
+name: Structure Check
+
+on:
+  pull_request:
+    branches: [develop]
+  push:
+    branches: [develop]
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with: { fetch-depth: 0 }
+
+      - name: Determine diff base
+        id: range
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            git fetch origin "${{ github.base_ref }}" --depth=1
+            echo "base=origin/${{ github.base_ref }}" >> "$GITHUB_OUTPUT"
+          else
+            before="${{ github.event.before }}"
+            if [ -z "$before" ] || [ "$before" = "0000000000000000000000000000000000000000" ]; then
+              echo "base=HEAD" >> "$GITHUB_OUTPUT"
+            else
+              echo "base=$before" >> "$GITHUB_OUTPUT"
+            fi
+          fi
+
+      - name: Run convention checks
+        run: bash .github/scripts/check-conventions.sh "${{ steps.range.outputs.base }}"
