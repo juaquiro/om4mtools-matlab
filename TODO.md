@@ -412,9 +412,23 @@ function result = myFunction(a, b, opts)
 
 > Hacer esto solo cuando la estructura esté estable (Fases 1-3 completadas)
 
-- [ ] Crear repo **fuera de Dropbox**: `~/repos/om4mtools-matlab/`
-- [ ] Copiar proyecto desde Dropbox al directorio del repo
-- [ ] Crear `.gitignore` definitivo:
+- [x] Crear repo **fuera de Dropbox** — hecho 2026-09-14:
+  `C:\user\AQ_SCC\GitHub\om4mtools-matlab` (no `~/repos/`, ubicación real pedida por
+  el usuario junto al resto de sus repos en `AQ_SCC\GitHub\`, junto a `om4mmatlabutils`)
+- [x] Copiar proyecto desde Dropbox al directorio del repo — hecho 2026-09-14,
+  copia verificada idéntica con `diff -rq` (386 ficheros) antes de tocar nada más.
+  La copia de Dropbox (`AQ_EXP\75 om4mtools-matlab\`) se conserva por seguridad —
+  ver `README_IMPORTANTE_14SEP26.md` ahí, no es ya el sitio de trabajo activo.
+- [x] Crear `.gitignore` definitivo — hecho 2026-09-14, con 3 ajustes sobre el
+  borrador de abajo (obsoleto, dejado como referencia histórica):
+  - Fixtures: `!tests/fixtures/README.md` en vez de `!tests/fixtures/.gitkeep`
+    (ya no hay `.gitkeep`, el `README.md` de la reversión de fixtures es lo que
+    hay que conservar — ver DECISIONS.md, "FASE 2 (reversión)")
+  - `!om4mtools-matlab/IOT2DPU/deploy/*.mexw64` — el legacy MEX aún vive fuera de
+    `mex/bin/` (pendiente su propia migración, ítem de arriba), el patrón genérico
+    `*.mex*` lo habría excluido sin esta excepción explícita
+  - `.claude/settings.local.json` y `src/.ignore/` (caché local de ExportFig con
+    rutas a ghostscript/pdftops de esta máquina) — específicos de máquina, no al repo
   ```gitignore
   # MATLAB
   *.asv
@@ -440,7 +454,8 @@ function result = myFunction(a, b, opts)
   .DS_Store
   Thumbs.db
   ```
-- [ ] `git init` + primer commit con estructura limpia
+- [x] `git init` + primer commit con estructura limpia — hecho 2026-09-14, 383
+  ficheros / 62052 inserciones en el commit raíz
 - [ ] Crear repo en `github.com/tuusuario/om4mtools-matlab`
 - [ ] `git push`
 - [ ] Crear primer tag semántico: `v1.0.0`

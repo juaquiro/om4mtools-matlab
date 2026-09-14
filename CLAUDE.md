@@ -4,10 +4,15 @@ Toolbox de utilidades MATLAB del grupo OM4M (Optical Methods for Measuring).
 Modernización de om4mmatlabutils.
 
 ## Contexto
-- Fase actual: Fase 1
-- Directorio de trabajo: Dropbox/om4mtools-matlab/ (sin Git todavía)
+- Fase actual: Fase 2 prácticamente completa (solo falta mover `IOT2DPU` a `mex/src/`),
+  Fase 3 avanzada — ver TODO.md para el detalle exacto
+- Directorio de trabajo: `C:\user\AQ_SCC\GitHub\om4mtools-matlab` — repo Git, migrado
+  desde `Dropbox\AQ_EXP\75 om4mtools-matlab\` el 2026-09-14 (esa copia de Dropbox se
+  conserva solo como backup, ver `README_IMPORTANTE_14SEP26.md` ahí — no es el sitio
+  de trabajo activo)
 - Proyecto estrictamente personal por ahora: siempre se ejecuta en máquinas donde
   existe el propio Dropbox del usuario en una ubicación conocida (ver `src/dropbox.m`)
+  — el código vive en Git, pero las fixtures de test siguen viviendo en Dropbox
 - Fixtures de test en: `<dropbox root>\AQ_EXP\DataSetsForTesting\om4mtools-matlab`
   (NO en `tests/fixtures/`, que se mantiene vacío a propósito — ver
   `tests/fixtures/README.md` y `fixturesRoot()`)

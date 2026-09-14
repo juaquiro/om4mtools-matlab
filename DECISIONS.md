@@ -1390,3 +1390,49 @@ como variable de bucle en varios sitios (`testFFTLinGV`), lo cual viola la conve
 `i`/`j` de CLAUDE.md — se preservó tal cual (no se tocó lógica numérica de un test que
 no se puede ejecutar en este entorno para verificar); corregirlo es tarea de Fase 4
 (modernización), no de esta integración.
+
+## FASE 6 — Migración de Dropbox a repo Git (2026-09-14)
+
+**Decisión del usuario:** parar de trabajar en el directorio de Dropbox
+(`AQ_EXP\75 om4mtools-matlab\`) y mover el proyecto a un repo Git independiente, ahora
+que Fase 2 está prácticamente cerrada. Sigue el plan ya escrito en FASE 6 del propio
+TODO.md (Git y Dropbox sync no conviven bien).
+
+**Ubicación:** `C:\user\AQ_SCC\GitHub\om4mtools-matlab` — el usuario pidió esta ruta
+exacta (con un typo, faltaba la barra entre `GitHub` y `om4mtools-matlab`; corregido
+por analogía directa con `C:\user\AQ_SCC\GitHub\om4mmatlabutils`, el repo original ya
+usado como referencia en Fase 7 — confirmado antes de crear nada que el directorio no
+existiera todavía).
+
+**Copia, no movimiento:** por petición explícita del usuario ("mantenemos por
+seguridad el directorio dropbox"), la copia de Dropbox se conserva intacta como
+backup — no se borró ni modificó nada ahí salvo añadir
+`README_IMPORTANTE_14SEP26.md` explicando la situación (que este directorio ya no es
+el sitio de trabajo activo, apuntando al repo Git nuevo). Verificado con `diff -rq`
+antes y después de la copia que las dos copias eran idénticas (386 ficheros).
+
+**`.gitignore`:** partiendo del borrador ya redactado en TODO.md FASE 6, 3 ajustes
+necesarios detectados al inspeccionar el árbol real antes de comprometer nada:
+1. El borrador conservaba `!tests/fixtures/.gitkeep`, pero ya no existe ningún
+   `.gitkeep` — desde la reversión de fixtures (ver más arriba, "FASE 2 (reversión)")
+   lo que hay que conservar es `tests/fixtures/README.md`.
+2. El legacy `om4mtools-matlab/IOT2DPU/deploy/PUFlynMdMex.mexw64` (el MEX real detrás
+   de `UnwrapperTypes.FlynMd`, usado en varios tests FPA — ver `tests/setupPath.m`)
+   vive fuera de `mex/bin/` porque su propia migración a `mex/src/` sigue pendiente
+   (ítem sin marcar de Fase 2). El patrón genérico `*.mex*` del borrador lo habría
+   excluido sin una excepción explícita — añadida
+   `!om4mtools-matlab/IOT2DPU/deploy/*.mexw64`.
+3. Dos ficheros/carpetas específicos de esta máquina que el borrador no contemplaba
+   (no existían cuando se escribió): `.claude/settings.local.json` (permisos locales
+   de Claude Code) y `src/.ignore/` (caché de ExportFig con rutas locales a
+   ghostscript/pdftops — el propio nombre de la carpeta, `.ignore`, es la pista de
+   ExportFig de que no debe ir al repo).
+
+**Verificado antes del primer commit:** `git status`/`git add -A` + revisión manual
+de qué quedaba excluido (`git check-ignore -v`) para confirmar que los 2 ajustes de
+máquina funcionaban y que el `.mexw64` legacy SÍ se incluía — 383 ficheros
+comprometidos (386 originales + `.gitignore` − 4 excluidos).
+
+**Qué no se ha hecho todavía (a propósito, sin pedirlo el usuario):** crear el repo
+remoto en GitHub, `git push`, ni el primer tag `v1.0.0` — quedan como los 3 últimos
+ítems sin marcar de FASE 6, pendientes de que el usuario lo pida explícitamente.
