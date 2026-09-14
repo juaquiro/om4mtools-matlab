@@ -649,6 +649,36 @@ function result = myFunction(a, b, opts)
   llegaron a migrarse (p.ej. por tests rotos por dependencias ausentes como
   `Passive3DCam`/`Polyval2` de arriba, o por scope reducido en Fase 1 bis).
 - [ ] Evaluar `buildtool` de MATLAB (R2022b+) para automatizar build + test
+- [ ] **Refactorizar `Demodulator` (`src/Demodulator.m`) — la lista dinámica de
+  propiedades funciona pero es un poco convoluida; explorar si hay un patrón de
+  diseño estándar que encaje mejor.** Petición del usuario (2026-09-15), sin
+  decidir todavía la solución. Estado actual, para contexto de quien lo retome:
+  - `Demodulator` mezcla dos mecanismos de estado en paralelo: 4 propiedades
+    `classdef` normales (`modFP`, `biasFP`, `shape`, `onlyModFlag`) **y** una
+    bolsa dinámica de propiedades (`this.props`, un
+    `OM4MClassLib.DataStructs.PropsEnumList` — wrapper sobre `containers.Map`,
+    claves restringidas al enum `DemodulatorProps`) accedida vía `Get`/`Set`.
+    Qué estado vive en cuál de los dos sitios no sigue una regla clara.
+  - La validación de props en `Set()` es un `switch`/`case` ad-hoc por nombre de
+    propiedad (`zList` debe ser cell array, `NL` debe estar en una lista de
+    valores válidos) — cada prop nueva que necesite validar su valor exige tocar
+    esa rama a mano; la mayoría de props no tienen ninguna validación.
+  - `PropsEnumList` (`src/+OM4MClassLib/+DataStructs/PropsEnumList.m`) es
+    genérico (sin tipar valores, todo pasa por `containers.Map`) y predata las
+    capacidades nativas de MATLAB para esto (bloques `arguments` con
+    validadores, `dictionary` desde R2022b, herencia de `properties` por
+    subclase).
+  - **El mismo patrón (`IProps` + `PropsEnumList`) lo comparten `Classifier`,
+    `Unwrapper`, `aFeature` e `imaqCam`** además de `Demodulator` — cualquier
+    decisión de rediseño tiene efecto en las 5 clases, no solo en `Demodulator`;
+    vale la pena decidir el patrón una vez y aplicarlo consistentemente, no caso
+    por caso.
+  - Candidatos a evaluar (sin comprometerse a ninguno todavía): propiedades
+    `properties` tipadas por subclase concreta de demodulador (aprovechando que
+    cada subtipo ya hereda de `Demodulator`, en vez de una bolsa genérica
+    compartida); `dictionary` de MATLAB (R2022b+) en vez de `containers.Map`
+    para menos boilerplate; una tabla declarativa de {nombre, validador, valor
+    por defecto} en vez del `switch` a mano en `Set()`.
 - [x] Configurar GitHub Actions para CI — completo (2026-09-14): `smoke`
   (`.github/workflows/structure-check.yml`, gate de `develop`) + `full-suite`
   (`release.yml`, gate de `main`) verifican convenciones estáticas sin MATLAB (Caso B
