@@ -672,7 +672,19 @@ function result = myFunction(a, b, opts)
     `Unwrapper`, `aFeature` e `imaqCam`** además de `Demodulator` — cualquier
     decisión de rediseño tiene efecto en las 5 clases, no solo en `Demodulator`;
     vale la pena decidir el patrón una vez y aplicarlo consistentemente, no caso
-    por caso.
+    por caso. **Confirmado por el usuario (2026-09-15): el mismo patrón elegido
+    se aplica también a `imaqCam`** (`src/imaqCam.m`) — mismo mix de
+    propiedades `classdef` normales (`vid`, `src`, `hImage`, `Data`, `gc`,
+    `isStopped`, `FilterImagesFlag`, `FilterWindow`, `sizeCData`) más una bolsa
+    dinámica `this.props` (`PropsEnumList` sobre el enum `imaqCamProps`:
+    `detectCornerParams`, `maxExpVal`, `hdrCalFile`, `drawObject`,
+    `geomCalFile`), con el mismo `switch` ad-hoc en `Set()` — aquí con un caso
+    que además tiene efecto lateral (`case 'geomCalFile': this.gc.loadCal(...)`)
+    antes de guardar el valor. Ese efecto lateral es justo el tipo de caso que
+    un `SetMethod` por propiedad (`dynamicprops`) resolvería mejor que el
+    `switch` centralizado — la propiedad `geomCalFile` llevaría su propio
+    `SetMethod` que llama a `loadCal` y ya está, sin tocar un `switch`
+    compartido por todas las propiedades de la clase.
   - **Requisito concreto del usuario (2026-09-15):** poder escribir
     `d.StepsTwoPwiRange=2*pi` (acceso a propiedad real, notación de punto) en
     vez de `d.Set(char(DemodulatorProps.StepsTwoPwiRange), 2*pi)`, **manteniendo
