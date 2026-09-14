@@ -403,7 +403,21 @@ om4mtools-matlab/
     `fixturesRoot()` directamente (ya vivía ahí). Ver DECISIONS.md, "Fase 3 —
     fixtures de Coursera", para el desglose completo, incluidos 3 bloqueantes nuevos
     descubiertos al intentar dejar la suite en verde del todo (funciones auxiliares
-    de Coursera que faltan, no solo datos) — **decisión pendiente del usuario**.
+    de Coursera que faltan, no solo datos).
+  - **14 tests → 1 test, corregido (2026-09-14), a petición del usuario
+    ("reimplement them"):** `mapFeature`/`plotData`/`polyFeatures` reimplementadas
+    como funciones propias en `src/` (mismo nombre/firma, algoritmo propio a partir
+    de leer el original, no copiado — así el código de Coursera no se redistribuye
+    desde el repo público). `testMLClassifierLR`, `testMLClassifierLinReg`,
+    `testMLClassifierNN`, `testMLClassifierNN1` y `testNN_Toolbox` quedan **100% en
+    verde**. Reveló de paso un bug propio y preexistente, sin relación con estas 3
+    funciones: `testMLUtilFunML/testML_UtilFunML_CostFunctionLR` tiene un valor de
+    referencia (`ag`, 28 elementos) inconsistente con lo que
+    `UtilFunML.CostFunctionLR` produce de verdad (29 elementos, porque siempre
+    añade su propia columna de sesgo) — no arreglado, requiere que el usuario
+    revise/recalcule los valores de referencia. Ver DECISIONS.md.
+  - **17 tests, ya documentado:** `svmtrain`/`svmclassify`, sin cambios (ver abajo).
+  - **1 test, ya documentado:** `bayesgauss`/DIPUM, sin cambios (ver arriba).
   - **18 tests → 10 tests, corregido (2026-09-14):** `testCellArrayList.m` no era un
     test real — era un script demo interactivo de MathWorks (`%%` cell sections,
     pensado para ejecutarse celda a celda) que `matlab.unittest.TestSuite.fromFolder`

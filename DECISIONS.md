@@ -1814,3 +1814,63 @@ las 10 clases completas tras el fix):
 
 Ninguno de los 3 bloqueantes se ha corregido en esta sesión — son decisiones
 distintas de "copiar los datos de Coursera", quedan para cuando el usuario decida.
+
+---
+
+## Reimplementación de `mapFeature`/`plotData`/`polyFeatures` (2026-09-14)
+
+Petición del usuario: "reimplement them" (las 3 funciones auxiliares de Coursera
+del bloqueante #1 de arriba). Creadas como funciones propias en `src/`
+(`src/mapFeature.m`, `src/plotData.m`, `src/polyFeatures.m`) — mismo nombre y
+firma que las originales (así los 10 ficheros de test que ya las llaman no
+necesitan tocarse), algoritmo reimplementado desde cero a partir de leer el fuente
+de Coursera para entender el comportamiento exacto, no copiado. Bloques
+`arguments` para validación de entrada, sin `i`/`j` como variables de bucle
+(`order`/`term` en `mapFeature`, `power` en `polyFeatures`), formato de docstring
+estándar OM4M.
+
+- **`mapFeature(X1, X2)`:** expansión polinómica de grado 6, 28 columnas
+  (`1 + sum((1:6)+1)` = `1+27`). Preasignado con `zeros(...)` en vez del
+  `out(:,end+1)=...` de crecimiento dinámico del original (mismo resultado,
+  sin el warning de MATLAB de "array creciendo en bucle").
+- **`polyFeatures(X, p)`:** expansión de potencias 1..p, igual que el original,
+  solo con nombre de bucle más claro (`power` en vez de `k`).
+- **`plotData(X, y)`:** scatter de clasificación binaria (variante `ex2`, la que
+  usan los tests — `testSVM_Toolbox.m` con `ex6data1`/`ex6data2`, clases 0/1).
+  Diferencia deliberada del original: no abre su propia figura (el original hacía
+  `figure; hold on;`) — los 3 sitios que la llaman en este repo ya hacen
+  `figure; plotData(X, y);` ellos mismos, abrir dos figuras habría sido redundante.
+
+**Verificado, antes/después:** de los 14 tests bloqueados por estas 3 funciones,
+**13 quedan arreglados** — `testMLClassifierLR` (12/12), `testMLClassifierLinReg`
+(6/6), `testMLClassifierNN` (9/9), `testMLClassifierNN1` (11/11) y `testNN_Toolbox`
+(4/4) quedan **100% en verde**. El total de los 10 ficheros pasó de 45 a 55
+Passed (19 Failed/Incomplete restantes, ver abajo).
+
+**El 14º test reveló un bug propio, no relacionado con las 3 funciones:**
+`testMLUtilFunML/testML_UtilFunML_CostFunctionLR` pasó de fallar por `mapFeature`
+indefinida a fallar por una incompatibilidad de tamaños genuina y preexistente —
+`initial_theta = zeros(size(X, 2)+1, 1)` (línea original, `+1` porque
+`UtilFunML.CostFunctionLR` **siempre** añade su propia columna de sesgo
+internamente, `Xbias = [ones(m,1) X]`, confirmado leyendo su código y confirmado
+por los demás tests que la usan — `ClassifierLR`/`ClassifierNN`/`ClassifierNN1`/
+`ClassifierSVM`, todos en verde) produce un `theta`/`g` de 29 elementos, pero el
+valor de referencia hardcodeado `ag` en el propio test tiene **28** elementos
+(contado con `awk`, no a ojo). El comentario del test ("mapFeature also adds a
+column of ones for us, so the intercept term is handled") es el heredado
+literalmente del ejercicio original de Coursera, donde `costFunctionReg.m` **no**
+añade su propia columna — no aplica a la implementación de `CostFunctionLR` de
+este repo, que sí la añade. Se probó cambiar `initial_theta` a
+`zeros(size(X,2), 1)` (sin el `+1`) para que coincidiera con `ag`, pero eso rompe
+la multiplicación de matrices dentro de `CostFunctionLR` (`Xbias*theta` con
+tamaños incompatibles) — revertido a la línea original. **No arreglado**: los
+valores de referencia `ac`/`ag` parecen calculados contra una versión distinta
+(o inconsistente) de `CostFunctionLR`/`mapFeature` de la que existe hoy en el
+repo — recalcularlos a mano no es algo que deba inventar, requiere que el usuario
+decida o verifique. Sigue fallando, documentado, no bloquea nada más.
+
+**Los otros 18 tests que siguen fallando** son exactamente los 2 bloqueantes ya
+documentados arriba, sin cambios: `svmtrain` (17 — subió de 14 porque arreglar
+`plotData` dejó a los 3 tests de `testSVM_Toolbox` avanzar hasta el siguiente
+bloqueante real, `svmtrain`, en vez de quedarse parados en `plotData`) y
+`bayesgauss`/DIPUM (1, `testKMeansToolbox/test5`, sin cambios).
