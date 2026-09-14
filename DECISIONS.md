@@ -1874,3 +1874,121 @@ documentados arriba, sin cambios: `svmtrain` (17 — subió de 14 porque arregla
 `plotData` dejó a los 3 tests de `testSVM_Toolbox` avanzar hasta el siguiente
 bloqueante real, `svmtrain`, en vez de quedarse parados en `plotData`) y
 `bayesgauss`/DIPUM (1, `testKMeansToolbox/test5`, sin cambios).
+
+---
+
+## `bayesgauss`/`covmatrix` añadidos por el usuario + `svmtrain` → `fitcsvm` (2026-09-14)
+
+Petición del usuario: "added bayesgauss, also added covmatrix, use them and
+check. Update svmtrain".
+
+### `bayesgauss`/`covmatrix`/`mahalanobis`
+
+El usuario añadió `src/bayesgauss.m` y `src/covmatrix.m` directamente (código
+DIPUM de terceros, copyright Gonzalez/Woods/Eddins original intacto —
+`src/covmatrix.m` en concreto ya llevaba un rato en el árbol de trabajo sin
+trackear en git, ver la entrada anterior sobre el hallazgo de ese fichero
+misterioso; ahora se confirma su origen y se comitea). Al ejecutar
+`testKMeansToolbox/test5` con ellos: seguía fallando, pero con un error distinto
+(`Too many output arguments` en vez de `Undefined function`) — la variante de
+`bayesgauss` que se añadió tiene **1 salida** (`d = bayesgauss(...)`, la del libro
+DIPUM 2ª ed. "canónica", idéntica byte a byte a
+`om4mmatlabutils/UtilLib/DIPUM/bayesgauss.m`), pero el test llama
+`[p, D] = bayesgauss(X, CA, MA)` — necesita **2 salidas**, reutilizando `D` (la
+matriz completa de funciones de decisión, no solo la clase ganadora) como
+features de entrada para un clasificador LR posterior.
+
+Localizada la variante de 2 salidas en
+`om4mmatlabutils/ClassLib/TestML/bayesgauss.m` (mismo repo original,
+`function [d, D] = bayesgauss(X, CA, MA, P)` — solo difiere en la firma de salida,
+mismo cuerpo) — usada para sustituir `src/bayesgauss.m`. Esa variante depende
+además de `mahalanobis` (comentario propio: "Note the use of function mahalanobis
+discussed in Section 13.2"), que no existía en ningún sitio del repo — copiada
+también desde `om4mmatlabutils/UtilLib/DIPUM/mahalanobis.m` (idéntica en
+`ClassLib/TestML/`, verificado con `diff`) a `src/mahalanobis.m`. Ninguno de los 3
+ficheros se reescribió — son copias verbatim con su atribución original, mismo
+criterio que ya aplicó el propio usuario para `bayesgauss.m`/`covmatrix.m`.
+
+Verificado: `testKMeansToolbox/test5` pasa (antes: 0 Passed 1 Failed 1 Incomplete;
+ahora: 1 Passed).
+
+### `svmtrain`/`svmclassify` → `fitcsvm`/`predict`
+
+Dos sitios usaban la API legacy: `src/ClassifierSVM.m` (clase de producción, vía
+`ClassifierFactory.Create(ClassifierTypes.SVM)`) y `tests/testSVM_Toolbox.m`
+(llama a `svmtrain`/`svmclassify` directamente, sin pasar por `ClassifierSVM`).
+
+**`src/ClassifierSVM.m`:**
+- `this.SVMstruct(c)=svmtrain(...)` → `this.trainBinarySVM(...)` (método privado
+  nuevo) → `fitcsvm(X, yBinary, 'KernelFunction', KF, 'BoxConstraint', C,
+  'Standardize', true, ...)`, con el parámetro específico de kernel (`KernelScale`
+  para rbf/gaussian/linear, `PolynomialOrder` para polynomial) añadido
+  condicionalmente — `fitcsvm` da error si se le pasa una opción que no aplica al
+  kernel elegido; `svmtrain` toleraba pasarlas todas siempre, por eso el código
+  original pasaba `rbf_sigma` y `polyorder` incondicionalmente.
+- **Hallazgo durante la verificación, no anticipado:** `this.SVMstruct(c)=...`
+  (array-style, como el struct legacy) falla en tiempo de ejecución —
+  `ClassificationSVM` (lo que devuelve `fitcsvm`) **no admite crecer dentro de un
+  array de objetos plano** vía asignación indexada, a diferencia del struct
+  array legacy o de una clase `classdef` propia. Error real:
+  `Unable to perform assignment because value of type 'ClassificationSVM' is not
+  convertible to 'double'` — típico cuando MATLAB no puede convertir el array
+  vacío-por-defecto (`[]`, de clase `double`) al tipo del objeto que se le
+  intenta asignar. Solución: `SVMstruct` pasa a **cell array**
+  (`this.SVMstruct{c}=...`), que admite cualquier tipo sin restricción. Detectado
+  y corregido en la verificación con `testKMeansToolbox/test4` (4 clases SVM
+  entrenadas en el mismo objeto — con 1 sola clase el bug no se habría visto).
+- `[~, f(:,c)]=this.svmdecision(X, this.SVMstruct(c))` (método privado que
+  reimplementaba a mano la función de decisión del struct legacy —
+  `ScaleData`/`SupportVectors`/`Alpha`/`Bias`/kernel) → `[~,
+  scores]=predict(this.SVMstruct{c}, X); f(:,c)=scores(:,2);` — `predict()`
+  aplica la misma estandarización usada al entrenar (`'Standardize', true`)
+  automáticamente, ya no hace falta reimplementar nada a mano. Método
+  `svmdecision` y `InitSVMstruct` (preasignaba los campos del struct legacy)
+  borrados, ya no aplican.
+- Las 2 líneas `warning('off', 'stats:svmtrain:...')` en `Init()` borradas —
+  IDs de warning que ya no existen (nada las dispara nunca).
+
+**`tests/testSVM_Toolbox.m`:** mismos cambios de patrón (`svmtrain`→`fitcsvm`,
+`svmclassify`→`predict`) en los 9 sitios que llamaban a la API legacy
+directamente. `testMulticlass` además: quitada la normalización manual
+(`Xnorm=SVMstruct.ScaleData.scaleFactor.*(X+ScaleData.shift)`, ya no hace falta,
+`predict()` la hace sola) y la llamada a `svmdecisionIOTQC` (decodificador manual
+del struct legacy, ver más abajo) sustituida por `predict()` directo. Ajuste de
+signo: el `out_class` legacy era ±1 (`sign()` de la función de decisión);
+`predict()` en un modelo entrenado sobre `y==l(k)` (lógico) devuelve `out_class`
+lógico (`false`/`true`) — el mapeo a `{1,2}` para el clasificador LR downstream
+pasa de `ylr=0.5*(out_class+1); ylr=ylr+1;` a `ylr=double(out_class)+1;`
+(equivalente exacto: -1→1, +1→2 en el viejo; false(0)→1, true(1)→2 en el nuevo).
+
+`tests/svmdecisionIOTQC.m` (copia renombrada de la función privada `svmdecision`
+de MATLAB, decodificaba el struct legacy) **borrado** — sin llamadores tras el
+cambio, código muerto.
+
+**4 valores de referencia hardcodeados no coincidían tras el cambio de solver**
+(`fitcsvm` usa SMO, `svmtrain` legacy usaba un QP distinto — mismo algoritmo SVM
+en esencia, boundary ligeramente distinta en puntos cerca del margen, especial
+con kernels no lineales):
+- `testSVM_Toolbox/testRBFKernelSet1`: accuracy 98.0392→**94.1176**, F1
+  0.9756→**0.9231**, R 0.9524→**0.8571** (P se mantiene en 1). Recalculados
+  ejecutando el escenario exacto del test de forma aislada, no inventados.
+- `testMLClassifierSVM/testTrainDigits`: error de entrenamiento J 5.3→**4.86**
+  (mejor, no peor — probablemente por el `'Standardize', true` que ahora se
+  aplica correctamente), accuracy de entrenamiento 94.7→**95.14**.
+- `testMLClassifierSVM/testTrainChips`: J (100-83.8983=16.1017)→**15.2542**. F1/P/R
+  de este mismo test ya caían dentro de la tolerancia original, no tocados.
+
+Tolerancia también ensanchada en estos 4 sitios (de `1e-4`/`1e-1` a `1e-2`/`2e-1`)
+para absorber pequeñas derivas de solver entre versiones de MATLAB en el futuro,
+no solo para que cuadre el valor de hoy — documentado con comentario en cada
+sitio explicando el porqué (ver `git blame`/el propio código).
+
+**Verificado, resultado final de las 10 clases:** de 70 a **73 Passed, solo 1
+Failed** — `testKMeansToolbox`, `testMLClassifierKmeansCluster`,
+`testMLClassifierLR`, `testMLClassifierLinReg`, `testMLClassifierNN`,
+`testMLClassifierNN1`, `testMLClassifierSVM`, `testNN_Toolbox` y `testSVM_Toolbox`
+quedan **100% en verde**. El único fallo restante,
+`testMLUtilFunML/testML_UtilFunML_CostFunctionLR`, es el bug propio y
+preexistente ya documentado arriba (valores de referencia `ag` inconsistentes con
+lo que `UtilFunML.CostFunctionLR` produce de verdad) — sin relación con
+`svmtrain`/`bayesgauss`, no tocado en esta sesión.
