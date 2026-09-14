@@ -14,10 +14,6 @@ mex/bin/**/*.pdb
 !mex/bin/**/*.mexa64
 !mex/bin/**/*.mexmaci64
 
-# MEX legacy IOT2DPU (aún sin migrar a mex/src/, ver TODO.md Fase 2) — mismo criterio,
-# el .mexw64 precompilado sí va al repo (lo usa UnwrapperTypes.FlynMd)
-!om4mtools-matlab/IOT2DPU/deploy/*.mexw64
-
 # Fixtures de test (viven en Dropbox, no en el repo — ver tests/fixtures/README.md)
 tests/fixtures/**/*
 !tests/fixtures/README.md

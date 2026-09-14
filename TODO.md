@@ -175,7 +175,17 @@ om4mtools-matlab/
 - [x] Crear estructura de directorios objetivo (`src/`, `tests/`, `tests/fixtures/`) — creada en `75 om4mtools-matlab/` el 2026-09-12
 - [x] Aplanar los 4 subdirectorios → `src/` plano — completo (2026-09-12): `ClassLib/FPA` (40), `ClassLib/StandardHW` (20), `UtilLib/FPA` (9 fuente), `UtilLib/DeployPaths`, `UtilLib/CamCalToolboxWrappers`, `UtilLib/FullScreen`, `GUILib/TwoCamCaptureGUI`, `ClassLib/+OM4MClassLib` y `UtilLib/+Zernikes` (mantenidos como package `+` dentro de `src/` — decisión explícita del usuario, excepción a "sin namespaces")
 - [x] Migrar tests a `tests/` plano — completo (2026-09-12): `ClassLib/TestFPA` (34/35, `Untitled.m` excluido), `ClassLib/TestStandardHW` (8 tests + 15 scripts de config), `UtilLib/FPA` (5 scripts de demo), `ClassLib/TestOM4MClassLib` (13 tests, solo 1 con framework vivo — ver DECISIONS.md), `UtilLib/TestZernike` (4 tests — 1 de ellos revela dependencias ya borradas `Poly2`/`ClassLib/ML`, pendiente decisión del usuario)
-- [ ] Mover proyecto Visual Studio → `mex/src/`
+- [x] Mover proyecto Visual Studio → `mex/src/` — completo (2026-09-14): `IOT2DPU.sln` +
+  los 5 `.vcxproj` (`flynmd`, `fmg`, `goldbc`, `PUFlynMdMex`, `PUMexLib`) + `src/` (los
+  `.c`/`.h`) movidos tal cual como un solo bloque a `mex/src/`, preservando la estructura
+  interna (cada `.vcxproj` referencia `..\src\*.c` con ruta relativa — mover el árbol
+  entero evita tener que tocar esas referencias). El harness de test en C legado
+  (`IOT2DPU/tests/`: datos `.aq`/`.phase`/etc., `.bat`, y unos pocos `.m` que no siguen
+  el framework `matlab.unittest`) se movió a `mex/src/tests/` sin cambios — no es la
+  suite `tests/` del repo, es material de prueba del propio proyecto VS. Binarios
+  (`PUFlynMdMex.mexw64`, `PUMexLib.dll`, `PUMexLib.h`) movidos a `mex/bin/`.
+  `tests/setupPath.m` actualizado para apuntar a `mex/bin/` (antes
+  `om4mtools-matlab/IOT2DPU/deploy/`). Ver DECISIONS.md.
 - [ ] Crear `mex/build.m` invocando MSBuild sobre el `.sln`
 - [x] Mover datos/assets a fixtures — **decisión revertida 2026-09-14** (ver DECISIONS.md
   y `tests/fixtures/README.md`): al ser proyecto estrictamente personal, los datos

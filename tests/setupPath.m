@@ -15,12 +15,10 @@ function setupPath()
 %   - src/
 %   - the fixtures data root (see fixturesRoot.m) - the local Dropbox
 %     mirror, not tests/fixtures/ (kept empty on purpose, see its README.md)
-%   - the legacy IOT2DPU/deploy folder - holds PUFlynMdMex.mexw64, the
-%     compiled MEX binary behind UnwrapperTypes.FlynMd (used throughout
-%     the FPA demodulator tests), still pending its own Fase 2 migration
-%     to mex/src/ (see TODO.md). NOT a no-op like the old ClassLib/UtilLib
-%     legacy paths the FPA/StandardHW helpers used to add - those are
-%     genuinely gone now (fully migrated), this one is still load-bearing.
+%   - mex/bin/          - holds PUFlynMdMex.mexw64 and PUMexLib.dll, the
+%     compiled MEX behind UnwrapperTypes.FlynMd (used throughout the FPA
+%     demodulator tests). Migrated here from the legacy IOT2DPU/deploy
+%     folder (see TODO.md Fase 2, DECISIONS.md).
 %
 % Syntax:
 %   setupPath()
@@ -30,6 +28,6 @@ thisDir = fileparts(mfilename('fullpath'));
 addpath(thisDir);
 addpath(fullfile(thisDir, '..', 'src'));
 addpath(fixturesRoot());
-addpath(fullfile(thisDir, '..', 'om4mtools-matlab', 'IOT2DPU', 'deploy'));
+addpath(fullfile(thisDir, '..', 'mex', 'bin'));
 
 end

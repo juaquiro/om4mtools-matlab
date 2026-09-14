@@ -1436,3 +1436,49 @@ comprometidos (386 originales + `.gitignore` − 4 excluidos).
 **Qué no se ha hecho todavía (a propósito, sin pedirlo el usuario):** crear el repo
 remoto en GitHub, `git push`, ni el primer tag `v1.0.0` — quedan como los 3 últimos
 ítems sin marcar de FASE 6, pendientes de que el usuario lo pida explícitamente.
+
+---
+
+## FASE 2 — Migración de `IOT2DPU` a `mex/src/`/`mex/bin/` (2026-09-14)
+
+Último ítem pendiente de Fase 2 (ver CLAUDE.md). Petición del usuario: "vamos a por
+los ficheros mex".
+
+**Todo el árbol movido como un solo bloque, sin tocar rutas internas:** los 5
+`.vcxproj` (`flynmd`, `fmg`, `goldbc`, `PUFlynMdMex`, `PUMexLib`) referencian su
+código fuente con la ruta relativa fija `..\src\*.c` (verificado con `grep` sobre los
+5 ficheros antes de mover nada). Aplanar `IOT2DPU/src/` directamente dentro de
+`mex/src/` habría roto esas ~40 referencias y habría exigido editar XML de proyecto
+VS a mano sin poder compilar aquí para verificarlo. Se optó por mover el árbol entero
+tal cual (`IOT2DPU.sln`, los 5 subdirectorios de proyecto, y `src/`) a `mex/src/`,
+quedando `mex/src/src/*.c` — nesting con nombre repetido pero exacto al que esperan
+los `.vcxproj`, riesgo de build cero. Revisitar solo si se abre el `.sln` en Visual
+Studio y se decide aplanar a mano con el IDE haciendo el rename de referencias.
+
+**`IOT2DPU/tests/` → `mex/src/tests/`, no a `tests/`:** esa carpeta no es la suite
+`matlab.unittest` del repo — es material de prueba del propio proyecto C/VS: datos
+`.aq`/`.phase`/`.mask`/`.surf`/`.corr`, `.bat` que invocan los `.exe` compilados
+directamente, y un puñado de `.m` (`GeneratePeaks.m`, `leer_ficheros.m`,
+`testSetPaths.m`, `test_MexFilesFromIOT2DPU.m`, `test_PUMexLib.m`) que no heredan de
+`matlab.unittest.TestCase`. Meterlo en `tests/` habría violado la convención de
+"plano, un TestXxx.m por función" y habría colado datos binarios fuera de
+`fixturesRoot()`. Se movió sin cambios a `mex/src/tests/`, junto al proyecto VS al
+que pertenece. Migrar los `.m` sueltos al framework real, si compensa, queda como
+tarea aparte (no pedida).
+
+**Binarios → `mex/bin/`:** `PUFlynMdMex.mexw64` (el MEX real), `PUMexLib.dll`
+(dependencia en tiempo de ejecución del anterior) y `PUMexLib.h` (cabecera que
+viajaba junto a los binarios en el `deploy/` legacy, se mantiene junto a ellos por
+si algún consumidor externo linka contra la DLL). Quedan cubiertos por la excepción
+genérica ya existente en `.gitignore` (`!mex/bin/**/*.mexw64`) — se pudo borrar la
+excepción específica `!om4mtools-matlab/IOT2DPU/deploy/*.mexw64` que ya no aplica.
+
+**Referencias actualizadas:** `tests/setupPath.m` (ahora añade `mex/bin/` en vez de
+`om4mtools-matlab/IOT2DPU/deploy/`), `tests/testStandardHW_MockCam.m` (comentario),
+`CLAUDE.md` (estado de fase + descripción de `setupPath.m`), `TODO.md` (ítem
+marcado). `audit_filelist.txt` NO se tocó — es un snapshot histórico del inventario
+original, no una referencia viva.
+
+**Pendiente, fuera de alcance de este cambio:** `mex/build.m` (invocar MSBuild sobre
+el `.sln`) y compilar para otras plataformas — siguientes ítems sin marcar de Fase 2/3
+en TODO.md.

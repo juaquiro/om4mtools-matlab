@@ -4,8 +4,8 @@ Toolbox de utilidades MATLAB del grupo OM4M (Optical Methods for Measuring).
 Modernización de om4mmatlabutils.
 
 ## Contexto
-- Fase actual: Fase 2 prácticamente completa (solo falta mover `IOT2DPU` a `mex/src/`),
-  Fase 3 avanzada — ver TODO.md para el detalle exacto
+- Fase actual: Fase 2 completa (`IOT2DPU` migrado a `mex/src/`/`mex/bin/`,
+  2026-09-14), Fase 3 avanzada — ver TODO.md para el detalle exacto
 - Directorio de trabajo: `C:\user\AQ_SCC\GitHub\om4mtools-matlab` — repo Git, migrado
   desde `Dropbox\AQ_EXP\75 om4mtools-matlab\` el 2026-09-14 (esa copia de Dropbox se
   conserva solo como backup, ver `README_IMPORTANTE_14SEP26.md` ahí — no es el sitio
@@ -55,7 +55,7 @@ Ver FASE 0.5 en TODO.md para detalles y comandos.
   `methods (Test, TestTags = {'Hardware'})` — excluidos de run_all_tests.m automáticamente.
   Excepción: los tests contra `MockCam` (software, sin hardware real) NO se etiquetan.
 - `tests/setupPath.m` en cada `TestMethodSetup` (`setupPath();`) añade src/,
-  tests/fixtures/ y el MEX legacy `IOT2DPU/deploy` (usado por `UnwrapperTypes.FlynMd`) —
+  tests/fixtures/ y `mex/bin/` (usado por `UnwrapperTypes.FlynMd`) —
   único punto de entrada, sustituye a los antiguos helpers por dominio
   (`testAAAddReferencesPath*.m`, `testAddReferemcesML_hg.m`, ya eliminados). También lo
   llaman `run_all_tests.m`/`run_hardware_tests.m`, así que cada test sigue siendo

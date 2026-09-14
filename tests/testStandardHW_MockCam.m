@@ -24,7 +24,7 @@ classdef testStandardHW_MockCam < matlab.unittest.TestCase
     %  Dependencies
     %  ------------------------------------------------------------------
     %  *setupPath* (tests/setupPath.m) must be on the path; it adds src/,
-    %  tests/fixtures/ and the legacy IOT2DPU/deploy MEX folder, making
+    %  tests/fixtures/ and mex/bin/ (the compiled MEX), making
     %  third‑party utilities (e.g. *OM4MClassLib.Util.Logging*) available
     %  during the tests. *resetPath* (tests/resetPath.m) restores the path
     %  snapshot captured at session start in TestMethodTeardown.
