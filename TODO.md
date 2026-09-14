@@ -108,8 +108,8 @@ addpath(fullfile(rootDir, 'mex', 'bin', computer('arch')));
 Crear tags `v1.0.0`, `v1.1.0`... para que los consumidores referencien
 versiones con nombre en lugar de hashes de commit.
 
-- [ ] Documentar modelo de consumo en `README.md`
-- [ ] Verificar que `setup.m` funciona correctamente como submodule
+- [x] Documentar modelo de consumo en `README.md` — completo (2026-09-14), sección `## Consumo`
+- [ ] Verificar que `setup.m` funciona correctamente como submodule — bloqueado: `setup.m` en sí no existe todavía (ver FASE 0.5 arriba)
 - [ ] Crear primer tag semántico tras Fase 6
 
 ---
@@ -482,9 +482,9 @@ function result = myFunction(a, b, opts)
   ```
 - [x] `git init` + primer commit con estructura limpia — hecho 2026-09-14, 383
   ficheros / 62052 inserciones en el commit raíz
-- [ ] Crear repo en `github.com/tuusuario/om4mtools-matlab`
-- [ ] `git push`
-- [ ] Crear primer tag semántico: `v1.0.0`
+- [x] Crear repo en `github.com/juaquiro/om4mtools-matlab` — completo (2026-09-14), público, branches `develop` (default, protegida) + `main` (protegida) — ver Appendix_Branching_Model_Bootstrap.md
+- [x] `git push` — completo (2026-09-14)
+- [ ] Crear primer tag semántico: `v1.0.0` — deliberadamente no hecho todavía (proyecto no listo para una release real; ver tag `mex_dll_working` como punto de referencia intermedio, no de release)
 - [ ] Cuando exista organización del grupo → transfer a `github.com/om4mlab/om4mtools-matlab`
 
 ---
@@ -527,7 +527,11 @@ function result = myFunction(a, b, opts)
   llegaron a migrarse (p.ej. por tests rotos por dependencias ausentes como
   `Passive3DCam`/`Polyval2` de arriba, o por scope reducido en Fase 1 bis).
 - [ ] Evaluar `buildtool` de MATLAB (R2022b+) para automatizar build + test
-- [ ] Configurar GitHub Actions para CI (ejecutar tests en push)
+- [x] Configurar GitHub Actions para CI — completo (2026-09-14): `smoke`
+  (`.github/workflows/structure-check.yml`, gate de `develop`) + `full-suite`
+  (`release.yml`, gate de `main`) verifican convenciones estáticas sin MATLAB (Caso B
+  / Opción 2 de Appendix_Branching_Model_Bootstrap.md); la correctitud real la
+  confirma review humana obligatoria + `runtests` local pegado en el PR
 - [ ] Crear organización GitHub del grupo (`om4mlab`)
 - [ ] Migrar a Python (`om4mtools-python`):
   - Al iniciar el port → migrar build MEX de MSBuild a CMake
