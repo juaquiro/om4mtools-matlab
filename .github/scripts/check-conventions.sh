@@ -11,7 +11,10 @@ set -uo pipefail
 fail=0
 base="$1"
 
-changed_m=$(git diff --name-only "$base"...HEAD -- '*.m' 2>/dev/null || true)
+# Only src/ and tests/ follow the repo's own MATLAB conventions (arguments
+# blocks, no i/j, resetPath over pathdef, ...). mex/src/tests/ holds a
+# legacy C-project test harness moved in as-is -- not in scope here.
+changed_m=$(git diff --name-only "$base"...HEAD -- 'src/*.m' 'src/**/*.m' 'tests/*.m' 2>/dev/null || true)
 
 for f in $changed_m; do
   [ -f "$f" ] || continue
