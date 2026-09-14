@@ -47,3 +47,10 @@ src/.ignore/
 # OS
 .DS_Store
 Thumbs.db
+
+# Stray plaintext credential file (a global git credential.helper
+# misconfiguration on this machine scatters this into whatever directory
+# is cwd during a git auth — real fix is the global config, this is just
+# defense in depth so it can never land in a commit here)
+.gitcredentials
+.git-credentials
