@@ -1,0 +1,3 @@
+Este dierctorio contieen el codigo fuente del algoritmo MG
+del libro de PU. Para que funcionase hize algunas modificaciones que 
+estan descritas al comienzo del apendice A del libro de PU.

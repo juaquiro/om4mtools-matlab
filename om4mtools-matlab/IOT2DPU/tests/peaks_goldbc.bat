@@ -1,0 +1,1 @@
+goldbc -input peaks201x300.phase -format byte -output peaks201x300.aq -xsize 201 -ysize 300 -dipole yes -bmask peaks201x300.mask 

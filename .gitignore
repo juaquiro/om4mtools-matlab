@@ -1,0 +1,33 @@
+# MATLAB
+*.asv
+*.mex*
+octave-workspace
+
+# MEX — intermedios de compilación (NO al repo)
+mex/bin/**/Debug/
+mex/bin/**/Release/
+mex/bin/**/*.obj
+mex/bin/**/*.pdb
+
+# MEX — binarios precompilados (SÍ al repo — excepciones explícitas)
+!mex/bin/**/*.mexw64
+!mex/bin/**/*.mexa64
+!mex/bin/**/*.mexmaci64
+
+# MEX legacy IOT2DPU (aún sin migrar a mex/src/, ver TODO.md Fase 2) — mismo criterio,
+# el .mexw64 precompilado sí va al repo (lo usa UnwrapperTypes.FlynMd)
+!om4mtools-matlab/IOT2DPU/deploy/*.mexw64
+
+# Fixtures de test (viven en Dropbox, no en el repo — ver tests/fixtures/README.md)
+tests/fixtures/**/*
+!tests/fixtures/README.md
+
+# Claude Code — settings.local.json es específico de esta máquina/usuario
+.claude/settings.local.json
+
+# ExportFig cachea aquí rutas locales a ghostscript/pdftops (machine-specific)
+src/.ignore/
+
+# OS
+.DS_Store
+Thumbs.db

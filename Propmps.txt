@@ -1,0 +1,3 @@
+primer prompt para empezar con code
+
+"Lee el TODO.md. Genera el CLAUDE.md a partir de la plantilla que hay al final de ese fichero, actualizando la fase actual a Fase 1. Luego arranca con la Fase 1."

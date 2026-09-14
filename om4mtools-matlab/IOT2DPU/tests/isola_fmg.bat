@@ -1,0 +1,1 @@
+fmg -input isola.157x458.phase -format byte -output isola.157x458.aq -xsize 157 -ysize 458 -mode max_corr -bmask isola.157x458.mask -corr isola.157x458.corr -tsize 5 -debug yes -cycles 4 -iter 4 -thresh yes -fat n 
