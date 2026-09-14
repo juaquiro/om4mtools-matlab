@@ -51,9 +51,18 @@ end
 
 msbuild = locateMSBuild();
 
-cmd = sprintf(['"%s" "%s" /t:PUFlynMdMex,PUMexLib /p:Configuration=Release ' ...
-    '/p:Platform=x64 /p:MATLAB=%s\\ /verbosity:minimal'], ...
-    msbuild, slnPath, matlabroot());
+% /p:MATLAB=... must be quoted (matlabroot() contains spaces, e.g.
+% "C:\Program Files\MATLAB\..."), and the trailing backslash the
+% .vcxproj files need ($(MATLAB)extern\include) must be *doubled*
+% right before that closing quote -- a single one there escapes the
+% quote instead of ending the value (classic Windows command-line
+% argv rule: N backslashes then a quote -> floor(N/2) literal
+% backslashes, and an odd N also escapes the quote itself). Built via
+% plain concatenation, not sprintf, so these literal backslashes can't
+% get reinterpreted as sprintf escape sequences.
+matlabArg = ['/p:MATLAB="' matlabroot() '\\"'];
+cmd = ['"' msbuild '" "' slnPath '" /t:PUFlynMdMex,PUMexLib ' ...
+    '/p:Configuration=Release /p:Platform=x64 ' matlabArg ' /verbosity:minimal'];
 fprintf('%s\n', cmd);
 status = system(cmd);
 if status ~= 0
@@ -70,7 +79,16 @@ end
 
 for k = 1:numel(deployed)
     source = fullfile(deployDir, deployed(k).name);
-    copyfile(source, binDir, 'f');
+    try
+        copyfile(source, binDir, 'f');
+    catch copyError
+        error('om4mtools:mexBuildLockedTarget', ...
+            ['Could not overwrite mex/bin/%s -- it is likely still loaded by ' ...
+             'another MATLAB session (a MEX file stays locked on Windows once ' ...
+             'used, until that session runs clear mex/clear all or closes). ' ...
+             'Free it there and re-run build(). Original error: %s'], ...
+            deployed(k).name, copyError.message);
+    end
     fprintf('Copied %s -> mex/bin/\n', deployed(k).name);
 end
 
