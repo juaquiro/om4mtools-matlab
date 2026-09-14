@@ -404,18 +404,25 @@ om4mtools-matlab/
     fixtures de Coursera", para el desglose completo, incluidos 3 bloqueantes nuevos
     descubiertos al intentar dejar la suite en verde del todo (funciones auxiliares
     de Coursera que faltan, no solo datos).
-  - **14 tests → 1 test, corregido (2026-09-14), a petición del usuario
+  - **14 tests → 0, corregido (2026-09-14), a petición del usuario
     ("reimplement them"):** `mapFeature`/`plotData`/`polyFeatures` reimplementadas
     como funciones propias en `src/` (mismo nombre/firma, algoritmo propio a partir
     de leer el original, no copiado — así el código de Coursera no se redistribuye
     desde el repo público). `testMLClassifierLR`, `testMLClassifierLinReg`,
-    `testMLClassifierNN`, `testMLClassifierNN1` y `testNN_Toolbox` quedan **100% en
-    verde**. Reveló de paso un bug propio y preexistente, sin relación con estas 3
-    funciones: `testMLUtilFunML/testML_UtilFunML_CostFunctionLR` tiene un valor de
-    referencia (`ag`, 28 elementos) inconsistente con lo que
-    `UtilFunML.CostFunctionLR` produce de verdad (29 elementos, porque siempre
-    añade su propia columna de sesgo) — no arreglado, requiere que el usuario
-    revise/recalcule los valores de referencia. Ver DECISIONS.md.
+    `testMLClassifierNN`, `testMLClassifierNN1`, `testNN_Toolbox` y (tras el
+    arreglo de abajo) `testMLUtilFunML` quedan **100% en verde**.
+  - **`testMLUtilFunML/testML_UtilFunML_CostFunctionLR`, arreglado
+    (2026-09-14):** reveló de paso un bug propio y preexistente, sin relación con
+    `mapFeature`/`svmtrain` — `g` (gradiente calculado) tiene 29 elementos
+    (`UtilFunML.CostFunctionLR` siempre añade su propia columna de sesgo) pero el
+    valor de referencia `ag` solo tenía 28. A petición del usuario ("simply
+    compare the first 28 of g-ag and leave a note") se probó `g(1:28)` primero —
+    **no cuadra** (diferencias de hasta 0.05, no es solo cuestión de longitud).
+    Comparando `g(2:29)` en vez de `g(1:28)`: **coincide exactamente** con `ag`
+    en las 28 posiciones — `ag` nunca incluyó el gradiente del sesgo extra que
+    añade `CostFunctionLR`, era un desfase de índice de 1, no un error de
+    cálculo. `g(1)` (ese sesgo extra) queda sin verificar, no hay valor de
+    referencia para él. Ver DECISIONS.md para la tabla completa de comparación.
   - **17 tests → 0, corregido (2026-09-14), a petición del usuario ("Update
     svmtrain"):** `ClassifierSVM` (`src/ClassifierSVM.m`) migrada de
     `svmtrain`/`svmclassify` (eliminadas de MATLAB ~R2016b) a `fitcsvm`/`predict`.
@@ -486,9 +493,8 @@ om4mtools-matlab/
     `getQCDirectoriesTest`/`TestDB`, Psychtoolbox/`loadlibrary`, etc. siguen sin
     tocar).
 - [x] **Estado de las 10 clases dependientes de datos ML/Coursera tras las
-  correcciones de esta sesión (2026-09-14): 73/74 Passed.** Único fallo restante:
-  `testMLUtilFunML/testML_UtilFunML_CostFunctionLR` (bug propio preexistente, ver
-  arriba, pendiente de que el usuario revise los valores de referencia).
+  correcciones de esta sesión (2026-09-14): 74/74 Passed.** Las 10 clases quedan
+  completas.
 - [ ] Verificar que todos los tests pasan con `matlab-test-execution` — sigue
   bloqueado para el resto de la suite (Computer Vision Toolbox no instalada,
   `LensMapperMeasurement`/`TestDB`/Psychtoolbox sin investigar, etc. — ver
