@@ -228,6 +228,10 @@ classdef testFPADemodulatorSpatialFT < matlab.unittest.TestCase
             MLM=LensMapperMeasurement;
             MLM.zx=zx;
             MLM.zy=zy;
+            MLM.zrx=zrx;
+            MLM.zry=zry;
+
+
             MLM.CalculateLensPower(M, K);
             
             C=MLM.C; %mm^-1
@@ -322,6 +326,9 @@ classdef testFPADemodulatorSpatialFT < matlab.unittest.TestCase
             MLM=LensMapperMeasurement;
             MLM.zx=zx;
             MLM.zy=zy;
+            MLM.zrx=zrx;
+            MLM.zry=zry;
+
             MLM.CalculateLensPower(M, K);
             
             C=MLM.C; %mm^-1
