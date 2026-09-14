@@ -2937,7 +2937,7 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
 
             hx=1; %1 mm/px
             hy=1; %mm/px
-            [phix, phiy, Mxy]=UtilFunFPA.phaseGradient1(z, M, hx, hy);
+            [phix, phiy, Mxy]=UtilFunFPA.phaseGradientDirect(z, M, hx, hy);
 
             tol=eps;
             e=px-phix;
@@ -3508,7 +3508,7 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
             r=round(NR*0.5); pz=angle(z);
             figure; plot(1:NC, pz(r,:), 1:NC, angle(exp(1i*p(r, :).*M(r,:)))); legend('PCA', 'Actual');
 
-            [pzx, pzy, Mxy]=UtilFunFPA.phaseGradient(z, M, 1, 1); %#ok<ASGLU>
+            [pzx, pzy, Mxy]=UtilFunFPA.phaseGradientDirect(z, M, 1, 1); %#ok<ASGLU>
 
             Dpx=(pzx-px)./px; %relative error
             figure; imagesc(100*Dpx.*Mxy./Mxy); title('\Delta(Dx)% PCA phase map'); colorbar;
@@ -3610,7 +3610,7 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
             r=round(NR*0.5); pz=angle(z);
             figure; plot(1:NC, pz(r,:), 1:NC, angle(exp(1i*p(r, :).*M(r,:)))); legend('PCA', 'Actual');
 
-            [pzx, pzy, Mxy]=UtilFunFPA.phaseGradient(z, M, 1, 1); %#ok<ASGLU>
+            [pzx, pzy, Mxy]=UtilFunFPA.phaseGradientDirect(z, M, 1, 1); %#ok<ASGLU>
 
             Dpx=(pzx-px)./px; %relative error
             figure; imagesc(100*Dpx.*Mxy./Mxy); title('\Delta(Dx)% AIA phase map'); colorbar;
