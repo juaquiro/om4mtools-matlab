@@ -673,12 +673,34 @@ function result = myFunction(a, b, opts)
     decisión de rediseño tiene efecto en las 5 clases, no solo en `Demodulator`;
     vale la pena decidir el patrón una vez y aplicarlo consistentemente, no caso
     por caso.
-  - Candidatos a evaluar (sin comprometerse a ninguno todavía): propiedades
-    `properties` tipadas por subclase concreta de demodulador (aprovechando que
-    cada subtipo ya hereda de `Demodulator`, en vez de una bolsa genérica
-    compartida); `dictionary` de MATLAB (R2022b+) en vez de `containers.Map`
-    para menos boilerplate; una tabla declarativa de {nombre, validador, valor
-    por defecto} en vez del `switch` a mano en `Set()`.
+  - **Requisito concreto del usuario (2026-09-15):** poder escribir
+    `d.StepsTwoPwiRange=2*pi` (acceso a propiedad real, notación de punto) en
+    vez de `d.Set(char(DemodulatorProps.StepsTwoPwiRange), 2*pi)`, **manteniendo
+    a la vez** una lista dinámica de propiedades (fácil de ampliar sin tocar la
+    definición de la clase a mano) con valor por defecto y unidades por
+    propiedad.
+  - **Candidato fuerte para esto: `dynamicprops`** (mecanismo nativo de MATLAB,
+    `classdef Demodulator < handle & dynamicprops`). En el constructor,
+    `p=this.addprop(nombre)` por cada entrada de una tabla de definición
+    (nombre, valor por defecto, unidades, validador) crea una propiedad real
+    con acceso de punto normal (`d.StepsTwoPwiRange`, tanto lectura como
+    escritura) — la lista sigue siendo dinámica (basta añadir una fila a la
+    tabla de definición para tener una propiedad nueva, sin editar `properties`
+    a mano) pero cada propiedad es de verdad, no una entrada de `containers.Map`
+    accedida por string. `meta.DynamicProperty` (lo que devuelve `addprop`)
+    permite enganchar `SetMethod`/`GetMethod` por propiedad para validación en
+    la propia asignación (`d.NL=3` podría lanzar error ahí mismo, no solo dentro
+    de un `Set()` centralizado). MATLAB no tiene un atributo nativo "unidades"
+    en `meta.DynamicProperty` — las unidades (y la descripción) irían en la
+    misma tabla de definición, consultables con un método aparte (p.ej.
+    `d.Units('StepsTwoPwiRange')` → `'rad'`) en vez de forzarlas dentro del
+    mecanismo de propiedades de MATLAB.
+  - Otros candidatos a considerar igualmente (sin comprometerse todavía):
+    propiedades `properties` tipadas por subclase concreta de demodulador
+    (pierde parte de lo "dinámico" si cada subtipo tiene que declarar las suyas
+    a mano); `dictionary` de MATLAB (R2022b+) en vez de `containers.Map` para
+    menos boilerplate en `PropsEnumList`, sin resolver por sí solo el acceso de
+    punto que pide el usuario.
 - [x] Configurar GitHub Actions para CI — completo (2026-09-14): `smoke`
   (`.github/workflows/structure-check.yml`, gate de `develop`) + `full-suite`
   (`release.yml`, gate de `main`) verifican convenciones estáticas sin MATLAB (Caso B
