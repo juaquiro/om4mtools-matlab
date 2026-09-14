@@ -186,7 +186,13 @@ om4mtools-matlab/
   (`PUFlynMdMex.mexw64`, `PUMexLib.dll`, `PUMexLib.h`) movidos a `mex/bin/`.
   `tests/setupPath.m` actualizado para apuntar a `mex/bin/` (antes
   `om4mtools-matlab/IOT2DPU/deploy/`). Ver DECISIONS.md.
-- [ ] Crear `mex/build.m` invocando MSBuild sobre el `.sln`
+- [x] Crear `mex/build.m` invocando MSBuild sobre el `.sln` — completo (2026-09-14):
+  localiza `MSBuild.exe` vía `vswhere.exe`, compila `Release|x64`, copia de
+  `mex/src/deploy/` (destino del post-build event de cada `.vcxproj`) a `mex/bin/`.
+  `.gitignore` ampliado para los intermedios que MSBuild deja dentro de `mex/src/`
+  (antes solo cubría `mex/bin/`). **Bloqueado en esta máquina:** los `.vcxproj` piden
+  el PlatformToolset `v120` (VS2013), no instalado (solo VS2022) — `MSB8020` antes de
+  compilar nada. Ver DECISIONS.md y el aviso en README.md § MEX.
 - [x] Mover datos/assets a fixtures — **decisión revertida 2026-09-14** (ver DECISIONS.md
   y `tests/fixtures/README.md`): al ser proyecto estrictamente personal, los datos
   (~11 GB) se sacaron de `tests/fixtures/` (que ahora se mantiene vacío a propósito) y
@@ -195,7 +201,11 @@ om4mtools-matlab/
   eliminado por obsoleto. Ficheros no-.m que el propio `src/` necesita para funcionar
   (no solo los tests) siguen en `src/`, no en fixtures.
 - [x] Adaptar `download_fixtures.sh` para descargar en `tests/fixtures/` — creado 2026-09-12 a partir de `download_dropbox_directory.sh` (renombrado y destino cambiado a `tests/fixtures/`, sustituido). Apunta al link de Dropbox ya existente en el script; el usuario indicó que la fuente es `DataSetsForTesting\om4mtools-matlab` (confirmado por espejo exacto de contenido con `tests/fixtures/`, pero no se pudo verificar automáticamente que el link concreto resuelva a esa carpeta — página de Dropbox es una SPA JS, no inspeccionable por fetch estático)
-- [ ] Compilar MEX para todas las plataformas disponibles → `mex/bin/`
+- [ ] Compilar MEX para todas las plataformas disponibles → `mex/bin/` — incluye
+  decidir sobre el PlatformToolset `v120` bloqueante (ver ítem `mex/build.m` arriba):
+  instalar VS2013 build tools, o reapuntar (`retarget`) los `.vcxproj` a un toolset
+  moderno y reverificar que el resultado no cambia numéricamente (no hay harness
+  automático que compare salidas del unwrapper todavía)
 - [x] Verificar que nada en `src/` tiene rutas hardcodeadas a datos movidos — corregido para FPA (ver DECISIONS.md, 2026-09-12): 6 tests usaban `baseDir='.\Subcarpeta'` (solo resuelve contra cwd) en vez de rutas vía `fixturesRoot()`
 - [x] **Segunda ronda de rutas hardcodeadas: `dropbox()` en vez de `fixturesRoot()`
   (2026-09-13/14) — CERRADO AL 100%** — ~30 sitios en 7 ficheros de test FPA cargaban

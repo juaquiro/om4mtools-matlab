@@ -14,6 +14,26 @@ mex/bin/**/*.pdb
 !mex/bin/**/*.mexa64
 !mex/bin/**/*.mexmaci64
 
+# MEX — mex/src/ es el proyecto Visual Studio: MSBuild escribe sus
+# intermedios ahí mismo (x64/Release/ por proyecto, obj, pdb, ...) y el
+# post-build event de cada .vcxproj copia el binario final a
+# mex/src/deploy/ — mex/build.m copia de ahí a mex/bin/ y ambos son
+# transitorios, no van al repo
+mex/src/**/x64/
+mex/src/**/Win32/
+mex/src/**/Debug/
+mex/src/**/Release/
+mex/src/**/*.obj
+mex/src/**/*.pdb
+mex/src/**/*.ilk
+mex/src/**/*.exp
+mex/src/**/*.lib
+mex/src/**/*.tlog
+mex/src/**/*.log
+mex/src/**/*.idb
+mex/src/deploy/
+.vs/
+
 # Fixtures de test (viven en Dropbox, no en el repo — ver tests/fixtures/README.md)
 tests/fixtures/**/*
 !tests/fixtures/README.md

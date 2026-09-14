@@ -1482,3 +1482,51 @@ original, no una referencia viva.
 **Pendiente, fuera de alcance de este cambio:** `mex/build.m` (invocar MSBuild sobre
 el `.sln`) y compilar para otras plataformas — siguientes ítems sin marcar de Fase 2/3
 en TODO.md.
+
+---
+
+## `mex/build.m` (2026-09-14)
+
+**Diseño:** localiza `MSBuild.exe` vía `vswhere.exe` (fallback a `PATH`), compila
+`mex/src/IOT2DPU.sln` en `Release|x64`, y copia el resultado a `mex/bin/`. No invoca
+`mex()` de MATLAB directamente — el proyecto compila con MSBuild puro (Opción A, ya
+decidida arriba en la tabla de decisiones), así que `build.m` es un wrapper fino
+sobre `system()`.
+
+**Por qué copia desde `mex/src/deploy/` y no desde el `OutDir` de cada proyecto:**
+`PUFlynMdMex.vcxproj` y `PUMexLib.vcxproj` ya traían un post-build event
+(`copy $(OutDir)$(TargetName)$(TargetExt) $(SolutionDir)deploy\...`) que copia su
+binario a una carpeta `deploy/` relativa a la solución — comportamiento heredado del
+proyecto original, sin tocar. Con `$(SolutionDir)` ahora en `mex/src/`, eso aterriza
+en `mex/src/deploy/`; `build.m` simplemente copia de ahí a `mex/bin/` en vez de
+reimplementar la lógica de `OutDir`/`TargetName`/`TargetExt` por proyecto.
+
+**`.gitignore` insuficiente, corregido:** las reglas de intermedios existentes solo
+cubrían `mex/bin/**` (`Debug/`, `Release/`, `.obj`, `.pdb`). MSBuild escribe sus
+intermedios reales dentro de `mex/src/<Proyecto>/x64/Release/` (sin `OutDir`/`IntDir`
+explícito en los `.vcxproj`, usa el default de VS `$(Platform)\$(Configuration)\`), y
+el post-build event añade `mex/src/deploy/` como staging transitorio. Añadidas
+reglas equivalentes bajo `mex/src/**` (`x64/`, `Win32/`, `Debug/`, `Release/`, `.obj`,
+`.pdb`, `.ilk`, `.exp`, `.lib`, `.tlog`, `.log`, `.idb`) más `mex/src/deploy/` y
+`.vs/` (caché de IntelliSense que VS crea al abrir el `.sln`). Verificado con
+`git status` tras el cambio que ningún fichero ya trackeado se ve afectado.
+
+**Bloqueante real, descubierto al intentar compilar para verificar `build.m`:** con
+MSBuild de VS2022 (`vswhere` lo localiza en
+`C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Current\Bin\MSBuild.exe`),
+`fmg.vcxproj`, `PUMexLib.vcxproj` y `PUFlynMdMex.vcxproj` fallan con `MSB8020`: piden
+`PlatformToolset v120` (Visual Studio 2013), no instalado en esta máquina. El fallo
+ocurre en evaluación del proyecto, antes de compilar nada — no dejó residuos de build
+a medias (verificado con `git status`).
+
+**Decisión: no reapuntar (`retarget`) los `.vcxproj` ahora.** Sería mecánico (cambiar
+`<PlatformToolset>v120</PlatformToolset>` a `v143` en los 5 ficheros), pero cambiar
+el compilador de un C de mediados de los 2010 sin poder verificar aquí que el
+`PUFlynMdMex.mexw64` resultante da los mismos resultados numéricos que el ya
+committeado en `mex/bin/` (no hay harness automático que compare salidas del
+unwrapper — solo los datos sueltos en `mex/src/tests/`) es un riesgo real para un
+algoritmo numérico, no un simple housekeeping. Queda como parte explícita de
+"Compilar MEX para todas las plataformas" en TODO.md — instalar el toolset v120
+*o* reapuntar y reverificar, decisión del usuario cuando se aborde esa tarea.
+`build.m` en sí queda terminado y correcto; simplemente no se pudo ejecutar un build
+real de extremo a extremo en esta máquina tal cual está.

@@ -15,6 +15,32 @@ Proyecto estrictamente personal por ahora (ver `CLAUDE.md`).
 Ver `TODO.md` para el estado detallado del proyecto y `DECISIONS.md` para
 el porque de las decisiones de diseno.
 
+## MEX
+
+`mex/src/` contiene el proyecto Visual Studio (`IOT2DPU.sln` + 5
+`.vcxproj`) detras de `UnwrapperTypes.FlynMd`; `mex/bin/` tiene los
+binarios ya compilados (`PUFlynMdMex.mexw64`, `PUMexLib.dll`) -- **SI**
+van al repo, no hace falta compilador C++ para consumir el toolbox.
+
+Para recompilar (Windows, con Visual Studio o Build Tools instalado):
+
+```matlab
+run('mex/build.m')
+```
+
+Localiza `MSBuild.exe` via `vswhere.exe`, compila `Release|x64` y
+copia el resultado a `mex/bin/`, sobrescribiendo los binarios
+existentes.
+
+> **Aviso (2026-09-14):** los `.vcxproj` todavia apuntan al
+> PlatformToolset `v120` (Visual Studio 2013). Sin ese toolset
+> instalado, `mex/build.m` falla con `MSB8020` antes de compilar nada.
+> Instalar el toolset v120, o reapuntar (`retarget`) la solucion a uno
+> moderno, queda pendiente como parte de "Compilar MEX para todas las
+> plataformas" en `TODO.md` -- no se ha tocado el toolset todavia
+> porque no hay forma de verificar aqui que un C de ~15 anos compile
+> igual (numericamente) con un MSVC mas nuevo.
+
 ## Consumo
 
 Se usa como Git submodule congelado (version fija por proyecto) en
