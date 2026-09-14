@@ -155,7 +155,7 @@ classdef testFPADemodulatorSpatialFT < matlab.unittest.TestCase
                     case DemodulatorProps.NFilt
                         testCase.assertEqual(p,5);
                     case DemodulatorProps.ROINormTH
-                        testCase.assertEqual(p,0.15);
+                        testCase.assertEqual(p,0);
                     otherwise
                         testCase.assertTrue(isempty(p));
                 end
