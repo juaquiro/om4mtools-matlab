@@ -1,132 +1,120 @@
-%% Test Script for Class CellArrayList
-%> @file testCellArrayList.m
-%> @brief Test Script for Class CellArrayList
-%> @details Step through and execute this script cell-by-cell to verify a cell array implementation of the List Abstract Data Type (ADT).
-%> @copyright 2009-2010, The MathWorks, Inc.
-%> @author Bobby Nedelkovski
-%> @author AQ 9MAR14
-%> @see CellArrayList
+classdef testCellArrayList < matlab.unittest.TestCase
+    %run(testCellArrayList)
+    %
+    % Converted from an interactive cell-mode demo script (MathWorks,
+    % "Step through and execute this script cell-by-cell") into a real
+    % matlab.unittest suite. matlab.unittest.TestSuite.fromFolder was
+    % picking the old script up as a "script-based test" (each %% section
+    % as a pseudo-test) by accident -- each section ran with a fresh
+    % workspace, so state from one section (e.g. myList created in
+    % "Create Instance") never reached the next, and every section past
+    % the first errored. See DECISIONS.md, "Fase 3 -- primera pasada de
+    % estandarizacion y baseline".
+    %
+    % Coverage mirrors the original walkthrough's scenarios; see
+    % CellArrayList.m for the class itself.
 
-%% Clean Up
-clear classes
-clc
+    properties
+        myList
+    end
 
-%set paths
-setupPath();
-import OM4MClassLib.DataStructs.*
+    methods(TestMethodSetup)
+        function SetUp(testCase)
+            setupPath();
+            testCase.myList = OM4MClassLib.DataStructs.CellArrayList();
+        end
+    end
 
+    methods(TestMethodTeardown)
+        function TearDown(testCase)
+            matlabpath(resetPath); %#ok<RESETPATH>
+        end
+    end
 
-%% Create Instance of CellArrayList
-myList = CellArrayList();
+    methods(Test)
+        function testNewListIsEmpty(testCase)
+            testCase.assertTrue(testCase.myList.isempty());
+            testCase.assertEqual(testCase.myList.length(), 0);
+        end
 
+        function testAddSingleNonCellElement(testCase)
+            % A single (non-cell) element is stored as one element, even
+            % when it is itself a matrix.
+            testCase.myList.add(rand(2));
 
-%% Check Number of Elements
-% empty = 1
-% len = 0
-empty = myList.isempty()
-len = myList.length()
+            testCase.assertFalse(testCase.myList.isempty());
+            testCase.assertEqual(testCase.myList.length(), 1);
+        end
 
+        function testAddCellVectorAddsMultipleElements(testCase)
+            % A row/column cell vector adds one element per cell entry.
+            testCase.myList.add({50,55});
 
-%% Append Arbitrary Elements to End of List
-myList.add(5);        % a single integer
-myList.add(rand(2));  % a 2x2 matrix
-myList.add({50,55});  % 2 integers as 2 unique elements
+            testCase.assertEqual(testCase.myList.length(), 2);
+            testCase.assertEqual(testCase.myList.get(1), 50);
+            testCase.assertEqual(testCase.myList.get(2), 55);
+        end
 
+        function testAddNonVectorCellAsSingleElement(testCase)
+            % A 2-D (non-vector) cell array is not a "cell vector", so it
+            % is stored whole, as a single element.
+            twoByTwoCell = {10,11;12,13};
+            testCase.myList.add(twoByTwoCell);
 
-%% Check Number of Elements
-% empty = 0
-% len = 4
-empty = myList.isempty()
-len = myList.length()
+            testCase.assertEqual(testCase.myList.length(), 1);
+            testCase.assertEqual(testCase.myList.get(1), twoByTwoCell);
+        end
 
+        function testInsertAtLocation(testCase)
+            testCase.myList.add(5);          % [5]
+            testCase.myList.add(10, 1);      % [10, 5]
 
-%% Display 'myList'
-% Alternatively, you can execute "myList.display()" which produces the same
-% output.
-myList
+            testCase.assertEqual(testCase.myList.length(), 2);
+            testCase.assertEqual(testCase.myList.get(1), 10);
+            testCase.assertEqual(testCase.myList.get(2), 5);
+        end
 
+        function testGetMultipleLocations(testCase)
+            testCase.myList.add({150,160,170});  % [150, 160, 170]
 
-%% Seek an Element
-% count = 1
-% location = 3
-count = myList.countOf(50)
-location = myList.locationsOf(50)
+            elts = testCase.myList.get([3,1]);
+            testCase.assertEqual(elts, {170; 150});
+        end
 
+        function testCountOfAndLocationsOf(testCase)
+            testCase.myList.add({5,50,5});  % [5, 50, 5]
 
-%% Insert Elements in Arbitrary Locations
-myList.add({rand(3),5:7},2);  % a 3x3 matrix and a 1x3 array
-myList.add(myList,5);         % reference to self!
+            testCase.assertEqual(testCase.myList.countOf(5), 2);
+            testCase.assertEqual(testCase.myList.locationsOf(5), [1;3]);
+            testCase.assertEqual(testCase.myList.countOf(50), 1);
+            testCase.assertEqual(testCase.myList.locationsOf(50), 2);
+        end
 
+        function testRemove(testCase)
+            testCase.myList.add({150,160,170});  % [150, 160, 170]
 
-%% Display 'myList'
-% Alternatively, you can execute "myList.display()" which produces the same
-% output.
-myList
+            removed = testCase.myList.remove([2,3]);
 
+            testCase.assertEqual(removed, {160; 170});
+            testCase.assertEqual(testCase.myList.length(), 1);
+            testCase.assertEqual(testCase.myList.get(1), 150);
+        end
 
-%% Insert Elements in Arbitrary Locations
-myList.add({10,11;12,13},6);  % a 2x2 cell array
-myList.add({150,160,170},4);  % 3 integers as 3 unique elements
+        function testRemoveAllElementsBackToEmpty(testCase)
+            testCase.myList.add({150,160,170});
 
+            testCase.myList.remove(1:testCase.myList.length());
 
-%% Display 'myList'
-% Alternatively, you can execute "myList.display()" which produces the same
-% output.
-myList
+            testCase.assertTrue(testCase.myList.isempty());
+            testCase.assertEqual(testCase.myList.length(), 0);
+        end
 
+        function testDisplayDoesNotError(testCase)
+            testCase.myList.add({150,160,170});
 
-%% Check Number of Elements
-% len = 11
-len = myList.length()
+            output = evalc('testCase.myList.display()');
+            testCase.assertNotEmpty(output);
+        end
+    end
 
-
-%% Retrieve Elements
-elt = myList.get(4)  % elt = 150
-elt = myList.get(7)  % elt = 2x2 rand matrix
-elt = myList.get(9)  % elt = 2x2 cell array
-
-
-%% Retrieve Multiple Elements
-% elts = {150;160;3x3 rand matrix}
-elts = myList.get([4:5,2])
-
-
-%% Add Duplicate Element
-myList.add(5,7);
-
-%% Seek an Element
-% count = 2
-% locations = [1;7]
-count = myList.countOf(5)
-locations = myList.locationsOf(5)
-
-
-%% Try to Remove Elements
-% This yields an appropriate error message since myList.length()=12
-%elts = myList.remove([5:6,20])
-
-
-%% Remove Some Elements
-% elts = {160;170;reference to self}
-elts = myList.remove([5:6,9])
-
-
-%% Check Number of Elements
-% len = 9
-len = myList.length()
-
-
-%% Remove All Elements
-elts = myList.remove(1:myList.length())
-
-
-%% Check Number of Elements
-% empty = 1
-% len = 0
-empty = myList.isempty()
-len = myList.length()
-
-%% restore path captured at session start (see resetPath.m)
-matlabpath(resetPath); %#ok<RESETPATH>
-
-
+end

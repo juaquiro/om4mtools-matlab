@@ -1646,19 +1646,34 @@ sesión):
    exactamente estos ficheros (`ex2data2.txt`, `ex3data1.mat`, `ex4data1.mat`,
    `ex5data1.mat`, `ex6data1.mat`, `ex6data2.mat`) — no hay ningún `load` roto por
    ruta hardcodeada mezclado ahí.
-2. **18 tests — hallazgo nuevo:** `testCellArrayList.m` (`tests/testCellArrayList.m`)
-   **no es un `classdef` `TestCase`** — es un script de demo interactivo estilo
-   MathWorks (cabecera: "Step through and execute this script cell-by-cell"),
-   estructurado en secciones `%%`. `matlab.unittest.TestSuite.fromFolder` lo detecta
-   igualmente como "script-based test" (cada sección `%%` se convierte en un
-   pseudo-test), mecanismo de matlab.unittest del que nadie se había percatado hasta
-   ahora. Falla en la primera sección con `Unable to resolve the name
-   'myList.isempty'` — la clase `CellArrayList`
-   (`src/+OM4MClassLib/+DataStructs/CellArrayList.m`, a confirmar ruta exacta) no
-   tiene ese método. **Decisión pendiente del usuario**, tres opciones razonables:
-   (a) convertir a un `classdef TestCase` real con aserciones de verdad, (b) mover
-   fuera de `tests/` (no es un test, es documentación ejecutable de la clase), o
-   (c) arreglar la llamada rota y dejarlo tal cual (demo interactivo, no test real).
+2. **18 tests → 10 tests, arreglado (2026-09-14, a petición del usuario: "convert to
+   real test"):** `testCellArrayList.m` (`tests/testCellArrayList.m`) **no era un
+   `classdef` `TestCase`** — era un script de demo interactivo estilo MathWorks
+   (cabecera: "Step through and execute this script cell-by-cell"), estructurado en
+   secciones `%%`. `matlab.unittest.TestSuite.fromFolder` lo detectaba igualmente
+   como "script-based test" (cada sección `%%` se convierte en un pseudo-test),
+   mecanismo de matlab.unittest del que nadie se había percatado hasta ahora. Fallaba
+   en la primera sección con `Unable to resolve the name 'myList.isempty'` — **no**
+   porque `CellArrayList` (`src/+OM4MClassLib/+DataStructs/CellArrayList.m`)
+   careciera de `isempty` (sí lo tiene, línea 63; hipótesis inicial incorrecta,
+   corregida al leer la clase) sino porque cada sección `%%`, al correr como
+   "script-based test", se ejecuta con **workspace propio aislado** — `myList`,
+   creado en la sección "Create Instance", ya no existía en la siguiente sección
+   ("Check Number of Elements"). El script nunca fue pensado para correr así (de ahí
+   su propia cabecera: ejecutar celda a celda, a mano, en la misma sesión).
+
+   Reescrito como `classdef testCellArrayList < matlab.unittest.TestCase` real:
+   `properties myList`, recreado en `TestMethodSetup` (`CellArrayList < handle`,
+   semántica de referencia — cada test parte de una lista vacía propia), 10 métodos
+   `Test` independientes en vez de la única narrativa secuencial del script original
+   (más simple de mantener y más idiomático matlab.unittest que replicar la cadena de
+   estado completa): constructor vacío, añadir un elemento no-celda, añadir un vector
+   de celda (múltiples elementos), añadir una celda 2-D no-vector (un único
+   elemento), insertar en una posición, `get` de varias localizaciones, `countOf`/
+   `locationsOf` con duplicados, `remove`, vaciar la lista por completo, y que
+   `display()` no lance error (capturado con `evalc`). Cobertura funcional equivalente
+   a la del walkthrough original, con aserciones reales en vez de inspección visual.
+   Verificado: 10/10 Passed.
 3. **~15 tests:** `fisheyeParameters` y similares → MATLAB Computer Vision Toolbox no
    instalada en esta máquina. Limitación de entorno, no bug del repo.
 4. **~9 tests:** `LensMapperMeasurement`/`CameraCalibration*` — sin investigar el
@@ -1673,15 +1688,20 @@ sesión):
 8. **4 tests — ya documentado:** `testJsonlabRoundTrip`, limitación conocida de
    jsonlab con arrays de strings planos (ver más arriba en este fichero, "Inventario
    y conversión de `mtest` legacy").
-9. **2 tests — hallazgo nuevo:** `testPolyval2.m` llama a `Polyval2(X,Y,C)` como
-   función libre — ya no existe como tal, solo como método estático
-   `ProcessMeasure.Polyval2(x,y,C,type)` (`src/ProcessMeasure.m` línea ~764). Firma
-   compatible: `ProcessMeasure.Polyval2(x,y,C)` con 3 argumentos usa `type='sq'` por
-   defecto, mismo comportamiento que la llamada de 3 argumentos que espera el test.
-   Este es exactamente el hallazgo que TODO.md ya señalaba como "pendiente decisión
-   del usuario" desde antes de esta sesión (Fase 1, migración de `UtilLib/TestZernike`)
-   — confirmado ahora con el error real en vez de sospecha. **No corregido en esta
-   sesión** (cambiar la llamada, o borrar el test, es decisión del usuario).
+9. **2 tests — arreglado (2026-09-14), a petición del usuario:** `testPolyval2.m`
+   llamaba a `Polyval2(X,Y,C)` como función libre — ya no existe como tal, solo como
+   método estático `ProcessMeasure.Polyval2(x,y,C,type)` (`src/ProcessMeasure.m`
+   línea ~764). Firma compatible: `ProcessMeasure.Polyval2(x,y,C)` con 3 argumentos
+   usa `type='sq'` por defecto, mismo comportamiento que la llamada de 3 argumentos
+   que esperaba el test. Este era exactamente el hallazgo que TODO.md ya señalaba
+   como "pendiente decisión del usuario" desde antes de esta sesión (Fase 1,
+   migración de `UtilLib/TestZernike`) — confirmado con el error real en vez de
+   sospecha, y resuelto sin necesidad de recuperar el `Polyval2.m` legacy de
+   `om4mmatlabutils` (ver FASE 7 en TODO.md, ítem ahora tachado). Las dos llamadas
+   actualizadas a `ProcessMeasure.Polyval2(...)`; de paso se le añadieron los
+   bloques `TestMethodSetup`/`TestMethodTeardown` que le faltaban (mismo hallazgo que
+   los otros 6 ficheros de la sección "Estandarización" de arriba, pero no se había
+   podido arreglar entonces porque el fichero no cargaba). Verificado: 2/2 Passed.
 10. **5 tests — corregidos y verificados en esta sesión:** `assertEqual`/
     `assertAlmostEqual`/`assertTrue` sueltos (funciones del framework `xunit` legacy,
     sin equivalente libre en `matlab.unittest` — solo existen como métodos

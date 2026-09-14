@@ -392,12 +392,19 @@ om4mtools-matlab/
   - **~43 tests, esperado/documentado:** dependen de datasets del curso Coursera de
     Andrew Ng (`ex2data2.txt`, `ex3data1.mat`...) intencionalmente excluidos del repo
     — ver comentario en `run_all_tests.m` y `testMLClassifier*`/`testKMeansToolbox`.
-  - **18 tests, hallazgo nuevo:** `testCellArrayList.m` no es un test real — es un
-    script demo interactivo de MathWorks (`%%` cell sections, pensado para
-    ejecutarse celda a celda) que `matlab.unittest.TestSuite.fromFolder` detecta como
-    "script-based test" por accidente. Falla en `myList.isempty()` porque
-    `CellArrayList` no tiene ese método. Decisión pendiente del usuario: convertir a
-    test real, mover fuera de `tests/`, o arreglar y dejar como está.
+  - **18 tests → 10 tests, corregido (2026-09-14):** `testCellArrayList.m` no era un
+    test real — era un script demo interactivo de MathWorks (`%%` cell sections,
+    pensado para ejecutarse celda a celda) que `matlab.unittest.TestSuite.fromFolder`
+    detectaba como "script-based test" por accidente. Cada sección corría con
+    workspace propio (aislado), así que `myList` (creado en una sección) no existía
+    ya en la siguiente — de ahí el error "Unable to resolve the name 'myList.isempty'"
+    (no porque `CellArrayList` careciera de `isempty`, sí lo tiene — corregida esa
+    hipótesis inicial). Reescrito como `classdef testCellArrayList <
+    matlab.unittest.TestCase` real, 10 tests independientes con aserciones de verdad
+    cubriendo el mismo alcance funcional que el walkthrough original (constructor,
+    add de elemento simple/vector de celdas/celda no-vector, insertar en posición,
+    get múltiple, countOf/locationsOf, remove, vaciar la lista, display). Verificado:
+    10/10 Passed.
   - **~15 tests:** dependen de MATLAB Computer Vision Toolbox (`fisheyeParameters`,
     calibración de cámara), no instalada en esta máquina — limitación de entorno, no
     bug.
@@ -412,11 +419,11 @@ om4mtools-matlab/
     confirmar.
   - **4 tests, ya documentado:** `testJsonlabRoundTrip` — limitación conocida de
     jsonlab con arrays de strings planos (ver DECISIONS.md).
-  - **2 tests, hallazgo nuevo:** `testPolyval2.m` llama a una función libre
-    `Polyval2` que ya no existe — solo sobrevive como método estático
+  - **2 tests, corregido (2026-09-14):** `testPolyval2.m` llamaba a una función
+    libre `Polyval2` que ya no existe — solo sobrevive como método estático
     `ProcessMeasure.Polyval2` (mismo comportamiento en llamada de 3 argumentos, `type`
-    por defecto `'sq'`). Pendiente decisión del usuario (ya señalada previamente en
-    este fichero): cambiar la llamada a `ProcessMeasure.Polyval2(...)` o borrar el test.
+    por defecto `'sq'`). Llamada actualizada a `ProcessMeasure.Polyval2(...)` a
+    petición explícita del usuario. Verificado: 2/2 Passed.
   - **5 tests, corregidos en esta sesión:** `assertEqual`/`assertAlmostEqual`/
     `assertTrue` sueltos (xunit legacy) que DECISIONS.md daba por sustituidos pero
     sobrevivían en `testFPA_UtilFunMapperMeasureClassVer.m` (7),
@@ -544,10 +551,12 @@ function result = myFunction(a, b, opts)
   original — más completo que la copia de Dropbox con la que se ha trabajado en Fase 2:
   tiene además `CHighPerform`, `MATLABCompilerLib`, `dmbarcodereader`, sin podar).
   Ya localizados ahí (2026-09-12), pendientes de decidir si se recuperan:
-  - **`Polyval2.m`** → `UtilLib/SurfProcessor/Polyval2.m`. La función que le falta a
-    `testPolyval2.m` (Zernike, ver DECISIONS.md). **Ojo:** `UtilLib/SurfProcessor/`
-    está marcada fuera de alcance desde Fase 1 bis — recuperar este único fichero
-    reabre la misma pregunta de scope que `Poly2`/`ClassLib.ML`, no copiar sin más.
+  - ~~`Polyval2.m` → `UtilLib/SurfProcessor/Polyval2.m`~~ — **resuelto sin recuperar
+    nada (2026-09-14):** `testPolyval2.m` se corrigió para llamar a
+    `ProcessMeasure.Polyval2` (ya existente en `src/ProcessMeasure.m`, mismo
+    comportamiento para una llamada de 3 argumentos) en vez de la función libre
+    `Polyval2` que ya no existe. No hizo falta abrir la pregunta de scope de
+    `UtilLib/SurfProcessor/`. Ver DECISIONS.md.
   - **`Passive3DCam.m` + `Passive3DCamData.m`** → `ClassLib/+OM4MClassLib/+HW/`. Es un
     subpaquete `+HW` que **nunca llegó a la copia de Dropbox migrada** — nuestro
     `src/+OM4MClassLib/` solo tiene `+DataStructs`/`+Facades`/`+Util`. Sus tests
