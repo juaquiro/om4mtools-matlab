@@ -1602,3 +1602,114 @@ limpió su sesión y se continuó.
 **Limpieza:** intermedios de build (`mex/src/deploy/`, `mex/src/**/x64/`) borrados
 tras copiar a `mex/bin/` — ya cubiertos por `.gitignore`, pero se borraron del disco
 para no dejar residuos de la verificación.
+
+---
+
+## Fase 3 — primera pasada de estandarización y baseline (2026-09-14)
+
+Petición del usuario: "go for fase 3". Dos frentes en paralelo (la suite completa
+tarda ~20 min, se lanzó en background mientras se auditaba la estructura).
+
+### Estandarización de `TestMethodSetup`/`TestMethodTeardown`
+
+Inventario de los 58 ficheros `classdef ... < matlab.unittest.TestCase` en
+`tests/`: 6 no tenían ni `TestMethodSetup` ni `TestMethodTeardown` ni llamaban a
+`setupPath()`/`resetPath` — `testAdjustSurface`, `testEvaluateTerms`, `testPoly2`,
+`testPolyEquivalent` (los 4 relacionados con `+Zernikes`/`Poly2`, ver más abajo el
+hallazgo de `testPolyval2`), y `testJsonlabBasicTypes`/`testJsonlabRoundTrip`. Antes
+del fix, dependían silenciosamente de que otro test anterior en una ejecución de
+suite completa ya hubiera puesto `src/`/`tests/fixtures/` en el path — `run(testXxx)`
+en solitario desde una sesión nueva habría fallado para varios de ellos
+(`Poly2`/`derivest`/`fixturesRoot` sin resolver). Corregido añadiendo el mismo bloque
+`TestMethodSetup`/`TestMethodTeardown` que usa el resto del repo
+(`setupPath()`/`matlabpath(resetPath)`), más `close all` en `testAdjustSurface`
+(genera figuras). Verificado antes/después con solo `addpath('tests')` (sin `src/`
+manual) — mismos resultados, ahora ejecutables en solitario de verdad.
+
+### Baseline de la suite completa
+
+Primera ejecución real de `run_all_tests.m` (nunca se había corrido completa, ver
+nota previa en TODO.md). **461 tests, 34 Hardware excluidos → 325 Passed, 120
+Failed, 136 Incomplete.** (Nota: "Incomplete" incluye tanto errores reales como los
+4 `assumeFail` ya conocidos de `testJsonlabRoundTrip` — no son lo mismo que
+"Failed".)
+
+Categorización por causa raíz (agrupando por mensaje de error, no fichero por
+fichero — 120 fallos en ~29 clases es demasiado para triage exhaustivo en una
+sesión):
+
+1. **~43 tests — esperado, documentado:** todo `testMLClassifier*`/
+   `testKMeansToolbox`/`testMLUtilFunML` que hace `load('exNdataM.mat')` — datasets
+   del curso de Machine Learning de Andrew Ng (Coursera), excluidos del repo a
+   propósito (ver comentario en `run_all_tests.m`). Confirmado que **todos** los
+   `Error using load` (44, incluye 4 `loadlibrary` de otra categoría) son
+   exactamente estos ficheros (`ex2data2.txt`, `ex3data1.mat`, `ex4data1.mat`,
+   `ex5data1.mat`, `ex6data1.mat`, `ex6data2.mat`) — no hay ningún `load` roto por
+   ruta hardcodeada mezclado ahí.
+2. **18 tests — hallazgo nuevo:** `testCellArrayList.m` (`tests/testCellArrayList.m`)
+   **no es un `classdef` `TestCase`** — es un script de demo interactivo estilo
+   MathWorks (cabecera: "Step through and execute this script cell-by-cell"),
+   estructurado en secciones `%%`. `matlab.unittest.TestSuite.fromFolder` lo detecta
+   igualmente como "script-based test" (cada sección `%%` se convierte en un
+   pseudo-test), mecanismo de matlab.unittest del que nadie se había percatado hasta
+   ahora. Falla en la primera sección con `Unable to resolve the name
+   'myList.isempty'` — la clase `CellArrayList`
+   (`src/+OM4MClassLib/+DataStructs/CellArrayList.m`, a confirmar ruta exacta) no
+   tiene ese método. **Decisión pendiente del usuario**, tres opciones razonables:
+   (a) convertir a un `classdef TestCase` real con aserciones de verdad, (b) mover
+   fuera de `tests/` (no es un test, es documentación ejecutable de la clase), o
+   (c) arreglar la llamada rota y dejarlo tal cual (demo interactivo, no test real).
+3. **~15 tests:** `fisheyeParameters` y similares → MATLAB Computer Vision Toolbox no
+   instalada en esta máquina. Limitación de entorno, no bug del repo.
+4. **~9 tests:** `LensMapperMeasurement`/`CameraCalibration*` — sin investigar el
+   detalle todavía, pendiente de una pasada dedicada.
+5. **5 tests — ya documentado en Fase 3 (inventario `mtest`):** `testSVM_Toolbox`
+   usa `svmtrain`/`svmclassify`, eliminados de MATLAB ~R2016b.
+6. **4 tests — ya documentado:** `testQC_FeatureTest` depende de helpers
+   (`getQCDirectoriesTest`, etc.) y `..\TestDB\`, que no existen en este repo.
+7. **8 tests:** `testFPADisplayProjectorPsych`/`testFPADisplayProjectorC` fallan en
+   `loadlibrary` — muy probablemente Psychtoolbox o una librería C externa no
+   instalada en esta máquina, sin confirmar el detalle exacto.
+8. **4 tests — ya documentado:** `testJsonlabRoundTrip`, limitación conocida de
+   jsonlab con arrays de strings planos (ver más arriba en este fichero, "Inventario
+   y conversión de `mtest` legacy").
+9. **2 tests — hallazgo nuevo:** `testPolyval2.m` llama a `Polyval2(X,Y,C)` como
+   función libre — ya no existe como tal, solo como método estático
+   `ProcessMeasure.Polyval2(x,y,C,type)` (`src/ProcessMeasure.m` línea ~764). Firma
+   compatible: `ProcessMeasure.Polyval2(x,y,C)` con 3 argumentos usa `type='sq'` por
+   defecto, mismo comportamiento que la llamada de 3 argumentos que espera el test.
+   Este es exactamente el hallazgo que TODO.md ya señalaba como "pendiente decisión
+   del usuario" desde antes de esta sesión (Fase 1, migración de `UtilLib/TestZernike`)
+   — confirmado ahora con el error real en vez de sospecha. **No corregido en esta
+   sesión** (cambiar la llamada, o borrar el test, es decisión del usuario).
+10. **5 tests — corregidos y verificados en esta sesión:** `assertEqual`/
+    `assertAlmostEqual`/`assertTrue` sueltos (funciones del framework `xunit` legacy,
+    sin equivalente libre en `matlab.unittest` — solo existen como métodos
+    `testCase.assertX`). La sección "Hallazgo de paso" de más arriba en este mismo
+    fichero decía que ya se habían sustituido todas, pero el baseline encontró 3
+    ficheros que se escaparon: `testFPA_UtilFunMapperMeasureClassVer.m`
+    (1 `assertEqual` + 6 `assertAlmostEqual` → `testCase.assertEqual(a, b, 'AbsTol',
+    tol)`, mismo patrón ya establecido), `testPolarMeasurement.m` (2 `assertTrue` + 2
+    `assertEqual`), `testStandardHW_MockCam.m` (1 `assertEqual`). Verificado
+    individualmente antes/después: los 3 pasan de "Undefined function" a Passed (o al
+    menos a fallar por otra causa distinta — `testStandardHW_MockCam` tenía 1 fallo
+    más preexistente sin relación, sin investigar).
+11. **Resto (~15-20 tests):** sin categorizar todavía — quedaría para una siguiente
+    pasada.
+
+### Bug propio encontrado y corregido: `check-conventions.sh` lintaba el fichero
+completo, no el diff
+
+Al hacer commit/push de las dos correcciones de arriba, `smoke` falló:
+`.github/scripts/check-conventions.sh` (creado en la sesión de bootstrap del modelo
+de ramas) hacía `grep` sobre el **contenido completo actual** de cada fichero `.m`
+que apareciera en `git diff --name-only`, no solo sobre las líneas que el cambio
+añadía. Como gran parte de este código legacy todavía usa `i`/`j` como variables de
+bucle (Fase 4, ítem sin marcar todavía), cualquier edición futura a casi cualquier
+fichero de test iba a fallar `smoke` para siempre por líneas que ni se habían
+tocado — pasó de verdad con `testPoly2.m`/`testPolyEquivalent.m` (los bucles `for
+i=1:n+1` preexistentes, no tocados, a varias líneas de donde se añadió el bloque
+`TestMethodSetup`). Corregido: los checks de `i`/`j` y `matlabpath(pathdef)` ahora
+usan `git diff -U0` y solo miran líneas que empiezan por `+` (añadidas), no
+`grep -n` sobre el fichero entero. Verificado localmente contra el commit que había
+fallado antes de hacer push del fix.

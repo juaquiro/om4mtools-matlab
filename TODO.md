@@ -340,7 +340,13 @@ om4mtools-matlab/
   `tests/fixtures/`/`IOT2DPU/deploy`, llamado desde el `SetUp` de los 53 tests
   afectados y desde `run_all_tests.m`/`run_hardware_tests.m`. Los 4 helpers viejos se
   borraron.
-- [ ] Estandarizar estructura de todos los tests:
+- [x] Estandarizar estructura de todos los tests — completo (2026-09-14): de los 58
+  ficheros `classdef ... < matlab.unittest.TestCase` en `tests/`, 6 no tenían
+  `TestMethodSetup`/`TestMethodTeardown` ni llamaban a `setupPath()`/`resetPath`
+  (`testAdjustSurface`, `testEvaluateTerms`, `testPoly2`, `testPolyEquivalent`,
+  `testJsonlabBasicTypes`, `testJsonlabRoundTrip`) — corregidos y verificados
+  ejecutables en solitario (`run(testXxx)`) con solo `tests/` en el path. Ver
+  DECISIONS.md, "Fase 3 — primera pasada de estandarización y baseline".
   ```matlab
   classdef TestNombreFuncion < matlab.unittest.TestCase
       methods (TestMethodSetup)    ... end
@@ -377,8 +383,50 @@ om4mtools-matlab/
     teardown real, corría como un test suelto sin aserciones. Movido al bloque
     correcto.
 - [ ] Usar skill `matlab-test-creator` para acelerar la reescritura
-- [x] Crear `tests/run_all_tests.m` — creado 2026-09-12 (descubre la suite vía `matlab.unittest.TestSuite.fromFolder`, ignora los `mtest` muertos automáticamente porque no son classdef `TestCase` válidas). No se ha corrido la suite completa (429 tests, muchos necesitan hardware real o datos de Coursera excluidos a propósito — tardaría mucho y fallaría por motivos ya documentados)
-- [ ] Verificar que todos los tests pasan con `matlab-test-execution`
+- [x] Crear `tests/run_all_tests.m` — creado 2026-09-12 (descubre la suite vía `matlab.unittest.TestSuite.fromFolder`, ignora los `mtest` muertos automáticamente porque no son classdef `TestCase` válidas).
+- [x] **Primera ejecución completa de la suite (2026-09-14):** 461 tests (34
+  Hardware excluidos) → **325 Passed, 120 Failed, 136 Incomplete**. Ver DECISIONS.md,
+  "Fase 3 — primera pasada de estandarización y baseline", para el desglose completo
+  por categoría y el detalle de cada una. Resumen de categorías (de mayor a menor
+  peso, número de tests):
+  - **~43 tests, esperado/documentado:** dependen de datasets del curso Coursera de
+    Andrew Ng (`ex2data2.txt`, `ex3data1.mat`...) intencionalmente excluidos del repo
+    — ver comentario en `run_all_tests.m` y `testMLClassifier*`/`testKMeansToolbox`.
+  - **18 tests, hallazgo nuevo:** `testCellArrayList.m` no es un test real — es un
+    script demo interactivo de MathWorks (`%%` cell sections, pensado para
+    ejecutarse celda a celda) que `matlab.unittest.TestSuite.fromFolder` detecta como
+    "script-based test" por accidente. Falla en `myList.isempty()` porque
+    `CellArrayList` no tiene ese método. Decisión pendiente del usuario: convertir a
+    test real, mover fuera de `tests/`, o arreglar y dejar como está.
+  - **~15 tests:** dependen de MATLAB Computer Vision Toolbox (`fisheyeParameters`,
+    calibración de cámara), no instalada en esta máquina — limitación de entorno, no
+    bug.
+  - **~9 tests:** `LensMapperMeasurement`/`CameraCalibration*`, sin investigar el
+    detalle — pendiente.
+  - **5 tests, ya documentado:** `testSVM_Toolbox` usa `svmtrain`/`svmclassify`,
+    eliminados de MATLAB ~R2016b (Fase 4).
+  - **4 tests, ya documentado:** `testQC_FeatureTest` depende de helpers y un
+    directorio `..\TestDB\` que no existen en este repo.
+  - **8 tests:** `testFPADisplayProjectorPsych`/`testFPADisplayProjectorC` fallan en
+    `loadlibrary` — probablemente Psychtoolbox/librería C externa no instalada, sin
+    confirmar.
+  - **4 tests, ya documentado:** `testJsonlabRoundTrip` — limitación conocida de
+    jsonlab con arrays de strings planos (ver DECISIONS.md).
+  - **2 tests, hallazgo nuevo:** `testPolyval2.m` llama a una función libre
+    `Polyval2` que ya no existe — solo sobrevive como método estático
+    `ProcessMeasure.Polyval2` (mismo comportamiento en llamada de 3 argumentos, `type`
+    por defecto `'sq'`). Pendiente decisión del usuario (ya señalada previamente en
+    este fichero): cambiar la llamada a `ProcessMeasure.Polyval2(...)` o borrar el test.
+  - **5 tests, corregidos en esta sesión:** `assertEqual`/`assertAlmostEqual`/
+    `assertTrue` sueltos (xunit legacy) que DECISIONS.md daba por sustituidos pero
+    sobrevivían en `testFPA_UtilFunMapperMeasureClassVer.m` (7),
+    `testPolarMeasurement.m` (4) y `testStandardHW_MockCam.m` (1) — arreglados y
+    verificados.
+  - **Resto (~15-20 tests):** sin categorizar todavía.
+- [ ] Verificar que todos los tests pasan con `matlab-test-execution` — bloqueado en
+  la mayoría de casos por las categorías de arriba (datos Coursera excluidos a
+  propósito, toolboxes no instaladas, dependencias externas legítimamente ausentes);
+  no se espera un 100% Passed en esta máquina
 
 ---
 
