@@ -81,7 +81,7 @@ classdef testMLClassifierSVM < matlab.unittest.TestCase
             
             c=ClassifierFactory.Create(ClassifierTypes.SVM);
             
-            load('ex3data1.mat'); % training data stored in arrays X, y
+            load(fullfile(fixturesRoot(), 'CourseraMLData', 'ex3data1.mat')); % training data stored in arrays X, y
             
             C = 1;
             sigma=30;
@@ -134,7 +134,7 @@ classdef testMLClassifierSVM < matlab.unittest.TestCase
             
             c=ClassifierFactory.Create(ClassifierTypes.SVM);
             
-            load('ex3data1.mat'); % training data stored in arrays X, y
+            load(fullfile(fixturesRoot(), 'CourseraMLData', 'ex3data1.mat')); % training data stored in arrays X, y
             
             m=size(X, 1);
             p=randperm(m);
@@ -191,7 +191,7 @@ classdef testMLClassifierSVM < matlab.unittest.TestCase
             
             c=ClassifierFactory.Create(ClassifierTypes.SVM);
             
-            data = load('ex2data2.txt');
+            data = load(fullfile(fixturesRoot(), 'CourseraMLData', 'ex2data2.txt'));
             X = data(:, [1, 2]); y = data(:, 3);
             
             m=size(X, 1);
@@ -249,7 +249,7 @@ classdef testMLClassifierSVM < matlab.unittest.TestCase
             
             c=ClassifierFactory.Create(ClassifierTypes.LogR);
             
-            data = load('ex2data2.txt');
+            data = load(fullfile(fixturesRoot(), 'CourseraMLData', 'ex2data2.txt'));
             X = data(:, [1, 2]); y = data(:, 3);
             
             m=size(X, 1);
@@ -286,7 +286,7 @@ classdef testMLClassifierSVM < matlab.unittest.TestCase
             
             c=ClassifierFactory.Create(ClassifierTypes.SVM);
             
-            data = load('ex2data2.txt');
+            data = load(fullfile(fixturesRoot(), 'CourseraMLData', 'ex2data2.txt'));
             X = data(:, [1, 2]); y = data(:, 3);
             %aqui no hace falta ningun map feature
             y=y+1; %transform label (0,1) to (1,2)
@@ -400,7 +400,7 @@ classdef testMLClassifierSVM < matlab.unittest.TestCase
             
             % Load from ex6data2:
             % You will have X, y in your environment
-            load('ex6data2.mat');
+            load(fullfile(fixturesRoot(), 'CourseraMLData', 'ex6data2.mat'));
             
             X(:, 1)=1e-6*X(:, 1);
             y=y+1;
@@ -430,7 +430,7 @@ classdef testMLClassifierSVM < matlab.unittest.TestCase
             
             % Load from ex6data2:
             % You will have X, y in your environment
-            load('ex6data2.mat');
+            load(fullfile(fixturesRoot(), 'CourseraMLData', 'ex6data2.mat'));
             
             y=y+1;
             
@@ -464,7 +464,7 @@ classdef testMLClassifierSVM < matlab.unittest.TestCase
             
             c=ClassifierFactory.Create(ClassifierTypes.SVM);
             
-            data = load('ex2data2.txt');
+            data = load(fullfile(fixturesRoot(), 'CourseraMLData', 'ex2data2.txt'));
             X = data(:, [1, 2]); y = data(:, 3);
             
             y=y+1;
@@ -501,7 +501,7 @@ classdef testMLClassifierSVM < matlab.unittest.TestCase
             
             c=ClassifierFactory.Create(ClassifierTypes.SVM);
             
-            data = load('ex2data2.txt');
+            data = load(fullfile(fixturesRoot(), 'CourseraMLData', 'ex2data2.txt'));
             X = data(:, [1, 2]); y = data(:, 3);
             %aqui no hace falta ningun map feature
             y=y+1; %transform label (0,1) to (1,2)

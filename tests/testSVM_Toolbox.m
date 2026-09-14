@@ -44,7 +44,7 @@ classdef testSVM_Toolbox < matlab.unittest.TestCase
 
             % Load from ex6data2:
             % You will have X, y in your environment
-            load('ex6data1.mat');
+            load(fullfile(fixturesRoot(), 'CourseraMLData', 'ex6data1.mat'));
 
             % Plot training data
             figure; plotData(X, y);
@@ -99,7 +99,7 @@ classdef testSVM_Toolbox < matlab.unittest.TestCase
 
             % Load from ex6data2:
             % You will have X, y in your environment
-            load('ex6data1.mat');
+            load(fullfile(fixturesRoot(), 'CourseraMLData', 'ex6data1.mat'));
 
             % Plot training data
             figure; plotData(X, y);
@@ -157,7 +157,7 @@ classdef testSVM_Toolbox < matlab.unittest.TestCase
 
             % Load from ex6data2:
             % You will have X, y in your environment
-            load('ex6data2.mat');
+            load(fullfile(fixturesRoot(), 'CourseraMLData', 'ex6data2.mat'));
 
             % Plot training data
             figure; plotData(X, y);

@@ -76,7 +76,7 @@ classdef testMLClassifierNN1 < matlab.unittest.TestCase
             import OM4MClassLib.Util.*
             fprintf('\n%s: ',Logging.WhoCalledMe());
             
-            load('ex4data1.mat');
+            load(fullfile(fixturesRoot(), 'CourseraMLData', 'ex4data1.mat'));
             c=ClassifierFactory.Create(ClassifierTypes.NN1);
             % In the exercise, lamba=3
             lambda=3;
@@ -178,7 +178,7 @@ classdef testMLClassifierNN1 < matlab.unittest.TestCase
             
             fprintf('\n%s: ',Logging.WhoCalledMe());
             
-            load('ex4data1.mat');
+            load(fullfile(fixturesRoot(), 'CourseraMLData', 'ex4data1.mat'));
             c=ClassifierFactory.Create(ClassifierTypes.NN1);
             % In the exercise, lamba=3
             c.Set(char(ClassifierProps.lambda), 3);
@@ -491,7 +491,7 @@ classdef testMLClassifierNN1 < matlab.unittest.TestCase
             import OM4MClassLib.Util.*
             fprintf('\n%s: ',Logging.WhoCalledMe());
             
-            load('ex4data1.mat');
+            load(fullfile(fixturesRoot(), 'CourseraMLData', 'ex4data1.mat'));
             c=ClassifierFactory.Create(ClassifierTypes.NN1);
             % In the exercise, lamba=3
             lambda=3;
@@ -561,7 +561,7 @@ classdef testMLClassifierNN1 < matlab.unittest.TestCase
             
             c=ClassifierFactory.Create(ClassifierTypes.NN1);
             
-            data = load('ex2data2.txt');
+            data = load(fullfile(fixturesRoot(), 'CourseraMLData', 'ex2data2.txt'));
             X = data(:, [1, 2]); y = data(:, 3);
             y=y+1;
             
@@ -595,7 +595,7 @@ classdef testMLClassifierNN1 < matlab.unittest.TestCase
             
             c=ClassifierFactory.Create(ClassifierTypes.NN1);
             
-            data = load('ex2data2.txt');
+            data = load(fullfile(fixturesRoot(), 'CourseraMLData', 'ex2data2.txt'));
             X = data(:, [1, 2]); y = data(:, 3);
             y=y+1;
             

@@ -1733,3 +1733,84 @@ i=1:n+1` preexistentes, no tocados, a varias líneas de donde se añadió el blo
 usan `git diff -U0` y solo miran líneas que empiezan por `+` (añadidas), no
 `grep -n` sobre el fichero entero. Verificado localmente contra el commit que había
 fallado antes de hacer push del fix.
+
+---
+
+## Fase 3 — fixtures de Coursera (2026-09-14)
+
+Petición del usuario: localizar los ficheros de datos del curso de Machine Learning
+de Andrew Ng (Coursera) en
+`C:\user\Dropbox (Personal)\AQ_SYNC\AQ\KIROS\PAPERS\CursosOnLine\MachineLearningCoursera\ejercicios2ed`,
+copiarlos a `<dropbox root>\AQ_EXP\DataSetsForTesting\om4mtools-matlab\CourseraMLData\`
+y dejar la suite en verde.
+
+**Inventario real de lo necesario** (no todo `ejercicios2ed`, solo lo que las 10
+clases de test afectadas — `testKMeansToolbox`, `testMLClassifierKmeansCluster`,
+`testMLClassifierLR`, `testMLClassifierLinReg`, `testMLClassifierNN`,
+`testMLClassifierNN1`, `testMLClassifierSVM`, `testMLUtilFunML`, `testNN_Toolbox`,
+`testSVM_Toolbox` — cargan de verdad, vía `grep` exhaustivo de `load`/`csvread`/
+`imread` con nombre de fichero pelado): `ex1data2.txt` (`mlclass-ex1/`),
+`ex2data2.txt` (`mlclass-ex2/`), `ex3data1.mat` (`mlclass-ex3/`), `ex4data1.mat`
+(`mlclass-ex4/`), `ex5data1.mat` (`mlclass-ex5/`), `ex6data1.mat`+`ex6data2.mat`
+(`mlclass-ex6/`), `ex7data2.mat`+`bird_small.png` (`mlclass-ex7/` —
+`bird_small.mat` está referenciado en un comentario como alternativa a `imread`,
+nunca se usa de verdad, no se copió). Copiados los 9, verificados con `ls`.
+
+**Corrección de código, ~46 sitios en 10 ficheros:** cada `load('exN...')`/
+`csvread('exN...')`/`imread('bird_small.png')` (algunos con espacio antes del
+paréntesis, `load (...)`) cambiado a
+`load(fullfile(fixturesRoot(), 'CourseraMLData', 'exN...'))` vía `sed` por nombre de
+fichero exacto (9 patrones, uno por fichero de datos, aplicados a los 10 ficheros de
+test a la vez — seguro porque cada nombre de fichero solo aparece como argumento de
+`load`/`csvread`/`imread` en estos ficheros, verificado antes con `grep`). Un caso
+aparte: `testMLUtilFunML.m` línea 147, `load('actual_theta', 'actual_theta')` — NO
+es un fichero de Coursera, ya vivía en `fixturesRoot()` directamente
+(`...\om4mtools-matlab\actual_theta.mat`, confirmado con `find`) — arreglado a
+`load(fullfile(fixturesRoot(), 'actual_theta.mat'), 'actual_theta')`, sin tocar
+`CourseraMLData`.
+
+**Verificación, antes/después:** de los 40 métodos de test originalmente
+identificados como bloqueados por datos de Coursera ausentes (ver sección anterior
+de este fichero), **39 quedan arreglados de verdad** solo con la copia de datos +
+el cambio de ruta. El 40º
+(`testMLUtilFunML/testML_UtilFunML_CostFunctionLR`) sigue bloqueado, pero ya no por
+datos — por una función auxiliar de Coursera que falta (`mapFeature`, ver abajo).
+
+**Tres bloqueantes nuevos descubiertos al intentar dejar la suite en verde del
+todo** (no estaban en el alcance original de "copiar datos", surgen al re-ejecutar
+las 10 clases completas tras el fix):
+
+1. **`mapFeature`/`plotData`/`polyFeatures` (14 tests) — funciones auxiliares del
+   propio curso de Coursera, no datos.** Los ejercicios de regresión logística
+   regularizada (`ex2`) y regresión polinómica (`ex5`) traen sus propias funciones
+   `.m` (`mlclass-ex2/mapFeature.m`, `mlclass-ex1|ex2/plotData.m`,
+   `mlclass-ex5/polyFeatures.m`) que los tests llaman directamente (`X =
+   mapFeature(X(:,1), X(:,2))` transforma features de verdad, no es solo para
+   pintar) — nunca se copiaron ni se reimplementaron en `src/`. **Decisión
+   pendiente del usuario:** el repo ya es público en GitHub — copiar código de
+   Coursera (no solo datos) igual que `CourseraMLData/` (fuera de git, solo en
+   Dropbox, añadido al path vía `setupPath()` o el `SetUp` de cada test afectado)
+   evita redistribuirlo públicamente sin necesidad de decidir nada sobre licencias
+   del curso; alternativa sería reimplementar estas 3 funciones (triviales) como
+   utilidades propias en `src/`. No se ha hecho ninguna de las dos todavía.
+2. **`svmtrain`/`svmclassify` (14 tests) — ya documentado, sin relación con esta
+   tarea.** Eliminados de MATLAB ~R2016b (ver más arriba en este fichero e
+   "Inventario y conversión de `mtest` legacy"). `testMLClassifierKmeansCluster/
+   testMeanInterClusterDistance` cae en esta categoría también, aunque de forma
+   indirecta — llama a `UtilFunML.NICDCurve`, que internamente usa `svmtrain`.
+   Fase 4, fuera de alcance de "copiar ficheros de Coursera".
+3. **`bayesgauss` (1 test, `testKMeansToolbox/test5`) — otra librería de terceros
+   distinta, ni Coursera ni ya documentada.** Es una función clásica del libro
+   "Digital Image Processing Using MATLAB" (DIPUM, Gonzalez/Woods/Eddins) —
+   `covmatrix` (la otra función que usa el mismo test) SÍ existe ya en `src/
+   covmatrix.m`, pero **sin trackear en git** (fichero en disco, `git status` lo
+   marca `??`, sin historial — `git log --all -- src/covmatrix.m` vacío). Se dejó
+   tal cual, sin añadir a git ni investigar más, por no tener contexto de cuándo ni
+   por qué se creó. `bayesgauss` no existe en ningún sitio del repo. `UtilLib/
+   DIPUM` está documentado como librería de terceros ya excluida del repo desde
+   Fase 1 (ver tabla de colisiones/exclusiones arriba) — recuperar solo estas 2
+   funciones reabre la misma pregunta de alcance que `Poly2`/`ClassLib.ML` en su
+   momento.
+
+Ninguno de los 3 bloqueantes se ha corregido en esta sesión — son decisiones
+distintas de "copiar los datos de Coursera", quedan para cuando el usuario decida.

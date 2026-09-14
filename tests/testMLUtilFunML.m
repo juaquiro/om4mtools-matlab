@@ -47,7 +47,7 @@ classdef testMLUtilFunML < matlab.unittest.TestCase
             
             fprintf('\n%s: ',Logging.WhoCalledMe());
             
-            data = load('ex2data2.txt');
+            data = load(fullfile(fixturesRoot(), 'CourseraMLData', 'ex2data2.txt'));
             X = data(:, [1, 2]); y = data(:, 3);
             
             % Add Polynomial Features
@@ -117,7 +117,7 @@ classdef testMLUtilFunML < matlab.unittest.TestCase
             input_layer_size  = 400;  % 20x20 Input Images of Digits
             num_labels = 10;          % 10 labels, from 1 to 10
             % (note that we have mapped "0" to label 10)
-            load('ex3data1.mat'); % training data stored in arrays X, y
+            load(fullfile(fixturesRoot(), 'CourseraMLData', 'ex3data1.mat')); % training data stored in arrays X, y
             % Some useful variables
             m = size(X, 1);
             n = size(X, 2);
@@ -144,7 +144,7 @@ classdef testMLUtilFunML < matlab.unittest.TestCase
                 
             end
             
-            atheta=load('actual_theta', 'actual_theta');
+            atheta=load(fullfile(fixturesRoot(), 'actual_theta.mat'), 'actual_theta');
             tol=1e-8;
             warning([Logging.WhoCalledMe() ' este test no funciona 1-9-14, esta en estado de DEBUG']);
             %testCase.assertLessThanOrEqual(all_theta(:), atheta.actual_theta(:), 'absolute', tol);
@@ -184,7 +184,7 @@ classdef testMLUtilFunML < matlab.unittest.TestCase
             
             fprintf('\n%s: ',Logging.WhoCalledMe());
             
-            load ('ex5data1.mat');
+            load (fullfile(fixturesRoot(), 'CourseraMLData', 'ex5data1.mat'));
             
             theta = [1 ; 1];
             m = size(X, 1); % Number of training examples

@@ -82,7 +82,7 @@ classdef testMLClassifierNN < matlab.unittest.TestCase
 %             
 %             c=ClassifierFactory.Create(ClassifierTypes.NN);
 %             
-%             load('ex3data1.mat'); % training data stored in arrays X, y
+%             load(fullfile(fixturesRoot(), 'CourseraMLData', 'ex3data1.mat')); % training data stored in arrays X, y
 %             
 %             lambda = 1e-1;
 %             c.Set(char(ClassifierProps.lambda), lambda);
@@ -149,7 +149,7 @@ classdef testMLClassifierNN < matlab.unittest.TestCase
             
             c=ClassifierFactory.Create(ClassifierTypes.NN);
             
-            load('ex3data1.mat'); % training data stored in arrays X, y
+            load(fullfile(fixturesRoot(), 'CourseraMLData', 'ex3data1.mat')); % training data stored in arrays X, y
             
             m=size(X, 1);
             p=randperm(m);
@@ -203,7 +203,7 @@ classdef testMLClassifierNN < matlab.unittest.TestCase
             
             c=ClassifierFactory.Create(ClassifierTypes.NN);
             
-            data = load('ex2data2.txt');
+            data = load(fullfile(fixturesRoot(), 'CourseraMLData', 'ex2data2.txt'));
             X = data(:, [1, 2]); y = data(:, 3);
             X = mapFeature(X(:,1), X(:,2));
             
@@ -264,7 +264,7 @@ classdef testMLClassifierNN < matlab.unittest.TestCase
             
             c=ClassifierFactory.Create(ClassifierTypes.NN);
             
-            data = load('ex2data2.txt');
+            data = load(fullfile(fixturesRoot(), 'CourseraMLData', 'ex2data2.txt'));
             X = data(:, [1, 2]); y = data(:, 3);
             X = mapFeature(X(:,1), X(:,2));
             
@@ -300,7 +300,7 @@ classdef testMLClassifierNN < matlab.unittest.TestCase
 %             
 %             c=ClassifierFactory.Create(ClassifierTypes.NN);
 %             
-%             data = load('ex2data2.txt');
+%             data = load(fullfile(fixturesRoot(), 'CourseraMLData', 'ex2data2.txt'));
 %             X = data(:, [1, 2]); y = data(:, 3);
 %             X = mapFeature(X(:,1), X(:,2));
 %             y=y+1; %transform label (0,1) to (1,2)
@@ -501,7 +501,7 @@ classdef testMLClassifierNN < matlab.unittest.TestCase
             
             c=ClassifierFactory.Create(ClassifierTypes.NN);
             
-            data = load('ex2data2.txt');
+            data = load(fullfile(fixturesRoot(), 'CourseraMLData', 'ex2data2.txt'));
             X = data(:, [1, 2]); y = data(:, 3);
             y=y+1;
             
@@ -535,7 +535,7 @@ classdef testMLClassifierNN < matlab.unittest.TestCase
             
             c=ClassifierFactory.Create(ClassifierTypes.NN);
             
-            data = load('ex2data2.txt');
+            data = load(fullfile(fixturesRoot(), 'CourseraMLData', 'ex2data2.txt'));
             X = data(:, [1, 2]); y = data(:, 3);
             y=y+1;
             

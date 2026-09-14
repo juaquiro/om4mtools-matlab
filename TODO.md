@@ -389,9 +389,21 @@ om4mtools-matlab/
   "Fase 3 — primera pasada de estandarización y baseline", para el desglose completo
   por categoría y el detalle de cada una. Resumen de categorías (de mayor a menor
   peso, número de tests):
-  - **~43 tests, esperado/documentado:** dependen de datasets del curso Coursera de
-    Andrew Ng (`ex2data2.txt`, `ex3data1.mat`...) intencionalmente excluidos del repo
-    — ver comentario en `run_all_tests.m` y `testMLClassifier*`/`testKMeansToolbox`.
+  - **~40 tests, corregido (2026-09-14):** dependían de datasets del curso Coursera de
+    Andrew Ng (`ex1data2.txt`, `ex2data2.txt`, `ex3data1.mat`, `ex4data1.mat`,
+    `ex5data1.mat`, `ex6data1.mat`, `ex6data2.mat`, `ex7data2.mat`,
+    `bird_small.png`), antes excluidos del repo con `load`/`csvread`/`imread` de
+    nombre pelado (dependía del cwd, nunca resolvía). A petición del usuario, los 9
+    ficheros se copiaron a `<dropbox root>\AQ_EXP\DataSetsForTesting\om4mtools-matlab\
+    CourseraMLData\` (fuente:
+    `...\CursosOnLine\MachineLearningCoursera\ejercicios2ed\mlclass-exN\`) y las ~46
+    llamadas en 10 ficheros de test se cambiaron a
+    `fullfile(fixturesRoot(), 'CourseraMLData', 'nombre')`. `actual_theta.mat`
+    (fixture propio, no de Coursera) también arreglado igual pero apuntando a
+    `fixturesRoot()` directamente (ya vivía ahí). Ver DECISIONS.md, "Fase 3 —
+    fixtures de Coursera", para el desglose completo, incluidos 3 bloqueantes nuevos
+    descubiertos al intentar dejar la suite en verde del todo (funciones auxiliares
+    de Coursera que faltan, no solo datos) — **decisión pendiente del usuario**.
   - **18 tests → 10 tests, corregido (2026-09-14):** `testCellArrayList.m` no era un
     test real — era un script demo interactivo de MathWorks (`%%` cell sections,
     pensado para ejecutarse celda a celda) que `matlab.unittest.TestSuite.fromFolder`
