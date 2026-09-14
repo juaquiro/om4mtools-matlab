@@ -1,8 +1,10 @@
 # om4mtools-matlab
 
+Modernizacion y actualizacion de
+[`om4mmatlabutils`](https://github.com/juaquiro/om4mmatlabutils).
+
 Toolbox de utilidades MATLAB del grupo OM4M (Optical Methods for Measuring).
-Modernizacion de `om4mmatlabutils`. Proyecto estrictamente personal por
-ahora (ver `CLAUDE.md`).
+Proyecto estrictamente personal por ahora (ver `CLAUDE.md`).
 
 ## Estructura
 
