@@ -171,14 +171,14 @@ classdef testPolarMeasurement < matlab.unittest.TestCase
             PolarMeasurement.save(PM);
             
             fileName=PolarMeasurement.defFileName4Saving;;
-            assertTrue( exist(fileName, 'file')==2 );
+            testCase.assertTrue( exist(fileName, 'file')==2 );
             
             PM2=PolarMeasurement.load(fileName);
             
             %check all the props are equal
             propList=properties(PM);
             for n=1:length(propList)
-                assertEqual(PM2.(propList{n}), PM.(propList{n}));
+                testCase.assertEqual(PM2.(propList{n}), PM.(propList{n}));
             end
             
             clear('PM2');
@@ -187,14 +187,14 @@ classdef testPolarMeasurement < matlab.unittest.TestCase
             %given fileName
             fileName='AQTestPM.mat';
             PolarMeasurement.save(PM, fileName);
-            assertTrue( exist(fileName, 'file')==2 );
+            testCase.assertTrue( exist(fileName, 'file')==2 );
             
             PM2=PolarMeasurement.load(fileName);
             
             %check all the props are equal
             propList=properties(PM);
             for n=1:length(propList)
-                assertEqual(PM2.(propList{n}), PM.(propList{n}));
+                testCase.assertEqual(PM2.(propList{n}), PM.(propList{n}));
             end
             
             

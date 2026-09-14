@@ -129,7 +129,7 @@ classdef testStandardHW_MockCam < matlab.unittest.TestCase
             hImageReturned = cam.hImage;
 
             % Same handle object?
-            assertEqual(hImageReturned, hImage);
+            testCase.assertEqual(hImageReturned, hImage);
 
             delete(hFig);
             delete(cam);

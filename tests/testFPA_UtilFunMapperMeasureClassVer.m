@@ -94,7 +94,7 @@ classdef testFPA_UtilFunMapperMeasureClassVer < matlab.unittest.TestCase
             LMM2=LensMapperMeasurement.load(fileName);
             for n=1:length(p)
                 if not(strcmp(p{n}, 'DerSign'))
-                    assertEqual(LMM2.(p{n}), magic(10));
+                    testCase.assertEqual(LMM2.(p{n}), magic(10));
                 end
             end
             delete(fileName);
@@ -424,9 +424,9 @@ classdef testFPA_UtilFunMapperMeasureClassVer < matlab.unittest.TestCase
             %eliminamos los bordes
             M=conv2(double(M), ones(50)/2500, 'same')>0.9;
             tol=0.6; %D
-            assertAlmostEqual(0, 1e3*std(eS(MC)), tol);
-            assertAlmostEqual(0, 1e3*std(eC(MC)), 2*tol);
-            assertAlmostEqual(0, 1e3*std(eSeq(MC)), tol);
+            testCase.assertEqual(0, 1e3*std(eS(MC)), 'AbsTol', tol);
+            testCase.assertEqual(0, 1e3*std(eC(MC)), 'AbsTol', 2*tol);
+            testCase.assertEqual(0, 1e3*std(eSeq(MC)), 'AbsTol', tol);
 
         end
 
@@ -515,9 +515,9 @@ classdef testFPA_UtilFunMapperMeasureClassVer < matlab.unittest.TestCase
             %eliminamos los bordes
             MC=conv2(double(MC), ones(100)/1e4, 'same')>0.9;
             tol=2; %D
-            assertAlmostEqual(0, 1e3*std(eS(logical(MC))), tol);
-            assertAlmostEqual(0, 1e3*std(eC(logical(MC))), 2*tol);
-            assertAlmostEqual(0, 1e3*std(eSeq(logical(MC))), tol);
+            testCase.assertEqual(0, 1e3*std(eS(logical(MC))), 'AbsTol', tol);
+            testCase.assertEqual(0, 1e3*std(eC(logical(MC))), 'AbsTol', 2*tol);
+            testCase.assertEqual(0, 1e3*std(eSeq(logical(MC))), 'AbsTol', tol);
 
         end
 
