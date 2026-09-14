@@ -14,7 +14,7 @@ classdef Demodulator <  handle & OM4MClassLib.DataStructs.IProps
     %% props
     %private
     properties (Access=protected)
-        %> demodulator properties as a DemodulatorPropStore of DemodulatorProps props @see IProps, DemodulatorPropStore, DemodulatorProps
+        %> demodulator properties as a PropsEnumList of DemodulatorProps propes @see IProps, PropsEnumList, DemodulatorProps 
         props;
         %> PSI steps in Volts, degress etc necessary for the generation of the igrams
         steps;
@@ -73,8 +73,9 @@ classdef Demodulator <  handle & OM4MClassLib.DataStructs.IProps
     methods
         %constructor
         function this=Demodulator()
-            this.props=DemodulatorPropStore();
-
+            import OM4MClassLib.DataStructs.*;
+            this.props=PropsEnumList('DemodulatorProps');
+            
             % Props Initialization
             this.Init();
         end
@@ -125,7 +126,7 @@ classdef Demodulator <  handle & OM4MClassLib.DataStructs.IProps
     end
     
     %% public IProps interface
-    %check Get implementationï¿½ï¿½
+    %check Get implementation¡¡
     methods
         % Get interface, note the no parameter
         function ret=Get(this, props)
@@ -137,8 +138,23 @@ classdef Demodulator <  handle & OM4MClassLib.DataStructs.IProps
         end
         
         %Set interface
-        %typechecking against DemodulatorProps is done by props.Set @see DemodulatorPropStore, DemodulatorProps
         function this=Set(this, props, propvals)
+            import OM4MClassLib.Util.*;
+            callFunc=Logging.WhoCalledMe();
+            
+            switch props
+                case char(DemodulatorProps.zList)
+                    if not(iscell(propvals))
+                        retErrorMsg=['zList must be a cell array: <<' char(propvals) '>>, ' callFunc];
+                        error([class(this) '->' retErrorMsg]);
+                    end
+                case char(DemodulatorProps.NL)
+                    % validate NL
+                    % list of valid values for NL
+                    vList={2, 4};
+                    r=Validation.CheckInputParam(propvals, vList);
+            end
+            
             this.props.Set(props, propvals);
         end
     end
