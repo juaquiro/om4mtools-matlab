@@ -555,7 +555,6 @@ classdef testFPADemodulatorPSFotoel < matlab.unittest.TestCase
             mu=1; % regularization
             w2alphaM=UtilFunFPA.Calc2Alpha(w4alphaM, QM,M,t,mu);
             %w2alphaM=w4alphaM; %AQTesting
-            r
             D=20;
             sameColorFlag=false;
             UtilFunFPA.DrawAlpha(0.25*w4alphaM, D, sameColorFlag); title('w4alpha Measured');
