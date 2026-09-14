@@ -9,6 +9,18 @@ classdef testJsonlabRoundTrip < matlab.unittest.TestCase
         exampleFile = {'example1.json', 'example2.json', 'example3.json', 'example4.json'};
     end
 
+    methods(TestMethodSetup)
+        function SetUp(testCase)
+            setupPath();
+        end
+    end
+
+    methods(TestMethodTeardown)
+        function TearDown(testCase)
+            matlabpath(resetPath); %#ok<RESETPATH>
+        end
+    end
+
     methods (Test)
         function testJsonRoundTrip(testCase, exampleFile)
             original = loadjson(fullfile(fixturesRoot(), exampleFile));

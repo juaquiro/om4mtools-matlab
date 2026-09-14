@@ -10,6 +10,18 @@ classdef testJsonlabBasicTypes < matlab.unittest.TestCase
         codec = {'json', 'ubjson'};
     end
 
+    methods(TestMethodSetup)
+        function SetUp(testCase)
+            setupPath();
+        end
+    end
+
+    methods(TestMethodTeardown)
+        function TearDown(testCase)
+            matlabpath(resetPath); %#ok<RESETPATH>
+        end
+    end
+
     methods (Test)
         function testScalar(testCase, codec)
             % named field (not an empty root name) - an anonymous UBJSON

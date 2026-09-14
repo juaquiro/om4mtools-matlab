@@ -1,5 +1,19 @@
-classdef testAdjustSurface< matlab.unittest.TestCase
-    
+classdef testAdjustSurface < matlab.unittest.TestCase
+    %run(testAdjustSurface)
+
+    methods(TestMethodSetup)
+        function SetUp(testCase)
+            close all
+            setupPath();
+        end
+    end
+
+    methods(TestMethodTeardown)
+        function TearDown(testCase)
+            matlabpath(resetPath); %#ok<RESETPATH>
+        end
+    end
+
     methods(Test)
         function testUno(testCase) %#ok<*DEFNU>
             import Zernikes.*;
