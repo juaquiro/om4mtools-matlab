@@ -1530,3 +1530,75 @@ algoritmo numérico, no un simple housekeeping. Queda como parte explícita de
 *o* reapuntar y reverificar, decisión del usuario cuando se aborde esa tarea.
 `build.m` en sí queda terminado y correcto; simplemente no se pudo ejecutar un build
 real de extremo a extremo en esta máquina tal cual está.
+
+---
+
+## Tag `mex_dll_working` + retarget a `v143` (2026-09-14)
+
+Petición del usuario: verificar que `run(testFPAUnwrapper)` pasa con el MEX
+existente (compilado con `v120`), taguear ese estado como punto de rollback, empujar
+a remoto, y **después** reapuntar el toolset a VS2022 — a continuación del bloqueo
+documentado arriba.
+
+**Verificación previa al tag:** `matlab -batch` ejecutando
+`run(testFPAUnwrapper)` con los binarios `mex/bin/` tal cual estaban (compilados
+`v120`, commit `2afc49c`) → **5 Passed, 0 Failed, 0 Incomplete** (100.9 s), incluidas
+`testUnwrapperFlynMdProcess` y `testUnwrapperFlynMdWithDeflecMeas`, las dos únicas
+que ejercitan `UnwrapperTypes.FlynMd` → `PUFlynMdMex.mexw64`. Sin cambios pendientes
+en el árbol de trabajo — el tag apunta directamente a `2afc49c`. Tag anotado con el
+resumen de la verificación, empujado a `origin`.
+
+**Retarget:** `PlatformToolset` cambiado de `v120` a `v143` en los 5 `.vcxproj`
+(`sed` sobre las 4 ocurrencias — Debug/Release × Win32/x64 — de cada fichero;
+`ToolsVersion="12.0"` en la cabecera del XML se dejó tal cual, MSBuild moderno lo
+procesa sin problema, no es lo que causaba el bloqueo).
+
+**Dos problemas nuevos encontrados al compilar ya con `v143` (ninguno relacionado
+con el propio retarget, preexistentes y solo visibles al intentar un build real):**
+
+1. `PUFlynMdMex.c(11,10): error C1083: Cannot open include file: 'mex.h'`. Causa:
+   `AdditionalIncludeDirectories` usa `$(MATLAB)extern\include`, y `$(MATLAB)` no se
+   define en ningún sitio del proyecto — dependía de una variable de entorno `MATLAB`
+   que existía en la máquina/entorno de desarrollo original (VS2013) y no existe
+   aquí. Solución: pasar `/p:MATLAB=<matlabroot>\` explícito al invocar MSBuild (la
+   barra final es necesaria, la ruta se concatena directamente sin separador en el
+   `.vcxproj`). `mex/build.m` ahora lo hace con `matlabroot()` de MATLAB, sin
+   depender de ninguna variable de entorno ambiental.
+2. El post-build event (`copy $(OutDir)$(TargetName)$(TargetExt)
+   $(SolutionDir)deploy\...`) falla con `MSB3073` si `mex/src/deploy/` no existe
+   todavía — el `copy` de Windows no crea directorios destino. En una máquina nueva
+   (o tras un `git clone` limpio, ya que `mex/src/deploy/` está en `.gitignore` y no
+   se trackea) este paso fallaría siempre en el primer build. `mex/build.m` ahora
+   crea el directorio (`mkdir` si no existe) antes de invocar MSBuild.
+
+**Verificación tras el retarget:** build de `PUFlynMdMex`+`PUMexLib` (no de la
+solución completa — `flynmd`/`fmg`/`goldbc` son los ejecutables de línea de comandos
+legacy, no los consume MATLAB, y sus configuraciones `Release|x64` mapean a
+`Release|Win32` en el `.sln`, ver más arriba) limpio, solo warnings (conversiones
+`double`→`float` preexistentes, variables `i`/`j`/`k` no usadas, `fopen`/`sscanf`
+sin la variante `_s` — nada nuevo introducido por el compiler más nuevo, nada que
+afecte al comportamiento). Copiados a `mex/bin/`, `run(testFPAUnwrapper)` de nuevo
+→ **5 Passed, 0 Failed, 0 Incomplete**, mismo resultado que con `v120`.
+
+**Aviso honesto sobre qué prueba esto:** `testUnwrapperFlynMdProcess` y
+`testUnwrapperFlynMdWithDeflecMeas` no tienen ninguna aserción numérica sobre la
+salida del unwrapper — generan figuras y ya está. "Pasan" solo certifica que el MEX
+carga y ejecuta sin lanzar excepción con ambos toolsets, no que el resultado
+numérico es idéntico bit a bit. Dado que el C fuente no cambió (cero ediciones en
+`mex/src/src/`, solo el toolset), y los únicos warnings nuevos son conversiones
+implícitas ya presentes en el código original, la probabilidad de una diferencia
+numérica real es baja — pero no hay harness automático que lo confirme
+(`mex/src/tests/` tiene datos de referencia pero ninguna comparación programática
+contra ellos). Anotado en `mex/build.m` y como sub-ítem pendiente en TODO.md por si
+en el futuro compensa construir ese harness.
+
+**Nota de proceso:** durante la verificación, `mex/bin/PUFlynMdMex.mexw64` estaba
+bloqueado ("Device or resource busy") por una sesión de MATLAB de escritorio ya
+abierta del usuario (con `MATLABWebUI.exe`, no relacionada con los `matlab -batch`
+usados aquí) — típico de MATLAB reteniendo el handle de un MEX ya cargado. Se
+preguntó al usuario en vez de matar el proceso unilateralmente; el usuario cerró/
+limpió su sesión y se continuó.
+
+**Limpieza:** intermedios de build (`mex/src/deploy/`, `mex/src/**/x64/`) borrados
+tras copiar a `mex/bin/` — ya cubiertos por `.gitignore`, pero se borraron del disco
+para no dejar residuos de la verificación.

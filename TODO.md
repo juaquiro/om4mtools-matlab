@@ -187,12 +187,14 @@ om4mtools-matlab/
   `tests/setupPath.m` actualizado para apuntar a `mex/bin/` (antes
   `om4mtools-matlab/IOT2DPU/deploy/`). Ver DECISIONS.md.
 - [x] Crear `mex/build.m` invocando MSBuild sobre el `.sln` — completo (2026-09-14):
-  localiza `MSBuild.exe` vía `vswhere.exe`, compila `Release|x64`, copia de
-  `mex/src/deploy/` (destino del post-build event de cada `.vcxproj`) a `mex/bin/`.
-  `.gitignore` ampliado para los intermedios que MSBuild deja dentro de `mex/src/`
-  (antes solo cubría `mex/bin/`). **Bloqueado en esta máquina:** los `.vcxproj` piden
-  el PlatformToolset `v120` (VS2013), no instalado (solo VS2022) — `MSB8020` antes de
-  compilar nada. Ver DECISIONS.md y el aviso en README.md § MEX.
+  localiza `MSBuild.exe` vía `vswhere.exe`, compila `Release|x64` (solo
+  `PUFlynMdMex`/`PUMexLib`), copia de `mex/src/deploy/` (destino del post-build event
+  de cada `.vcxproj`, creado por el script si no existe) a `mex/bin/`. `.gitignore`
+  ampliado para los intermedios que MSBuild deja dentro de `mex/src/` (antes solo
+  cubría `mex/bin/`). Pasa `MATLAB=matlabroot()` explícito a MSBuild (los `.vcxproj`
+  referencian `$(MATLAB)extern\include` sin definirlo, dependían de una variable de
+  entorno ambiental que no está garantizada). Verificado de extremo a extremo tras
+  retargetar el toolset (ítem siguiente) — ver DECISIONS.md.
 - [x] Mover datos/assets a fixtures — **decisión revertida 2026-09-14** (ver DECISIONS.md
   y `tests/fixtures/README.md`): al ser proyecto estrictamente personal, los datos
   (~11 GB) se sacaron de `tests/fixtures/` (que ahora se mantiene vacío a propósito) y
@@ -201,11 +203,15 @@ om4mtools-matlab/
   eliminado por obsoleto. Ficheros no-.m que el propio `src/` necesita para funcionar
   (no solo los tests) siguen en `src/`, no en fixtures.
 - [x] Adaptar `download_fixtures.sh` para descargar en `tests/fixtures/` — creado 2026-09-12 a partir de `download_dropbox_directory.sh` (renombrado y destino cambiado a `tests/fixtures/`, sustituido). Apunta al link de Dropbox ya existente en el script; el usuario indicó que la fuente es `DataSetsForTesting\om4mtools-matlab` (confirmado por espejo exacto de contenido con `tests/fixtures/`, pero no se pudo verificar automáticamente que el link concreto resuelva a esa carpeta — página de Dropbox es una SPA JS, no inspeccionable por fetch estático)
-- [ ] Compilar MEX para todas las plataformas disponibles → `mex/bin/` — incluye
-  decidir sobre el PlatformToolset `v120` bloqueante (ver ítem `mex/build.m` arriba):
-  instalar VS2013 build tools, o reapuntar (`retarget`) los `.vcxproj` a un toolset
-  moderno y reverificar que el resultado no cambia numéricamente (no hay harness
-  automático que compare salidas del unwrapper todavía)
+- [x] Retargetar `PlatformToolset` de `v120` (VS2013, no instalado) a `v143` (VS2022)
+  en los 5 `.vcxproj` — completo (2026-09-14). Verificado con
+  `run(testFPAUnwrapper)`: 5/5 Passed tanto con el binario `v120` original (tag
+  `mex_dll_working`, punto de rollback) como con el `v143` recompilado — ver
+  DECISIONS.md para el detalle y la salvedad sobre qué prueba realmente esa
+  verificación (no hay harness numérico dedicado para el path FlynMd).
+- [ ] Compilar MEX para otras plataformas (`mex/bin/`, ej. `glnxa64`/`maci64`) —
+  requiere migrar de MSBuild a CMake (ver decisión de diseño arriba), no lo cubre el
+  retarget de toolset de este ítem
 - [x] Verificar que nada en `src/` tiene rutas hardcodeadas a datos movidos — corregido para FPA (ver DECISIONS.md, 2026-09-12): 6 tests usaban `baseDir='.\Subcarpeta'` (solo resuelve contra cwd) en vez de rutas vía `fixturesRoot()`
 - [x] **Segunda ronda de rutas hardcodeadas: `dropbox()` en vez de `fixturesRoot()`
   (2026-09-13/14) — CERRADO AL 100%** — ~30 sitios en 7 ficheros de test FPA cargaban

@@ -28,18 +28,17 @@ Para recompilar (Windows, con Visual Studio o Build Tools instalado):
 run('mex/build.m')
 ```
 
-Localiza `MSBuild.exe` via `vswhere.exe`, compila `Release|x64` y
-copia el resultado a `mex/bin/`, sobrescribiendo los binarios
+Localiza `MSBuild.exe` via `vswhere.exe`, compila `Release|x64`
+(solo `PUFlynMdMex`/`PUMexLib`, los dos proyectos que consume MATLAB)
+y copia el resultado a `mex/bin/`, sobrescribiendo los binarios
 existentes.
 
-> **Aviso (2026-09-14):** los `.vcxproj` todavia apuntan al
-> PlatformToolset `v120` (Visual Studio 2013). Sin ese toolset
-> instalado, `mex/build.m` falla con `MSB8020` antes de compilar nada.
-> Instalar el toolset v120, o reapuntar (`retarget`) la solucion a uno
-> moderno, queda pendiente como parte de "Compilar MEX para todas las
-> plataformas" en `TODO.md` -- no se ha tocado el toolset todavia
-> porque no hay forma de verificar aqui que un C de ~15 anos compile
-> igual (numericamente) con un MSVC mas nuevo.
+> **Toolset (actualizado 2026-09-14):** los `.vcxproj` apuntaban
+> originalmente a PlatformToolset `v120` (Visual Studio 2013).
+> Reapuntados (`retarget`) a `v143` (Visual Studio 2022) -- ver tag
+> `mex_dll_working` (estado verificado con el `v120` original, punto de
+> rollback) y DECISIONS.md para el detalle completo, incluida la
+> verificación con `run(testFPAUnwrapper)` (5/5) tras el cambio.
 
 ## Consumo
 
