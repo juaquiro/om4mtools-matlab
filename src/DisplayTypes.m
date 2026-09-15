@@ -12,8 +12,6 @@ classdef DisplayTypes
         JavaDisp;
         %> Matlab figures
         Matlab;
-        %> Psychtoolbox-3
-        Psych;
         %> C++ dll interface
         CDLL;
     end

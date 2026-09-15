@@ -31,8 +31,6 @@ classdef DisplayFactory
                     else
                         error('Incorrect number of parameters');
                     end 
-                case DisplayTypes.Psych
-                    obj=DisplayProjectorPsych();
                 case DisplayTypes.CDLL
                     %mirar que varargin sea como maximo 1 parametro
                     numvarargs = length(varargin);

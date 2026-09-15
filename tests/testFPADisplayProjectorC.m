@@ -100,7 +100,7 @@ classdef testFPADisplayProjectorC < matlab.unittest.TestCase
         end
         
         function testDisplayList(testCase)
-            %run(testFPADisplayProjectorPsych, 'testDisplayList')
+            %run(testFPADisplayProjectorC, 'testDisplayList')
             import OM4MClassLib.Util.*;
             fprintf('\ntest %s...\n ',Logging.WhoCalledMe());
             
@@ -136,7 +136,7 @@ classdef testFPADisplayProjectorC < matlab.unittest.TestCase
         end
         
         function testRGB(testCase)
-            %run(testFPADisplayProjectorPsych, 'testRGB')
+            %run(testFPADisplayProjectorC, 'testRGB')
             import OM4MClassLib.Util.*;
             fprintf('\ntest %s...\n ',Logging.WhoCalledMe());
             
