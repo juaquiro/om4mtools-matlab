@@ -34,6 +34,25 @@ mex/src/**/*.idb
 mex/src/deploy/
 .vs/
 
+# DLL — dll/src/ es el proyecto Visual Studio de CProjector (sin .sln
+# propio, ver DECISIONS.md): MSBuild escribe sus intermedios ahí mismo y
+# el post-build event del .vcxproj copia el binario final a
+# dll/src/Deploy/ — dll/build.m copia de ahí a dll/bin/ y ambos son
+# transitorios, no van al repo
+dll/src/**/x64/
+dll/src/**/Win32/
+dll/src/**/Debug/
+dll/src/**/Release/
+dll/src/**/*.obj
+dll/src/**/*.pdb
+dll/src/**/*.ilk
+dll/src/**/*.exp
+dll/src/**/*.lib
+dll/src/**/*.tlog
+dll/src/**/*.log
+dll/src/**/*.idb
+dll/src/Deploy/
+
 # Fixtures de test (viven en Dropbox, no en el repo — ver tests/fixtures/README.md)
 tests/fixtures/**/*
 !tests/fixtures/README.md
