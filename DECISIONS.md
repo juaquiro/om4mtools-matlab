@@ -2038,3 +2038,56 @@ Verificado: `testMLUtilFunML` completo, 8/8 Passed (antes 7/8).
 
 Con esto, las 10 clases de test dependientes de datos ML/Coursera de esta sesión
 quedan **74/74 Passed**, sin ningún fallo pendiente.
+
+---
+
+## `CProjector` (CHighPerform) recuperado — nueva convención `dll/` (2026-09-15)
+
+`testFPADisplayProjectorC` fallaba en `loadlibrary('CProjector', 'CProjector.h')`
+porque ni el `.dll` ni el `.h` existían en `om4mtools-matlab`. Investigado a
+fondo (no se asumió "limitación de entorno" sin comprobar): en el repo legacy
+`om4mmatlabutils` existe `CHighPerform/` — un proyecto Visual Studio
+(`CHighPerform.sln`) con 3 DLLs (`CProjector`, `CameraProjector`, `ISCamera`) +
+sus binarios compilados en `CHighPerform/Deploy/`. Esta carpeta ya se sabía
+inexistente en `om4mtools-matlab` desde la limpieza de helpers de path de Fase
+2 (`CHighPerform` aparecía en la lista de "carpetas ya no existen" al arreglar
+`testAAAddReferencesPathFPA.m`/`testAAAddReferencesPathStandardHW.m`) pero
+nadie había confirmado hasta ahora que era la causa raíz de este test roto.
+
+**Decisión del usuario:** recuperar solo `CProjector` (comprobado con `grep`
+que `CameraProjector`/`ISCamera`/`TIS_UDSHL11_x64.dll` no los referencia nada
+en este repo — no hace falta traer el resto de `CHighPerform`), y crear una
+convención nueva `dll/` (paralela a `mex/`) en vez de meterlo suelto en
+`src/`:
+- `dll/src/CProjector/`: `CProjector.cpp/.h`, `dllmain.cpp`, `framework.h`,
+  `pch.cpp/.h`, `shrhelp.h`, `CProjector.vcxproj`+`.filters` (sin
+  `.vcxproj.user`, es local de máquina). Sin `.sln` propio — el legacy
+  `CHighPerform.sln` agrupa los 3 proyectos, no solo éste; de momento se deja
+  el `.vcxproj` suelto, buildable directo con `msbuild CProjector.vcxproj`
+  sin necesidad de `run('dll/build.m')`.
+- `dll/bin/`: `CProjector.dll` + `CProjector.h`, mismo criterio que
+  `mex/bin/` (binarios precompilados SÍ van al repo).
+- `tests/setupPath.m` actualizado para añadir `dll/bin` al path (mismo patrón
+  que `mex/bin`).
+
+**Hueco real encontrado en el propio proceso de recuperación:** el
+`Deploy/CProjector.h` legacy hace `#include "shrhelp.h"` (helper de
+MathWorks para exportar funciones cross-platform, sin más includes propios) —
+si no se copia `shrhelp.h` junto a `CProjector.h` en `dll/bin/`, el
+preprocesador de `loadlibrary` falla con `fatal error C1083: Cannot open
+include file: 'shrhelp.h'`. El `Deploy/` legacy sí lo tenía junto a los
+headers, por eso funcionaba allí.
+
+**Verificado:** `loadlibrary` carga limpio (solo un warning benigno sobre
+`MonitorEnumProc`, un tipo de callback declarado en el header que no es una de
+las funciones exportadas que se usan). Las 4 pruebas de
+`testFPADisplayProjectorC` pasan (antes 0/4) — confirmado con proyección real
+visible en un segundo monitor, no solo ausencia de excepción en MATLAB.
+
+**Nota operativa:** la primera llamada a `loadlibrary` de esta sesión tardó
+~20 minutos (detección de compilador C de primera vez, no un hang real — el
+Command Window de MATLAB seguía "Busy" todo ese tiempo); llamadas posteriores
+son casi instantáneas. Si se repite este patrón (primera invocación de
+`loadlibrary`/`mex -setup` en una sesión nueva de MATLAB tarda mucho),
+verificar que la Command Window esté realmente "Busy" (no un diálogo oculto
+bloqueado) antes de asumir que hay que interrumpir.

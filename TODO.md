@@ -76,10 +76,28 @@
        `EstimateSkew` (comentario `%for loading we need to cast two values to
        logical`) — se añadió el mismo cast para `DetectedKeypoints`.
   - ~9 tests de `LensMapperMeasurement`/`CameraCalibration*` sin investigar.
-  - `testFPADisplayProjectorC` (falla en `loadlibrary`, probablemente una
-    librería C externa no instalada — sin confirmar). `DisplayProjectorPsych`
-    y su test se eliminaron directamente (2026-09-15, a petición del
-    usuario) en vez de investigar el fallo de Psychtoolbox.
+  - `testFPADisplayProjectorC` **investigado y arreglado (2026-09-15):**
+    confirmado que era un hueco silencioso de migración, no una limitación de
+    entorno — `DisplayProjectorC.m` (`src/`) hace
+    `loadlibrary('CProjector', 'CProjector.h')`, y ni el `.dll` ni el `.h`
+    existían en ningún sitio de este repo. Rastreado hasta el legacy
+    `om4mmatlabutils/CHighPerform/` (proyecto Visual Studio con 3 DLLs:
+    `CProjector`, `CameraProjector`, `ISCamera` + su propio `.sln`), ya
+    marcado como carpeta inexistente en la limpieza de helpers de path de
+    Fase 2 (ver DECISIONS.md) — nunca se migró. De los 3, **solo
+    `CProjector` está referenciado por algo en este repo** (`CameraProjector`/
+    `ISCamera`/`TIS_UDSHL11_x64.dll` no los usa nada aquí, confirmado por
+    grep) — se recuperó solo esa pieza, no el resto de `CHighPerform`.
+    Nueva convención: `dll/src/CProjector/` (fuente C++ + `.vcxproj`, sin
+    `.sln` propio) y `dll/bin/` (`CProjector.dll` + `CProjector.h` +
+    `shrhelp.h`, mismo criterio que `mex/bin/` — binarios SÍ van al repo),
+    añadido a `tests/setupPath.m`. Corregido además un segundo hueco real:
+    el `Deploy/CProjector.h` legacy incluye `shrhelp.h`, que hay que copiar
+    junto a él en `dll/bin/` para que el preprocesador de `loadlibrary` lo
+    encuentre (si no, falla con `Cannot open include file: 'shrhelp.h'`).
+    **Las 4 pruebas de `testFPADisplayProjectorC` pasan ahora** (antes 0/4),
+    verificado con proyección real en un segundo monitor (confirmado
+    visualmente por el usuario, no solo ausencia de excepción MATLAB).
   - ~15-20 tests restantes sin categorizar del todo.
   - `testQC_FeatureTest` (dependía de helpers y de `..\TestDB\`, ninguno de
     los dos presentes en este repo) se eliminó directamente (2026-09-15, a

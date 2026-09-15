@@ -19,6 +19,10 @@ function setupPath()
 %     compiled MEX behind UnwrapperTypes.FlynMd (used throughout the FPA
 %     demodulator tests). Migrated here from the legacy IOT2DPU/deploy
 %     folder (see TODO.md Fase 2, DECISIONS.md).
+%   - dll/bin/          - holds CProjector.dll and CProjector.h, the
+%     loadlibrary() dependency behind DisplayProjectorC (used by
+%     testFPADisplayProjectorC). Recovered from the legacy
+%     CHighPerform/Deploy folder (see DECISIONS.md).
 %
 % Syntax:
 %   setupPath()
@@ -29,5 +33,6 @@ addpath(thisDir);
 addpath(fullfile(thisDir, '..', 'src'));
 addpath(fixturesRoot());
 addpath(fullfile(thisDir, '..', 'mex', 'bin'));
+addpath(fullfile(thisDir, '..', 'dll', 'bin'));
 
 end

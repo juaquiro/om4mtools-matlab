@@ -35,6 +35,12 @@ Modernización de om4mmatlabutils.
 - `tests/`   — todo plano, un TestXxx.m por función
 - `mex/src/` — código C/C++ + proyecto Visual Studio (.sln)
 - `mex/bin/` — binarios precompilados (SÍ van al repo)
+- `dll/src/<Nombre>/` — código C/C++ de dependencias `loadlibrary()` (no MEX),
+  un subdirectorio por DLL, con su `.vcxproj` (sin `.sln` propio salvo que
+  haga falta)
+- `dll/bin/` — `.dll` + `.h` (headers, incluidos los que el propio header
+  incluya, p.ej. `shrhelp.h`) que `loadlibrary()` necesita en tiempo de
+  ejecución (SÍ van al repo, mismo criterio que `mex/bin/`)
 
 ## Convenciones de código
 - Bloques `arguments` para toda validación de entrada (no inputParser)
