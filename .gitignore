@@ -38,6 +38,9 @@ mex/src/deploy/
 tests/fixtures/**/*
 !tests/fixtures/README.md
 
+# Log generado por run_all_tests.m (diary) — local, no va al repo
+tests/run_all_tests.log
+
 # Claude Code — settings.local.json es específico de esta máquina/usuario
 .claude/settings.local.json
 
