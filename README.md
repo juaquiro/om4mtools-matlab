@@ -40,10 +40,61 @@ existentes.
 > rollback) y DECISIONS.md para el detalle completo, incluida la
 > verificación con `run(testFPAUnwrapper)` (5/5) tras el cambio.
 
-## Consumo
+## Convenciones de codigo
 
-Se usa como Git submodule congelado (version fija por proyecto) en
-proyectos consumidores. Ver FASE 0.5 en `TODO.md`.
+Seguimos las [MATLAB Coding Guidelines de MathWorks](https://github.com/mathworks/MATLAB-Coding-Guidelines),
+con copia local en [`MATLAB-Coding-Guidelines.pdf`](./MATLAB-Coding-Guidelines.pdf)
+en la raiz del repo.
+
+## MATLAB MCP (MATLAB Agentic Toolkit)
+
+Este repo se trabaja con Claude Code apoyandose en el
+[MATLAB Agentic Toolkit](https://github.com/matlab/matlab-agentic-toolkit),
+que expone un servidor MCP (`matlab-mcp-core-server`) capaz de hablar con
+una sesion MATLAB real desde la sesion de Claude Code.
+
+### Por que conviene
+
+- Permite a Claude ejecutar y evaluar codigo MATLAB de verdad
+  (`evaluate_matlab_code`) en vez de solo leer/escribir ficheros `.m` a
+  ciegas -- util para correr `tests/run_all_tests.m` y ver resultados reales
+  sin salir de la sesion.
+- Detecta toolboxes instaladas (`detect_matlab_toolboxes`) -- forma fiable
+  de confirmar por que ciertos tests fallan en una maquina concreta (p. ej.
+  los tests que dependen de Computer Vision Toolbox, ver `TODO.md`), en vez
+  de asumirlo.
+- Trae los skills especializados de MATLAB (`matlab-testing`,
+  `matlab-debugging`, etc.) que ya aparecen listados para este proyecto.
+
+### Instalacion
+
+Forma mas simple: desde una sesion de Claude Code, pedir "set up the MATLAB
+Agentic Toolkit" (invoca la skill `toolkit:matlab-agentic-toolkit-setup`).
+El proceso es interactivo: detecta la instalacion de MATLAB local, descarga
+el binario `matlab-mcp-core-server` a `~/.matlab/agentic-toolkits/bin/`, lo
+registra globalmente para Claude Code y verifica la conexion antes de
+terminar.
+
+Instalacion manual (referencia rapida -- ver el repo del toolkit para el
+detalle completo):
+
+1. Descargar el binario para la plataforma (`matlab-mcp-core-server-win64.exe`
+   en Windows) desde
+   `https://github.com/matlab/matlab-mcp-core-server/releases/latest` a
+   `~/.matlab/agentic-toolkits/bin/`.
+2. Registrar el servidor con el agente (Claude Code: `claude mcp add-json`
+   apuntando al binario + `--matlab-root <ruta a MATLAB>`).
+3. Reiniciar la sesion del agente.
+
+### Verificar que funciona
+
+- Binario: `~/.matlab/agentic-toolkits/bin/matlab-mcp-core-server --version`.
+- Config: `~/.matlab/agentic-toolkits/config.json` debe existir y apuntar a
+  un `matlab.root` real y a un `mcpServerPath` ejecutable.
+- Dentro de una sesion nueva de Claude Code: preguntar "What version of
+  MATLAB is running?" -- si responde con la version real instalada (no con
+  una suposicion), el MCP esta conectado. Tambien puede comprobarse pidiendo
+  "detect installed MATLAB toolboxes".
 
 ## Tests
 
