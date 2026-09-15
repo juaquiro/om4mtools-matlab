@@ -1706,9 +1706,12 @@ classdef testFPA_UtilFunMapperMeasureClassVer < matlab.unittest.TestCase
             fname='params_Calibracion_5MAY20.json';
             if exist(fname, 'file')
                 params_struct=loadjson(fname);
-                %for loading we need to cast two values to logical
+                %for loading we need to cast three values to logical: JSON
+                %round-trips them as double, but R2024b cameraParameters
+                %requires DetectedKeypoints (and these other two) as logical
                 params_struct.EstimateTangentialDistortion=logical(params_struct.EstimateTangentialDistortion);
                 params_struct.EstimateSkew=logical(params_struct.EstimateSkew);
+                params_struct.DetectedKeypoints=logical(params_struct.DetectedKeypoints);
                 params=cameraParameters(params_struct);
             else
                 %defalt valurs no distortion K=eye(3)
@@ -1961,9 +1964,12 @@ classdef testFPA_UtilFunMapperMeasureClassVer < matlab.unittest.TestCase
             fname='params_Calibracion_15DIC20.json';
             if exist(fname, 'file')
                 params_struct=loadjson(fname);
-                %for loading we need to cast two values to logical
+                %for loading we need to cast three values to logical: JSON
+                %round-trips them as double, but R2024b cameraParameters
+                %requires DetectedKeypoints (and these other two) as logical
                 params_struct.EstimateTangentialDistortion=logical(params_struct.EstimateTangentialDistortion);
                 params_struct.EstimateSkew=logical(params_struct.EstimateSkew);
+                params_struct.DetectedKeypoints=logical(params_struct.DetectedKeypoints);
                 params=cameraParameters(params_struct);
             else
                 %defalt valurs no distortion K=eye(3)
@@ -2179,9 +2185,12 @@ classdef testFPA_UtilFunMapperMeasureClassVer < matlab.unittest.TestCase
             fname='params_Calibracion_5MAY20.json';
             if exist(fname, 'file')
                 params_struct=loadjson(fname);
-                %for loading we need to cast two values to logical
+                %for loading we need to cast three values to logical: JSON
+                %round-trips them as double, but R2024b cameraParameters
+                %requires DetectedKeypoints (and these other two) as logical
                 params_struct.EstimateTangentialDistortion=logical(params_struct.EstimateTangentialDistortion);
                 params_struct.EstimateSkew=logical(params_struct.EstimateSkew);
+                params_struct.DetectedKeypoints=logical(params_struct.DetectedKeypoints);
                 params=cameraParameters(params_struct);
             else
                 %defalt valurs no distortion K=eye(3)
@@ -2683,9 +2692,12 @@ classdef testFPA_UtilFunMapperMeasureClassVer < matlab.unittest.TestCase
             %load camera calibration params generated with run(testFPA_UtilFunFPAClassVer, 'testUndistortImagesCVTbx_5MAY20');
             fname='params_Calibracion_5MAY20.json';
             params_struct=loadjson(fname);
-            %for loading we need to cast two values to logical
-            params_struct.EstimateTangentialDistortion=logical(params_struct.EstimateTangentialDistortion)
-            params_struct.EstimateSkew=logical(params_struct.EstimateSkew)
+            %for loading we need to cast three values to logical: JSON
+            %round-trips them as double, but R2024b cameraParameters
+            %requires DetectedKeypoints (and these other two) as logical
+            params_struct.EstimateTangentialDistortion=logical(params_struct.EstimateTangentialDistortion);
+            params_struct.EstimateSkew=logical(params_struct.EstimateSkew);
+            params_struct.DetectedKeypoints=logical(params_struct.DetectedKeypoints);
             params=cameraParameters(params_struct);
 
 
@@ -2822,9 +2834,12 @@ classdef testFPA_UtilFunMapperMeasureClassVer < matlab.unittest.TestCase
             %load camera calibration params generated with run(testFPA_UtilFunFPAClassVer, 'testUndistortImagesCVTbx_5MAY20');
             fname='params_Calibracion_5MAY20.json';
             params_struct=loadjson(fname);
-            %for loading we need to cast two values to logical
-            params_struct.EstimateTangentialDistortion=logical(params_struct.EstimateTangentialDistortion)
-            params_struct.EstimateSkew=logical(params_struct.EstimateSkew)
+            %for loading we need to cast three values to logical: JSON
+            %round-trips them as double, but R2024b cameraParameters
+            %requires DetectedKeypoints (and these other two) as logical
+            params_struct.EstimateTangentialDistortion=logical(params_struct.EstimateTangentialDistortion);
+            params_struct.EstimateSkew=logical(params_struct.EstimateSkew);
+            params_struct.DetectedKeypoints=logical(params_struct.DetectedKeypoints);
             params=cameraParameters(params_struct);
 
 
@@ -2960,9 +2975,12 @@ classdef testFPA_UtilFunMapperMeasureClassVer < matlab.unittest.TestCase
             %load camera calibration params generated with run(testFPA_UtilFunFPAClassVer, 'testCameraCalibrationCVTbx_15DIC20');
             fname='params_Calibracion_15DIC20.json';
             params_struct=loadjson(fname);
-            %for loading we need to cast two values to logical
-            params_struct.EstimateTangentialDistortion=logical(params_struct.EstimateTangentialDistortion)
-            params_struct.EstimateSkew=logical(params_struct.EstimateSkew)
+            %for loading we need to cast three values to logical: JSON
+            %round-trips them as double, but R2024b cameraParameters
+            %requires DetectedKeypoints (and these other two) as logical
+            params_struct.EstimateTangentialDistortion=logical(params_struct.EstimateTangentialDistortion);
+            params_struct.EstimateSkew=logical(params_struct.EstimateSkew);
+            params_struct.DetectedKeypoints=logical(params_struct.DetectedKeypoints);
             params=cameraParameters(params_struct);
 
 

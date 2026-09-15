@@ -944,8 +944,8 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
             close all
 
             d=ver;
-            if not(any(strcmp({d.Name}, 'Computer Vision System Toolbox')))
-                error('Computer Vision System Toolbox is NOT installed') ;
+            if not(any(strcmp({d.Name}, 'Computer Vision Toolbox')))
+                error('Computer Vision Toolbox is NOT installed') ;
             end
 
             %get image
@@ -1240,10 +1240,15 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
             %el mismo que I y newOrigin=[0,0] no hay cambio de origen
             %alternatively if we load a params struct we can create a
             %cameraParameters object with the constructor cameraParameters(paramsStruct)
-            [J, newOrigin] = undistortImage(I,params,'OutputView','same');
+            [J, camIntrinsicsOut] = undistortImage(I,params,'OutputView','same');
 
-            %check for newOrigin
-            testCase.assertEqual(newOrigin, [0,0]);
+            %check for newOrigin: undistortImage's 2nd output changed from a
+            %numeric [x,y] origin offset to a returned cameraIntrinsics
+            %object (MATLAB API change, still true in R2024b). With
+            %OutputView='same' there is no crop/origin shift, verified here
+            %by the returned intrinsics' PrincipalPoint staying unchanged.
+            testCase.assertEqual(camIntrinsicsOut.PrincipalPoint, params.PrincipalPoint, 'AbsTol', 1e-6);
+            newOrigin = [0, 0];
 
             %Translate undistorted points in px
             undistortedPoints = [undistortedPoints(:,1) - newOrigin(1), ...
@@ -1572,10 +1577,15 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
             %el mismo que I y newOrigin=[0,0] no hay cambio de origen
             %alternatively if we load a params struct we can create a
             %cameraParameters object with the constructor cameraParameters(paramsStruct)
-            [J, newOrigin] = undistortImage(I,params,'OutputView','same');
+            [J, camIntrinsicsOut] = undistortImage(I,params,'OutputView','same');
 
-            %check for newOrigin
-            testCase.assertEqual(newOrigin, [0,0]);
+            %check for newOrigin: undistortImage's 2nd output changed from a
+            %numeric [x,y] origin offset to a returned cameraIntrinsics
+            %object (MATLAB API change, still true in R2024b). With
+            %OutputView='same' there is no crop/origin shift, verified here
+            %by the returned intrinsics' PrincipalPoint staying unchanged.
+            testCase.assertEqual(camIntrinsicsOut.PrincipalPoint, params.PrincipalPoint, 'AbsTol', 1e-6);
+            newOrigin = [0, 0];
 
             %Translate undistorted points in px
             undistortedPoints = [undistortedPoints(:,1) - newOrigin(1), ...
@@ -1765,10 +1775,15 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
             %el mismo que I y newOrigin=[0,0] no hay cambio de origen
             %alternatively if we load a params struct we can create a
             %cameraParameters object with the constructor cameraParameters(paramsStruct)
-            [J, newOrigin] = undistortImage(I,params,'OutputView','same');
+            [J, camIntrinsicsOut] = undistortImage(I,params,'OutputView','same');
 
-            %check for newOrigin
-            testCase.assertEqual(newOrigin, [0,0]);
+            %check for newOrigin: undistortImage's 2nd output changed from a
+            %numeric [x,y] origin offset to a returned cameraIntrinsics
+            %object (MATLAB API change, still true in R2024b). With
+            %OutputView='same' there is no crop/origin shift, verified here
+            %by the returned intrinsics' PrincipalPoint staying unchanged.
+            testCase.assertEqual(camIntrinsicsOut.PrincipalPoint, params.PrincipalPoint, 'AbsTol', 1e-6);
+            newOrigin = [0, 0];
 
             %Translate undistorted points in px
             undistortedPoints = [undistortedPoints(:,1) - newOrigin(1), ...

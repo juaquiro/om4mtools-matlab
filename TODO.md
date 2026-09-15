@@ -31,8 +31,50 @@
 - [ ] **Cerrar la suite de tests.** Baseline documentado en DECISIONS.md
   ("Fase 3 — primera pasada de estandarización y baseline"). Quedan, entre
   otros:
-  - ~15 tests que dependen de Computer Vision Toolbox (no instalada en esta
-    máquina) — limitación de entorno, no bug.
+  - **Computer Vision Toolbox SÍ está instalada en esta máquina** (24.2,
+    R2024b) — la nota anterior de "no instalada" era errónea, corregida
+    2026-09-15 tras verificarlo con el MCP server de MATLAB
+    (`detect_matlab_toolboxes`). Identificados 14 tests que llaman
+    directamente a APIs de CVT (grep de `estimateCameraParameters`,
+    `detectCheckerboardPoints`, `cameraParameters`, `undistortImage`, etc. en
+    `testFPA_UtilFunFPAClassVer.m` y `testFPA_UtilFunMapperMeasureClassVer.m`,
+    no solo por patrón de nombre). Baseline inicial: 4/14 pasan, 10/14
+    fallan — ninguno de los 10 fallos era limitación de entorno, eran 3 bugs
+    reales de compatibilidad de API (nombre de toolbox obsoleto en un
+    chequeo, tipo de retorno de `undistortImage` cambiado, validación de
+    tipos más estricta en `cameraParameters`). **Arreglados los 3 (2026-09-15)
+    — 14/14 pasan ahora:**
+    1. `testHomographyCalcWithComputerVisionToolbox`: comprobaba
+       `any(strcmp({ver.Name}, 'Computer Vision System Toolbox'))` (nombre
+       pre-R2016b de la toolbox) y lanzaba `error('...NOT installed')` si no
+       casaba — en R2024b el nombre es `'Computer Vision Toolbox'` (sin
+       "System"). Corregido el string comparado (mismo patrón que ya usaban
+       correctamente los tests `testUndistortImagesCVTbx_*` del mismo
+       fichero).
+    2. `testUndistortImagesCVTbx_5MAY20`/`_29JUN20`/`_15DIC20`: `assertEqual`
+       esperaba que el 2º valor devuelto por `undistortImage` fuera el
+       `double [0,0]` (`newOrigin`, comportamiento pre-R2024b); en R2024b ese
+       2º valor es un objeto `cameraIntrinsics` (`camIntrinsics`, ver `help
+       undistortImage`). Verificado empíricamente que con
+       `'OutputView','same'` ese `cameraIntrinsics` devuelto es idéntico al
+       de entrada (mismo `PrincipalPoint`/`FocalLength`/`ImageSize`) — no hay
+       cambio de origen, igual que antes. Test corregido para comparar
+       `camIntrinsicsOut.PrincipalPoint` contra `params.PrincipalPoint` (con
+       tolerancia) en vez de comparar contra `[0,0]`; el resto del test
+       (cálculo de `undistortedPoints` restando `newOrigin(1)`/`(2)`) se deja
+       intacto fijando `newOrigin = [0,0]` explícitamente tras la
+       comprobación, ya que sigue siendo cierto que no hay desplazamiento.
+    3. `testMejoraCaluloDPMUsingLMMClass_APR20_GeomCal`,
+       `testCaluloDPMUsingLMMClass_15DIC20`, `testDPMPowerRangeCalc`,
+       `testLMM_Calibration_5MAY20`, `testLMM_Calibracion_1OCT20`,
+       `testLMM_Calibracion_15DIC20`: error
+       `MATLAB:fisheyeParameters:invalidType` — el campo
+       `DetectedKeypoints` del struct de calibración cargado con `loadjson`
+       es `double` (JSON no distingue logical/double), pero
+       `cameraParameters(params_struct)` en R2024b exige `logical`. El propio
+       código ya hacía este mismo cast para `EstimateTangentialDistortion` y
+       `EstimateSkew` (comentario `%for loading we need to cast two values to
+       logical`) — se añadió el mismo cast para `DetectedKeypoints`.
   - ~9 tests de `LensMapperMeasurement`/`CameraCalibration*` sin investigar.
   - `testFPADisplayProjectorC` (falla en `loadlibrary`, probablemente una
     librería C externa no instalada — sin confirmar). `DisplayProjectorPsych`
