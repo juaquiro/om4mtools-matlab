@@ -75,7 +75,19 @@
        código ya hacía este mismo cast para `EstimateTangentialDistortion` y
        `EstimateSkew` (comentario `%for loading we need to cast two values to
        logical`) — se añadió el mismo cast para `DetectedKeypoints`.
-  - ~9 tests de `LensMapperMeasurement`/`CameraCalibration*` sin investigar.
+  - `testFPA_UtilFunMapperMeasureClassVer.m` **investigado (2026-09-15) vía
+    baseline completo, no método a método:** de los 24 tests del fichero (6
+    ya verificados en la sesión anterior junto con los fixes de CVT, 18
+    pendientes), el baseline de `run_all_tests.m` de esta sesión (ver más
+    abajo) confirma **15/24 Passed, 9/24 Incomplete, 0/24 Failed** — los 9
+    `Incomplete` son exactamente los que ya tienen
+    `assumeFail(testCase, 'AQDEBUG FFT method 1MAY20 not yet working')` en
+    el propio código (`testGetPower_SwissCoat40L88031L`, `_88051R`,
+    `_YO_D75_SMinus275_C0`, `_CalibrationLensKPC076`, `_KPX223`, `_88050R`,
+    `_VisionLab565964`, `testCheckCalibrationLensSpectra`,
+    `testFringeProjectionLinearGrid`) — el propio autor original ya los
+    marcó como trabajo inacabado, no es un bug de esta migración. **Sin
+    trabajo pendiente en este fichero.**
   - `testFPADisplayProjectorC` **investigado y arreglado (2026-09-15):**
     confirmado que era un hueco silencioso de migración, no una limitación de
     entorno — `DisplayProjectorC.m` (`src/`) hace
@@ -98,7 +110,39 @@
     **Las 4 pruebas de `testFPADisplayProjectorC` pasan ahora** (antes 0/4),
     verificado con proyección real en un segundo monitor (confirmado
     visualmente por el usuario, no solo ausencia de excepción MATLAB).
-  - ~15-20 tests restantes sin categorizar del todo.
+  - **Baseline real obtenido (2026-09-15, `run_all_tests.m` corrido por el
+    usuario tras añadirle log en diario — ver `tests/run_all_tests.log`,
+    local/no versionado):** `409 passed, 9 failed, 29 incomplete (of 438) -
+    34 Hardware-tagged tests excluded`. Sustituye la estimación previa
+    ("~15-20 sin categorizar"), que era anterior a los fixes de esta sesión
+    (CVT, `testFPADisplayProjectorC`) y no estaba basada en una corrida
+    real. **Pendiente para la próxima sesión — categorizar uno a uno (bug
+    real vs. limitación de entorno vs. dependencia irrecuperable), mismo
+    criterio que los fixes de CVT/`CProjector`:**
+    - **9 Failed:**
+      - `testStandardHW_MockCam/test_GetSethImage` — causa ya conocida
+        (Fase 2, ver DECISIONS.md): llama a `assertEqual` como función
+        suelta de xUnit en vez de `testCase.assertEqual`, dentro de una
+        classdef `matlab.unittest.TestCase` — nunca pudo haber pasado así.
+        Candidato claro a fix narrow (una línea).
+      - `TestNormalizationVortex/{fringePattern,filterDC,normalize}` — son
+        scripts de demo sin aserciones (Fase 2, ver DECISIONS.md), así que
+        "Failed" aquí significa que el código de demo lanza una excepción
+        real al ejecutarse, no un assert — investigar la excepción.
+      - `testFPADemodulatorSpatialFT/testDemodulatorFT`
+      - `testFPA_UtilFunFPAClassVer/{test_LocateSidelobes_ReferenciaRotlex,
+        test_phaseGradient1, testDecodeFromRGBTable}`
+      - `test_Util_Logging/testWhoCalledMe`
+    - **~20 Incomplete adicionales** (fuera de los 9 ya resueltos de
+      `LensMapperMeasurement` arriba, y de los 3 `TestNormalizationVortex`
+      que aparecen también en Failed):
+      - `testFFVCalibration/{testPolinomicalCalibrationFromLMMs,
+        testPolinomicalCalibrationFromLMMsV2, testCalibration2TimesAndRecal,
+        testCalibration2Times}`
+      - `testFPA_UtilFunFPAClassVer/{testCalculateHomographyAndTransform,
+        testFigFFTLinGV, testCalculatePowerWithCorrectionFromLMMfile}`
+      - `testJsonlabRoundTrip/{testJsonRoundTrip,testUbjsonRoundTrip}` ×
+        `exampleFile={example2,example4}.json` (4 casos parametrizados)
   - `testQC_FeatureTest` (dependía de helpers y de `..\TestDB\`, ninguno de
     los dos presentes en este repo) se eliminó directamente (2026-09-15, a
     petición del usuario) en vez de esperar a recuperar esas dependencias.
