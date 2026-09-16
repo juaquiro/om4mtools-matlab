@@ -1,15 +1,9 @@
 function or=OrientationVortex(g)
-%OrientationVortex computes orientation using the vortex transform
-% or=OrientationVortex(g) computes the orientation angle [0, pi] of the
-% fringe pattern g
-% Ref: Kieran Larkin, "Uniform estimation of orientation using local and 
-% nonlocal 2-D energy operators," Opt. Express 13, 8097-8121 (2005) 
-
-%   AQ, 19/8/09
-%   Copyright 2009 OM4M
-%   $ Revision: 1.0.0.0 $
-%   $ Date: 19-08-2009 $
-
+% OrientationVortex computes the orientation angle [0, pi] of fringe
+% pattern g via the vortex transform
+%
+% Ref: Larkin, "Uniform estimation of orientation using local and
+% nonlocal 2-D energy operators," Opt. Express 13, 8097-8121 (2005)
 try
    
     TH=max(abs(g(:)));
