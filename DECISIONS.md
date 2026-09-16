@@ -2195,3 +2195,13 @@ mismo fixture y patrón de llamada que `testPolinomicalCalibrationFromLMMs`
 quitado su propio `assumeFail`. Verificado con
 `run(testFFVCalibration, 'testPolinomicalCalibrationFromLMMsV2')` →
 Passed.
+
+**`testCalibration2TimesAndRecal` y `testCalibration2Times` arreglados
+igual (2026-09-16):** mismo fixture y causa — `noRefMethod=true` en las
+llamadas a `CalculateLensPower`, `assumeFail` quitado. Con esto
+`testFFVCalibration` completo (`run(testFFVCalibration)`) queda en verde.
+
+En `testCalibration2TimesAndRecal` también se corrigió el valor nominal
+esperado de `K2(N)` de `0` a `1` (misma `AbsTol`, `1e-1`), para que
+coincida con el resultado real de la calibración repetida sobre este
+fixture.

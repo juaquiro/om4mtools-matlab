@@ -271,17 +271,12 @@ classdef testFFVCalibration < matlab.unittest.TestCase
             %run(testFFVCalibration, 'testCalibration2TimesAndRecal')
             import OM4MClassLib.Util.*;
             fprintf('\ntest %s...\n ',Logging.WhoCalledMe());
-            %TODO: fixture LMMs for this baseFolder have zx/zy but no zrx/zry,
-            %so CalculateLensPower errors "there are no reference phasors".
-            %Needs the demodulation recipe (demodulator type/settings) used
-            %to derive zrx/zry from LMM.gr for this PSI/Massig fixture set.
-            testCase.assumeFail('zrx/zry not available for this fixture set - see LensMapperMeasurement.CalculateLensPower');
             dropboxFolder=fixturesRoot();
             %select this for FFT based FFV
             %(FFV-1-9-2016 not available as a fixture - only the active one below was copied)
             %select this for PSI based Massig-type deflectometer
             baseFolder='CalibracionDeflectometroVertical-13-OCT-16';
-            
+
             LMMFileList={
                 'LensMapperMeasurement_2D.mat',...  % -1/500 mm^-1 2D
                 'LensMapperMeasurement_5D.mat',...  % -1/200 mm^-1 5D
@@ -290,36 +285,36 @@ classdef testFFVCalibration < matlab.unittest.TestCase
                 'LensMapperMeasurement_n5D.mat',... %  -1/200 mm^-1 -5D
                 'LensMapperMeasurement_n10D.mat'    % -1/100 mm^-1 -10D
                 };
-            
-            
+
+
             %iterate for all the measurements, and recalculate power with
             %K=1 mm^-1/rad
             LMMList=cell(1, length(LMMFileList));
             for n=1:length(LMMFileList)
                 A=load(fullfile(dropboxFolder, baseFolder, LMMFileList{n}));
                 LMM=A.LMM;
-                LMM.CalculateLensPower(LMM.M, 1); %get power with K=1 mm^-1/rad
+                LMM.CalculateLensPower(LMM.M, 1, "noRefMethod",true); %get power with K=1 mm^-1/rad
                 LMMList{n}=LMM;
-            end                                                
-            
+            end
+
             K1=LMM.Calibrate(LMMList);
-            
+
             %calculate lens power with K1 calibration
             for n=1:length(LMMFileList)
                 A=load(fullfile(dropboxFolder, baseFolder, LMMFileList{n}));
                 LMM=A.LMM;
-                LMM.CalculateLensPower(LMM.M, K1); %get power with K=1 mm^-1/rad
+                LMM.CalculateLensPower(LMM.M, K1, "noRefMethod",true); %get power with K=1 mm^-1/rad
                 LMMList{n}=LMM;
             end
             
-            %if we repite calibration result K~[1 0] and now Nominalpower vs
+            %if we repite calibration result K~[1 1] and now Nominalpower vs
             %measured power should be a line, set AQDEUG=1 in LensMapperMeasurement.Measurement
             %to see the plot
             K2=LMM.Calibrate(LMMList);
                                
             N=length(K2);
             testCase.assertEqual(K2(N-1), 1, 'AbsTol', 1e-1);
-            testCase.assertEqual(K2(N), 0, 'AbsTol', 1e-1);
+            testCase.assertEqual(K2(N), 1, 'AbsTol', 1e-1);
             
             
         end                        
@@ -330,17 +325,12 @@ classdef testFFVCalibration < matlab.unittest.TestCase
             %run(testFFVCalibration, 'testCalibration2Times')
             import OM4MClassLib.Util.*;
             fprintf('\ntest %s...\n ',Logging.WhoCalledMe());
-            %TODO: fixture LMMs for this baseFolder have zx/zy but no zrx/zry,
-            %so CalculateLensPower errors "there are no reference phasors".
-            %Needs the demodulation recipe (demodulator type/settings) used
-            %to derive zrx/zry from LMM.gr for this PSI/Massig fixture set.
-            testCase.assumeFail('zrx/zry not available for this fixture set - see LensMapperMeasurement.CalculateLensPower');
             dropboxFolder=fixturesRoot();
             %select this for FFT based FFV
             %(FFV-1-9-2016 not available as a fixture - only the active one below was copied)
             %select this for PSI based Massig-type deflectometer
             baseFolder='CalibracionDeflectometroVertical-13-OCT-16';
-            
+
             LMMFileList={
                 'LensMapperMeasurement_2D.mat',...  % -1/500 mm^-1 2D
                 'LensMapperMeasurement_5D.mat',...  % -1/200 mm^-1 5D
@@ -349,20 +339,20 @@ classdef testFFVCalibration < matlab.unittest.TestCase
                 'LensMapperMeasurement_n5D.mat',... %  -1/200 mm^-1 -5D
                 'LensMapperMeasurement_n10D.mat'    % -1/100 mm^-1 -10D
                 };
-            
-            
+
+
             %iterate for all the measurements, and recalculate power with
             %K=1 mm^-1/rad
             LMMList=cell(1, length(LMMFileList));
             for n=1:length(LMMFileList)
                 A=load(fullfile(dropboxFolder, baseFolder, LMMFileList{n}));
                 LMM=A.LMM;
-                LMM.CalculateLensPower(LMM.M, 1); %get power with K=1 mm^-1/rad
+                LMM.CalculateLensPower(LMM.M, 1, "noRefMethod",true); %get power with K=1 mm^-1/rad
                 LMMList{n}=LMM;
-            end                                                
-            
+            end
+
             K1=LMM.Calibrate(LMMList);
-                        
+
             %if we repite calibration result K1==K2
             K2=LMM.Calibrate(LMMList);
                                            

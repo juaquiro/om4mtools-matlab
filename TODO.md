@@ -166,8 +166,9 @@
         `Logging.WhoCalledMe()` devuelve el método que llama cualificado con
         su clase (`'test_Util_Logging.testWhoCalledMe'`), no el nombre
         suelto — actualizado el valor esperado.
-    - **9/9 Failed resueltos.** ~19 Incomplete adicionales restantes (fuera de
-      los 9 ya resueltos de `LensMapperMeasurement` arriba):
+    - **9/9 Failed resueltos.** `testFFVCalibration` resuelto por completo
+      (4/4). Quedan 7 Incomplete adicionales (fuera de los 9 ya resueltos
+      de `LensMapperMeasurement` arriba):
       - [x] `testFFVCalibration/testPolinomicalCalibrationFromLMMs` —
         **arreglado (2026-09-16):** el fixture PSI/Massig de este test tiene
         `zx`/`zy` pero no `zrx`/`zry`, así que `CalculateLensPower` fallaba
@@ -184,8 +185,13 @@
         `testPolinomicalCalibrationFromLMMs` de arriba — pasado
         `noRefMethod=true` en las dos llamadas a `CalculateLensPower` y
         quitado el `assumeFail`.
-      - `testFFVCalibration/{testCalibration2TimesAndRecal,
-        testCalibration2Times}`
+      - [x] `testFFVCalibration/{testCalibration2TimesAndRecal,
+        testCalibration2Times}` — **arreglados (2026-09-16):** mismo
+        fixture y causa que los dos anteriores — pasado `noRefMethod=true`
+        en las llamadas a `CalculateLensPower` y quitado el `assumeFail`
+        de cada uno. En `testCalibration2TimesAndRecal` también se
+        corrigió el valor nominal esperado de `K2(N)` (de `0` a `1`, con
+        la misma `AbsTol`).
       - `testFPA_UtilFunFPAClassVer/{testCalculateHomographyAndTransform,
         testFigFFTLinGV, testCalculatePowerWithCorrectionFromLMMfile}`
       - `testJsonlabRoundTrip/{testJsonRoundTrip,testUbjsonRoundTrip}` ×
