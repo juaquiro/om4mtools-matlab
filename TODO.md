@@ -167,7 +167,7 @@
         su clase (`'test_Util_Logging.testWhoCalledMe'`), no el nombre
         suelto — actualizado el valor esperado.
     - **9/9 Failed resueltos.** `testFFVCalibration` resuelto por completo
-      (4/4). Quedan 7 Incomplete adicionales (fuera de los 9 ya resueltos
+      (4/4). Quedan 6 Incomplete adicionales (fuera de los 9 ya resueltos
       de `LensMapperMeasurement` arriba):
       - [x] `testFFVCalibration/testPolinomicalCalibrationFromLMMs` —
         **arreglado (2026-09-16):** el fixture PSI/Massig de este test tiene
@@ -192,8 +192,16 @@
         de cada uno. En `testCalibration2TimesAndRecal` también se
         corrigió el valor nominal esperado de `K2(N)` (de `0` a `1`, con
         la misma `AbsTol`).
-      - `testFPA_UtilFunFPAClassVer/{testCalculateHomographyAndTransform,
-        testFigFFTLinGV, testCalculatePowerWithCorrectionFromLMMfile}`
+      - [x] `testFPA_UtilFunFPAClassVer/testCalculateHomographyAndTransform`
+        — **resuelto (2026-09-16), no era un bug:** ya llevaba su propio
+        `assumeFail` explicando que requiere clicks manuales de `ginput(4)`
+        sobre una imagen mostrada — no automatizable, nunca pudo ser un
+        test real de `run_all_tests.m`. Extraído a
+        `tests/demoCalculateHomographyAndTransform.m` (mismo patrón que
+        los 5 scripts de demo de arriba) — deja de aparecer en
+        `run_all_tests.m`/`run_all_tests.log` por completo.
+      - `testFPA_UtilFunFPAClassVer/{testFigFFTLinGV,
+        testCalculatePowerWithCorrectionFromLMMfile}`
       - `testJsonlabRoundTrip/{testJsonRoundTrip,testUbjsonRoundTrip}` ×
         `exampleFile={example2,example4}.json` (4 casos parametrizados)
   - `testQC_FeatureTest` (dependía de helpers y de `..\TestDB\`, ninguno de

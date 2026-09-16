@@ -2205,3 +2205,24 @@ En `testCalibration2TimesAndRecal` también se corrigió el valor nominal
 esperado de `K2(N)` de `0` a `1` (misma `AbsTol`, `1e-1`), para que
 coincida con el resultado real de la calibración repetida sobre este
 fixture.
+
+## `testCalculateHomographyAndTransform` extraído a demo (2026-09-16)
+
+Primero de los Incomplete de `testFPA_UtilFunFPAClassVer` categorizado.
+Igual que los 5 scripts de `UtilLib/FPA` arriba, no era un bug: el propio
+test ya llevaba
+`testCase.assumeFail('testCalculateHomographyAndTransform requires manual
+ginput() clicks on a displayed image - not automatable, run manually if
+needed')` — usa `ginput(4)` para que un humano marque 4 puntos sobre la
+imagen mostrada, así que nunca pudo pasar desatendido en
+`run_all_tests.m`.
+
+A diferencia de los 5 de arriba (que eran scripts sueltos con nombre
+"Test*" recogidos por convención de nombre), este era un método real
+dentro de la classdef `testFPA_UtilFunFPAClassVer` — así que quitarlo del
+descubrimiento de tests significa sacarlo del `classdef` por completo, no
+solo renombrar un fichero. Extraído a
+`tests/demoCalculateHomographyAndTransform.m` (script, con `setupPath()`
+explícito al principio ya que como script suelto no hereda el
+`TestMethodSetup` de la clase) y borrado el método original. Deja de
+aparecer en `run_all_tests.m`/`run_all_tests.log`.
