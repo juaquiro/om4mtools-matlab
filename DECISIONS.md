@@ -2265,3 +2265,86 @@ parte pequeña que recuperar. Eliminado entero. Verificado con
 `check_matlab_code` (MCP de MATLAB) sobre el fichero tras el borrado: sin
 errores de sintaxis introducidos, solo warnings/info preexistentes no
 relacionados.
+
+## `jsonlab` (`loadjson`/`savejson`) arreglado para MATLAB actual: bug real de compatibilidad (2026-09-16)
+
+Último punto de "Cerrar la suite de tests", y el único de los ~29
+Incomplete originales que resultó ser un bug de compatibilidad real con
+la versión actual de MATLAB (R2024b) — a diferencia de todos los
+anteriores, que eran o no-bugs (scripts de demo, tests que ya
+documentaban su propia limitación) o dependencias irrecuperables.
+
+**Diagnóstico:** `loadjson` (`src/loadjson.m`, función interna
+`parse_array`) tiene un atajo rápido ("fast array parser") que, para
+arrays JSON simples, construye el texto del array tal cual
+(`arraystr = '[' + texto_json + ']'`) y lo pasa directamente a
+`eval()` — en vez de parsear cada elemento manualmente — como
+optimización de rendimiento. Para un array de strings sin escapar como
+`["GML","XML"]` (fixture `example2.json`, campo `GlossSeeAlso`) o
+`["Paper","Scissors","Stone"]` (fixture `example4.json`), ese texto
+`["GML","XML"]` **es sintaxis MATLAB válida por sí misma** desde que
+MATLAB introdujo el tipo `string` en R2017a (`"..."` ya no es solo
+transposición, es un literal `string`). En MATLAB anterior a R2017a esa
+misma `eval()` lanzaba un error (no existía tal sintaxis), y el código
+caía al `catch` de abajo, que parsea el array elemento a elemento con
+`parse_value`/`parseStr` — produciendo el `cell` array de `char` que
+todo el resto de jsonlab espera. En MATLAB R2024b, en cambio, el
+`eval()` **tiene éxito silenciosamente** y devuelve un array `string` de
+MATLAB, un tipo que jsonlab (escrito en 2011, muy anterior a `string`)
+nunca contempló.
+
+Ese array `string` se propaga hasta `savejson`, cuyo dispatcher
+`obj2json` comprueba `iscell`/`isstruct`/`ischar`/`isobject` en ese
+orden — y un array `string` no es `cell` ni `struct` ni `char`, pero
+`isobject(stringArray)` **sí es true** (el tipo `string` es una clase),
+así que cae en la rama `matlabobject2json`, pensada para objetos
+propios de usuario con `properties()` (LMM, etc.), no para `string`.
+Esa rama llama a `properties(item)` y falla con
+`MATLAB:string:MustBeStringScalarOrCharacterVector` — exactamente el
+error que ya documentaba el `assumeFail` original de
+`testJsonlabRoundTrip` ("arrays de strings planos parecen disparar la
+rama matlabobject2json de savejson").
+
+**Fix:** en `parse_array`, justo después del `object=eval(arraystr);`
+que tiene éxito, se comprueba `isstring(object)` y si es así se hace
+`object=cellstr(object)` — restaurando el `cell` de `char` que el resto
+del código (aquí y en cualquier caller de `loadjson` en este repo)
+siempre asumió. Cambio de 8 líneas, con comentario explicando el porqué
+(ver el propio `src/loadjson.m`). No se ha tocado `saveubjson`/
+`loadubjson`: no re-parsean texto JSON, así que no tienen este `eval()`
+y nunca tuvieron el bug — de hecho `testUbjsonRoundTrip` ya pasaba al
+100% en cuanto `loadjson` (usado por el test para cargar `original`)
+dejó de producir arrays `string`.
+
+**Verificado:**
+- `run(testJsonlabBasicTypes)`: 26/26 Passed, sin regresiones.
+- `run(testJsonlabRoundTrip)`: `testUbjsonRoundTrip` 4/4 Passed (las 4
+  `exampleFile`). `testJsonRoundTrip` 3/4 Passed (`example1`-`example3`);
+  `example4` se documenta aparte, ver más abajo.
+- `check_matlab_code` sobre `loadjson.m`: sin errores nuevos, solo
+  warnings/info preexistentes no relacionados con el cambio.
+
+**`testJsonRoundTrip/example4.json` — no es el mismo bug, ambigüedad de
+formato JSON aparte, dejada documentada:** el 3er elemento de
+`example4.json` es un array JSON de 3 *objetos*, cada uno envolviendo un
+array `[1,2]` con la codificación propia de jsonlab
+`_ArrayType_`/`_ArraySize_`/`_ArrayData_` — escrito así deliberadamente
+(es un fixture del propio `jsonlab_selftest.m` original) para forzar a
+`loadjson` a mantenerlos como 3 arrays 1x2 separados dentro de un
+`cell`, en vez de una matriz. `savejson` no tiene forma de reproducir
+ese envoltorio al volcar un `cell` de arrays numéricos — escribe arrays
+JSON planos anidados (`[[1,0],[1,1],[1,2]]`), y el parser rápido de
+`loadjson` (basado en `sscanf`, sin relación alguna con la versión de
+MATLAB) colapsa automáticamente cualquier array-de-arrays uniforme en
+una única matriz 3x2 al releerlo. Es una ambigüedad inherente del propio
+formato JSON plano (no puede distinguir "3 arrays separados" de "una
+matriz") que existiría igual en cualquier versión de MATLAB, antigua o
+moderna — no algo que "arreglar" para compatibilidad. Decisión del
+usuario (2026-09-16, ver conversación): documentarlo con un
+`assumeFail` específico y preciso en el propio test (sustituye al
+`assumeFail` genérico anterior, que solo cubría el bug real ya
+arreglado), en vez de tocar `savejson` para que emita el envoltorio
+`_ArrayType_` también para `cell` de arrays (cambiaría la forma de
+salida de `savejson` en cualquier otro sitio que lo use, riesgo
+desproporcionado para un solo caso de fixture) o relajar la comparación
+del test con un normalizador ad-hoc.

@@ -167,8 +167,8 @@
         su clase (`'test_Util_Logging.testWhoCalledMe'`), no el nombre
         suelto — actualizado el valor esperado.
     - **9/9 Failed resueltos.** `testFFVCalibration` resuelto por completo
-      (4/4). Quedan 4 Incomplete adicionales (fuera de los 9 ya resueltos
-      de `LensMapperMeasurement` arriba):
+      (4/4). Solo queda 1 Incomplete adicional, documentado y no un bug
+      (fuera de los 9 ya resueltos de `LensMapperMeasurement` arriba):
       - [x] `testFFVCalibration/testPolinomicalCalibrationFromLMMs` —
         **arreglado (2026-09-16):** el fixture PSI/Massig de este test tiene
         `zx`/`zy` pero no `zrx`/`zry`, así que `CalculateLensPower` fallaba
@@ -220,8 +220,34 @@
         `om4mmatlabutils`). Test enorme (~520 líneas, casi todo listas de
         rutas/nombres de lente comentadas de uso manual) — eliminado
         entero en vez de dejarlo con `assumeFail`.
-      - `testJsonlabRoundTrip/{testJsonRoundTrip,testUbjsonRoundTrip}` ×
-        `exampleFile={example2,example4}.json` (4 casos parametrizados)
+      - [x] `testJsonlabRoundTrip/{testJsonRoundTrip,testUbjsonRoundTrip}` ×
+        `exampleFile={example2,example4}.json` — **arreglado (2026-09-16),
+        bug real de compatibilidad con MATLAB actual:** `loadjson`
+        (`src/loadjson.m`, `parse_array`) usa un atajo rápido que hace
+        `eval()` directamente sobre el texto JSON de un array (p.ej.
+        `["GML","XML"]`). En MATLAB pre-R2017a eso lanzaba un error (sin
+        soporte de `string`) y caía al parser manual elemento a elemento,
+        produciendo el `cell` de `char` que el resto de jsonlab espera.
+        Desde R2017a, `"..."` es sintaxis válida de `string` de MATLAB,
+        así que ese `eval()` ahora **tiene éxito** y devuelve un array
+        `string` en vez de un `cell` — que luego rompe `savejson`
+        (cae en la rama `matlabobject2json`, pensada para objetos con
+        `properties()`, no para `string`). Corregido añadiendo un cast
+        `cellstr()` justo después del `eval()` si el resultado es
+        `string`, restaurando el tipo que el resto del código siempre
+        esperó. Mismo `eval()` existe en `loadjson.m` solamente — no hace
+        falta tocar `saveubjson`/`loadubjson` (no re-parsean JSON de
+        texto).
+        - `testUbjsonRoundTrip` pasa ahora al 100% (4/4 `exampleFile`).
+        - `testJsonRoundTrip` pasa para `example1`-`example3`; `example4`
+          se deja con un `assumeFail` **nuevo y más preciso** (ver el
+          comentario en el propio test y DECISIONS.md) — no es un bug de
+          compatibilidad sino una ambigüedad inherente del formato JSON
+          plano (un array de arrays uniforme se colapsa automáticamente
+          en una matriz al releer, y `savejson` no tiene forma de
+          reproducir el envoltorio `_ArrayType_` explícito que tenía el
+          fixture original para evitarlo) — existiría igual en cualquier
+          versión de MATLAB.
   - `testQC_FeatureTest` (dependía de helpers y de `..\TestDB\`, ninguno de
     los dos presentes en este repo) se eliminó directamente (2026-09-15, a
     petición del usuario) en vez de esperar a recuperar esas dependencias.
