@@ -1,20 +1,21 @@
 classdef ClassifierNN < Classifier
-    %ClassifierNN
-    %   This class describes a NN classifier from the MATLAB NN toolbox
-    
+    % ClassifierNN neural network classifier backed by MATLAB's Deep
+    % Learning Toolbox (patternnet), supervised
+
     %% private props
     properties (Access=private)
         net; %MATLAB network object
     end
-    
+
     properties
         pm
     end
-    
+
     %% public methods
     methods
-        % constructor
         function  this=ClassifierNN()
+            % ClassifierNN constructs a NN classifier; errors if the nnet
+            % (Deep Learning) toolbox is not installed
             %%% Pre Initialization %%%
             % Any code not using first output argument (this)
             import OM4MClassLib.Util.*;
@@ -40,19 +41,22 @@ classdef ClassifierNN < Classifier
         end          
         
         function r=isSupervised(this)
+            % isSupervised: true, needs labeled data to train the network
             r=true;
-        end        
-        
+        end
+
         function r=isRegression(this)
+            % isRegression: false, this is a pattern-recognition classifier
             r=false;
         end
-        
+
     end
-    
+
     %% protected abstract interface
     methods (Access=protected)
-        %Classfier hypothesis h_theta(X)
         function [pred,prb]=HypothesisP(this, X)
+            % HypothesisP runs X through the trained network and returns
+            % the argmax class pred and its output activation prb
             pm=this.net(X');
             this.pm=pm;
             % p=vec2ind(pm); pred=p';
@@ -61,10 +65,10 @@ classdef ClassifierNN < Classifier
             pred=pred(:);
         end
         
-        %function used to compute the parameters theta
         function CalculateTheta(this, X,y)
-            
-            
+            % CalculateTheta creates the patternnet (on first call, sized
+            % per hiddenSizes) and trains it on X/y with regularization = lambda
+
             %once the Taing is launched the number of hidden layers can not
             %be changed
             if isempty(this.net)
@@ -93,9 +97,7 @@ classdef ClassifierNN < Classifier
         end
         
         function errStruct=RawDataErrorFun(this, X, y)
-            
-            %[J, JGrad]=UtilFunML.CostFunctionLR(theta, X, y, lambda);
-            %given a
+            % RawDataErrorFun returns accuracy-based error plus F1/precision/recall
             p = this.HypothesisP(X);
             J=100-UtilFunML.Accuracy(y,p);
             
@@ -110,6 +112,7 @@ classdef ClassifierNN < Classifier
         end
         
         function r=isTrained(this)
+            % isTrained returns true once this.net has been created/trained
             if this.isemptyNet
                 r=false;
             else
@@ -117,20 +120,21 @@ classdef ClassifierNN < Classifier
             end
         end
     end
-    
-    
+
+
     %% private methods
     methods (Access=private)
-        %Initialize
         function this=Init(this)
-            
+            % Init clears this.net and sets the default hidden-layer size (10)
+
             this.net=[];
             %default is 1 hidden later with 10 neurons
             this.Set(char(ClassifierProps.hiddenSizes), [10]);
-            
+
         end
-        
+
          function st=isemptyNet(this)
+             % isemptyNet returns true if this.net has not been created yet
             try
                 st=isempty(this.net);
             catch ME

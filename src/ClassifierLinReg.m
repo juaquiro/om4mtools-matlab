@@ -8,8 +8,8 @@ classdef ClassifierLinReg < Classifier
 
     %% public methods
     methods
-        % ClassifierLinReg constructs a linear regression classifier
         function  this=ClassifierLinReg()
+            % ClassifierLinReg constructs a linear regression classifier
             %%% Pre Initialization %%%
             % Any code not using first output argument (this)
             
@@ -27,13 +27,13 @@ classdef ClassifierLinReg < Classifier
             this.Init();
         end
         
-        % isSupervised: true, linear regression needs labeled data
         function r=isSupervised(this)
+            % isSupervised: true, linear regression needs labeled data
             r=true;
         end
 
-        % isRegression: true, predicts a continuous value
         function r=isRegression(this)
+            % isRegression: true, predicts a continuous value
             r=true;
         end
 
@@ -41,9 +41,9 @@ classdef ClassifierLinReg < Classifier
 
     %% protected abstract interface
     methods (Access=protected)
-        % HypothesisP predicts pred = X*theta and prb as its distance to
-        % the regression line (pred normalized by norm(theta))
         function [pred,prb]=HypothesisP(this, X)
+            % HypothesisP predicts pred = X*theta and prb as its distance
+            % to the regression line (pred normalized by norm(theta))
 
             % Add bias to the X data matrix
             m = size(X, 1); % Number of samples
@@ -53,8 +53,8 @@ classdef ClassifierLinReg < Classifier
             prb=pred/norm(this.theta); % Distance to the regression line
         end
 
-        % CalculateTheta fits theta via the (regularized) normal equation
         function CalculateTheta(this, X,y)
+            % CalculateTheta fits theta via the (regularized) normal equation
 
             m = size(X, 1); % Number of training examples
             n = size(X, 2); % features number
@@ -63,9 +63,9 @@ classdef ClassifierLinReg < Classifier
             this.theta = UtilFunML.normalEqn(X,y, lambda);
         end
 
-        % RawDataErrorFun returns the regularized cost J (F1/P/R are N/A
-        % for a regressor, left at 0)
         function errStruct=RawDataErrorFun(this, X, y)
+            % RawDataErrorFun returns the regularized cost J (F1/P/R are
+            % N/A for a regressor, left at 0)
             lambda=this.Get(char(ClassifierProps.lambda));
                         
             [J, ~]=UtilFunML.CostFunctionLinReg(this.theta, X, y, lambda);
@@ -78,8 +78,8 @@ classdef ClassifierLinReg < Classifier
             errStruct.R=0;
         end
         
-        % isTrained returns true once theta has been fitted
         function r=isTrained(this)
+            % isTrained returns true once theta has been fitted
             if isempty(this.theta)
                 r=false;
             else
@@ -92,8 +92,8 @@ classdef ClassifierLinReg < Classifier
 
     %% private methods
     methods (Access=private)
-        % Init no-op: ClassifierLinReg needs no extra state beyond Classifier's
         function this=Init(this)
+            % Init no-op: ClassifierLinReg needs no extra state beyond Classifier's
         end
     end
 end

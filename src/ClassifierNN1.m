@@ -1,16 +1,16 @@
 classdef ClassifierNN1 < Classifier
-    %ClassifierNN
-    %   This class describes a NN classifier with one hidden layer from
-    %   using the coursera ML course code
-    
+    % ClassifierNN1 single-hidden-layer neural network classifier
+    % (own from-scratch implementation, based on the Coursera ML course
+    % code, rather than the Deep Learning Toolbox used by ClassifierNN)
+
     %% private props
     properties (Access=private)
     end
-    
+
     %% public methods
     methods
-        % constructor
         function  this=ClassifierNN1()
+            % ClassifierNN1 constructs a single-hidden-layer NN classifier
             %%% Pre Initialization %%%
             % Any code not using first output argument (this)
             
@@ -30,22 +30,25 @@ classdef ClassifierNN1 < Classifier
         end
         
         function r=isSupervised(this)
+            % isSupervised: true, needs labeled data to train the network
             r=true;
         end
-        
+
         function r=isRegression(this)
+            % isRegression: false, this is a pattern-recognition classifier
             r=false;
         end
 
 
     end
-    
+
     %% protected abstract interface
     methods (Access=protected)
-        %Classfier hypothesis h_theta(X)
         function [pred,prb]=HypothesisP(this, X)
-            
-            
+            % HypothesisP runs a forward pass (sigmoid activations)
+            % through the 2-layer network (this.theta = {Theta1, Theta2})
+            % and returns the argmax class pred and its activation prb
+
             m=size(X, 1);
             Theta1=this.theta{1};
             Theta2=this.theta{2};
@@ -55,11 +58,11 @@ classdef ClassifierNN1 < Classifier
             
         end
         
-        %function used to compute the parameters theta
         function CalculateTheta(this,X,y)
-            
-            
-            
+            % CalculateTheta fits Theta1/Theta2 via fmincg minimizing
+            % UtilFunML.nnCostFunction (backprop cost); errors if
+            % hiddenSizes has more than 1 element (single hidden layer only)
+
             input_layer_size=size(X,2);
             hidden_layer_size=this.Get(char(ClassifierProps.hiddenSizes));
             if length(hidden_layer_size)>1
@@ -96,9 +99,7 @@ classdef ClassifierNN1 < Classifier
         end
         
         function errStruct=RawDataErrorFun(this, X, y)
-            
-            %[J, JGrad]=UtilFunML.CostFunctionLR(theta, X, y, lambda);
-            %given a
+            % RawDataErrorFun returns accuracy-based error plus F1/precision/recall
             p = this.HypothesisP(X);
             J=100-UtilFunML.Accuracy(y,p);
             
@@ -113,19 +114,20 @@ classdef ClassifierNN1 < Classifier
         end
         
         function r=isTrained(this)
+            % isTrained returns true once theta has been fitted
             if isempty(this.theta)
                 r=false;
             else
                 r=true;
             end
-        end      
+        end
     end
-    
-    
+
+
     %% private methods
     methods (Access=private)
-        %Initialize
         function this=Init(this)
+            % Init sets the default hidden-layer size (10 neurons)
             
             
             %default is 1 hidden layer with 10 neurons

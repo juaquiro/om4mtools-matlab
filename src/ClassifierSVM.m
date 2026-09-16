@@ -1,17 +1,18 @@
 classdef ClassifierSVM < Classifier
-    %ClassifierSVN
-    %   This class describes a SNV classifier from the MATLAB stats toolbox
-    
+    % ClassifierSVM multi-class SVM classifier via MATLAB's Statistics
+    % and Machine Learning Toolbox (fitcsvm, one-vs-all), supervised
+
     %% private props
     properties (Access=private)
         SVMstruct; %cell array of fitcsvm ClassificationSVM models, one per class -- ClassificationSVM doesn't support growing into a plain object array
         clr; %logistic regression classifier to calculate posterior probabilities
     end
-    
+
     %% public methods
     methods
-        % constructor
         function  this=ClassifierSVM()
+            % ClassifierSVM constructs a multi-class SVM classifier;
+            % errors if the Statistics Toolbox is missing or too old
             %%% Pre Initialization %%%
             % Any code not using first output argument (this)
             
@@ -32,20 +33,24 @@ classdef ClassifierSVM < Classifier
         end
         
         function r=isSupervised(this)
+            % isSupervised: true, needs labeled data to train the SVMs
             r=true;
         end
-        
+
         function r=isRegression(this)
+            % isRegression: false, this is a one-vs-all classifier
             r=false;
         end
 
 
     end
-    
+
     %% protected abstract interface
     methods (Access=protected)
-        %Classfier hypothesis h_theta(X)
         function [pred,prb]=HypothesisP(this, X)
+            % HypothesisP scores X against every per-class binary SVM,
+            % returns the one-vs-all argmax pred and the posterior
+            % probability prb from the inner LR classifier (this.clr)
 
             num_labels=length(this.SVMstruct);
             m = size(X, 1); % Number of training examples
@@ -67,9 +72,11 @@ classdef ClassifierSVM < Classifier
                        
         end
         
-        %function used to compute the parameters theta
         function CalculateTheta(this, X,y)
-            
+            % CalculateTheta trains one binary SVM per class (one-vs-all),
+            % then trains the inner LR classifier (this.clr) on their
+            % scores to produce posterior probabilities
+
             import OM4MClassLib.Util.*;
             callFunc=Logging.WhoCalledMe();
             
@@ -116,9 +123,7 @@ classdef ClassifierSVM < Classifier
         end
         
         function errStruct=RawDataErrorFun(this, X, y)
-            
-            %[J, JGrad]=UtilFunML.CostFunctionLR(theta, X, y, lambda);
-            %given a
+            % RawDataErrorFun returns accuracy-based error plus F1/precision/recall
             p = this.HypothesisP(X);
             J=100-UtilFunML.Accuracy(y,p);
             
@@ -133,6 +138,7 @@ classdef ClassifierSVM < Classifier
         end
         
         function r=isTrained(this)
+            % isTrained returns true once the per-class SVMs have been fitted
             if isempty(this.SVMstruct)
                 r=false;
             else
@@ -140,12 +146,12 @@ classdef ClassifierSVM < Classifier
             end
         end
     end
-    
-    
+
+
     %% private methods
     methods (Access=private)
-        %Initialize
         function this=Init(this)
+            % Init sets the default SVM/kernel props and creates the inner LR classifier
 
             this.Set(char(ClassifierProps.lambda), 1); %the C param of SVM
             this.Set(char(ClassifierProps.KF), 'rbf');
@@ -161,11 +167,11 @@ classdef ClassifierSVM < Classifier
                 
         
         function model=trainBinarySVM(~, X, yBinary, KF, C, sigma, polyOrder)
-            %TRAINBINARYSVM Train one fitcsvm model, passing only the
-            %kernel-specific option that matches KF (fitcsvm errors if
-            %given an option that doesn't apply to the selected kernel --
-            %svmtrain, which this replaces, tolerated passing all of
-            %them regardless of kernel).
+            % trainBinarySVM trains one fitcsvm model, passing only the
+            % kernel-specific option that matches KF (fitcsvm errors if
+            % given an option that doesn't apply to the selected kernel --
+            % svmtrain, which this replaces, tolerated passing all of
+            % them regardless of kernel).
             args={'KernelFunction', KF, 'BoxConstraint', C, 'Standardize', true};
             if strcmpi(KF, 'polynomial')
                 args=[args, {'PolynomialOrder', polyOrder}];

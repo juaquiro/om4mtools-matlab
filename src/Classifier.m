@@ -48,8 +48,8 @@ classdef Classifier < handle & OM4MClassLib.DataStructs.IProps
     
     %% protected interface, only for internal use of unsupervised classiers that are composed with a supervised classifier
     methods (Access=protected)
-        % setProps copies this classifier's props onto another classifier c
         function this=setProps(this, c)
+            % setProps copies this classifier's props onto another classifier c
             import OM4MClassLib.Util.*;
             callFunc=Logging.WhoCalledMe();
             
@@ -67,9 +67,9 @@ classdef Classifier < handle & OM4MClassLib.DataStructs.IProps
             end
         end
         
-        % checkSVM_Toolbox errors if the Statistics Toolbox is missing or
-        % older than the minimum version this classifier needs
         function this=checkSVM_Toolbox(this)
+            % checkSVM_Toolbox errors if the Statistics Toolbox is missing
+            % or older than the minimum version this classifier needs
             import OM4MClassLib.Util.*;
             callFunc=Logging.WhoCalledMe();
             tb='stats'; %toolbox
@@ -89,8 +89,8 @@ classdef Classifier < handle & OM4MClassLib.DataStructs.IProps
     
     %% public interface
     methods
-        % Classifier constructs a classifier with default props (see Init)
         function this=Classifier()
+            % Classifier constructs a classifier with default props (see Init)
             import OM4MClassLib.DataStructs.*;
             this.props=PropsEnumList('ClassifierProps');
 
@@ -98,9 +98,9 @@ classdef Classifier < handle & OM4MClassLib.DataStructs.IProps
             this.Init();
         end
 
-        % Train fits the classifier on feature matrix X and labels y
-        % (feature-mapped and normalized internally per this.props)
         function Train(this, X,y)
+            % Train fits the classifier on feature matrix X and labels y
+            % (feature-mapped and normalized internally per this.props)
             try
                 import OM4MClassLib.Util.*;
                 callFunc=Logging.WhoCalledMe();
@@ -143,9 +143,9 @@ classdef Classifier < handle & OM4MClassLib.DataStructs.IProps
             end
         end
         
-        % Predict returns the predicted label/value pred and its
-        % probability/confidence prb (rounded to 3 digits) for X
         function [pred,prb]=Predict(this, X)
+            % Predict returns the predicted label/value pred and its
+            % probability/confidence prb (rounded to 3 digits) for X
             try
                 import OM4MClassLib.Util.*;
                 
@@ -184,10 +184,10 @@ classdef Classifier < handle & OM4MClassLib.DataStructs.IProps
         end
         
         
-        % ErrorFunction computes the error struct for (X, y), including
-        % the same feature mapping/normalization as Train - needed to
-        % compute the learning curve
         function errorStruct=ErrorFunction(this, X, y)
+            % ErrorFunction computes the error struct for (X, y), including
+            % the same feature mapping/normalization as Train - needed to
+            % compute the learning curve
             try
                 
                 %polynomic mapping
@@ -202,8 +202,8 @@ classdef Classifier < handle & OM4MClassLib.DataStructs.IProps
             end
         end                
         
-        % GetTheta returns the fitted model parameters
         function theta=GetTheta(this)
+            % GetTheta returns the fitted model parameters
             theta=this.theta;
         end
     end
@@ -211,8 +211,8 @@ classdef Classifier < handle & OM4MClassLib.DataStructs.IProps
 
     %% private methods
     methods (Access=private)
-        % Init sets every classifier prop to its default value
         function this=Init(this)
+            % Init sets every classifier prop to its default value
             try
                 
                 this.normalizer=featureNormalizer();
@@ -244,9 +244,9 @@ classdef Classifier < handle & OM4MClassLib.DataStructs.IProps
     %% public IProps interface
     %check Get implementation��
     methods
-        % Get returns the value of props, or the full props struct if
-        % called with no props argument
         function ret=Get(this, props)
+            % Get returns the value of props, or the full props struct if
+            % called with no props argument
             if nargin==1
                 ret=this.props.Get();
             else
@@ -254,8 +254,8 @@ classdef Classifier < handle & OM4MClassLib.DataStructs.IProps
             end
         end
         
-        % Set assigns propvals to props, type-checking featureType/svcType
         function this=Set(this, props, propvals)
+            % Set assigns propvals to props, type-checking featureType/svcType
             import OM4MClassLib.Util.*;
             
             callFunc=Logging.WhoCalledMe();
@@ -277,10 +277,10 @@ classdef Classifier < handle & OM4MClassLib.DataStructs.IProps
     
     %% Static methods
     methods (Static=true)
-        % save writes classifier to a .mat file (default name = class name
-        % + date, or varargin{1} if given); also exports to XML if
-        % classifier is an NNoCV (OpenCV-backed) classifier
         function save(classifier,varargin)
+            % save writes classifier to a .mat file (default name = class
+            % name + date, or varargin{1} if given); also exports to XML
+            % if classifier is an NNoCV (OpenCV-backed) classifier
             try
                 
                 if not(isa(classifier, 'Classifier'))
@@ -317,9 +317,9 @@ classdef Classifier < handle & OM4MClassLib.DataStructs.IProps
             end
         end
         
-        % load reads a classifier previously saved by save() from filename
-        % (.mat extension optional, added automatically)
         function obj=load(filename)
+            % load reads a classifier previously saved by save() from
+            % filename (.mat extension optional, added automatically)
             try
                 
                 % Checking if the filename was introduced with or without

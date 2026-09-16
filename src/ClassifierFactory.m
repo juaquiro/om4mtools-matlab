@@ -4,9 +4,9 @@ classdef ClassifierFactory
 
     %% public methods
     methods(Static)
-        % Create returns a new classifier instance matching type (a
-        % ClassifierTypes enum value); errors if type is unknown/invalid
         function obj=Create(type)
+            % Create returns a new classifier instance matching type (a
+            % ClassifierTypes enum value); errors if type is unknown/invalid
             try
                 import OM4MClassLib.Util.*;
                 callFunc=Logging.WhoCalledMe();
