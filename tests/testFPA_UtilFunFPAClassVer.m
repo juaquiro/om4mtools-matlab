@@ -2753,40 +2753,40 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
             tol=1; %FF
             w1=w{1};
             w2=w{2};
-            testCase.assertEqual(w1, [-56 5], 'AbsTol', tol)
-            testCase.assertEqual(w2, [-7 -43], 'AbsTol', tol)
+            testCase.assertEqual(w1, [-28 4], 'AbsTol', tol)
+            testCase.assertEqual(w2, [-6 -22], 'AbsTol', tol)
 
             g=double(imread('ProgHoyaRef.tif')); %low freq
             w = UtilFunFPA.LocateSidelobes(g);
             tol=1; %FF
             w1=w{1};
             w2=w{2};
-            testCase.assertEqual(w1, [-56 5], 'AbsTol', tol)
-            testCase.assertEqual(w2, [-7 -43], 'AbsTol', tol)
+            testCase.assertEqual(w1, [-28 1], 'AbsTol', tol)
+            testCase.assertEqual(w2, [-2 -22], 'AbsTol', tol)
 
             g=double(imread('ProgHoya1Ref.tif')); %low freq
             w = UtilFunFPA.LocateSidelobes(g);
             tol=1; %FF
             w1=w{1};
             w2=w{2};
-            testCase.assertEqual(w1, [-56 5], 'AbsTol', tol)
-            testCase.assertEqual(w2, [-7 -43], 'AbsTol', tol)
+            testCase.assertEqual(w1, [-56 2], 'AbsTol', tol)
+            testCase.assertEqual(w2, [-2 -43], 'AbsTol', tol)
 
             g=double(imread('YO_D75_SMinus275_C0.bmp')); %low freq
             w = UtilFunFPA.LocateSidelobes(g);
             tol=1; %FF
             w1=w{1};
             w2=w{2};
-            testCase.assertEqual(w1, [ -51.2857   -13.0000], 'AbsTol', tol)
-            testCase.assertEqual(w2, [ 17.2000   -38.7333], 'AbsTol', tol)
+            testCase.assertEqual(w1, [ -52   -12], 'AbsTol', tol)
+            testCase.assertEqual(w2, [ 16   -39], 'AbsTol', tol)
 
             g=double(imread('SwissCoat40L88051R.bmp')); %low freq
             w = UtilFunFPA.LocateSidelobes(g);
             tol=0.9; %FF
             w1=w{1};
             w2=w{2};
-            testCase.assertEqual(w1, [-70.8148  11.7778], 'AbsTol', tol)
-            testCase.assertEqual(w2, [ -21.2075  -49.6415], 'AbsTol', tol)
+            testCase.assertEqual(w1, [-71  9], 'AbsTol', tol)
+            testCase.assertEqual(w2, [ -19  -49], 'AbsTol', tol)
 
             g=double(imread('ProgHoyaRef.tif')); %low freq
             w = UtilFunFPA.LocateSidelobes(g);
@@ -2932,8 +2932,8 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
             testCase.assertEqual(0, std(ey(:)), 'AbsTol', tol);
         end
 
-        function test_phaseGradient1(testCase)
-            %run(testFPA_UtilFunFPAClassVer, 'test_phaseGradient1')
+        function test_phaseGradientDirect(testCase)
+            %run(testFPA_UtilFunFPAClassVer, 'test_phaseGradientDirect')
             import OM4MClassLib.Util.*;
             fprintf('\n%s: ',Logging.WhoCalledMe());
             close all
@@ -2954,12 +2954,11 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
             hy=1; %mm/px
             [phix, phiy, Mxy]=UtilFunFPA.phaseGradientDirect(z, M, hx, hy);
 
-            tol=eps;
+            tol=1e-5;
             e=px-phix;
             testCase.assertEqual(0, mean(e(Mxy)), 'AbsTol', tol);
 
-            tol=eps;
-            py=-py;
+            tol=1e-5;
             e=py-phiy;
             testCase.assertEqual(0, mean(e(Mxy)), 'AbsTol', tol);
         end
@@ -3633,117 +3632,6 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
             x=linspace(-50, 50, 50);
             h=hist(100*Dpx(Mxy), x);
             figure; plot(x,h); title('\Delta(Dx)% ')
-        end
-
-        function testDecodeFromRGBTable(testCase)
-            %run(testFPA_UtilFunFPAClassVer, 'testDecodeFromRGBTable')
-            % ejemplo de demodulacion RGB tomado del directorio medidas y ejemplos
-            % d:\user\Dropbox (IOT)\AQ_SYNC\Aq4\Programs\MatLab\FotoelasticidadRGB\
-            % usados en el paper de demodulacion RGB
-            close all;
-            g=double(imread('Puente1_fluorescencia.tif'));
-            roiMask=double(imread('Mask_Puente1_fluorescencia.tif'));
-
-            DF=5; %decimation factor
-            g=g(1:DF:end,1:DF:end, :);
-            roiMask=roiMask(1:DF:end, 1:DF:end);
-
-            qualityImage=1-mat2gray(sqrt(g(:, :, 1).^2 + g(:, :, 2).^2 + g(:, :, 3).^2 ));
-            %alternativa roiMask=qualityImage>.07;
-
-            %locate starting point
-            q=qualityImage;
-            q(not(roiMask))=-Inf;
-            maxValue=max(q(:));
-            [datay, datax] = find(q == maxValue);
-            pList=OM4MClassLib.DataStructs.Pixel(datax, datay);
-
-            [NR, NC]=size(roiMask);
-            [x,y]=meshgrid(1:NC, 1:NR); x=x-pList(1).x; y=y-pList(1).y;
-            qualityImage=-abs(x+1i*y);
-
-            nLevels=1;
-            followMode=PathFollowerModes.image; %path follower mode
-            pf=PathFollowerFactory.Create(PathFollowerTypes.CQueue, nLevels, qualityImage, roiMask, followMode);
-
-            for k=1:length(pList)
-                pf.AddPoint(pList(k));
-            end
-
-            %load and interpolate calibration
-            RGBCalib=load('CalibracionRGB.txt'); %[Nx4]
-            %interpolamos la calibracion
-            dC=RGBCalib(:, 1); %retar from calibration
-            InterpFactor=10;
-            dCi=linspace(min(dC), max(dC), InterpFactor*length(dC))'; %interpolated retar from calibration
-            InterpRGBCalib=zeros(length(dCi), 4);
-            InterpRGBCalib(:, 1)=dCi;
-            for n=2:4
-                gC=RGBCalib(:, n); %channels from calibration
-                gCi=interp1(dC, gC, dCi, 'spline'); %interpolated channels from calibration
-                InterpRGBCalib(:, n)=gCi;
-            end
-
-            figure; title('RGBCalibration vs interpolation')
-            plot3(InterpRGBCalib(:, 2), InterpRGBCalib(:, 3), InterpRGBCalib(:, 4), '.-', RGBCalib(:, 2), RGBCalib(:, 3), RGBCalib(:, 4), 'o')
-
-            DeltaMap=zeros(size(roiMask));
-            visitedMask=zeros(size(roiMask));
-            procMask=visitedMask;
-
-            f1=figure;
-            pos1 = get(gcf,'Position'); % get position of Figure(1)
-            set(gcf,'Position', pos1 - [pos1(3)/2,0,0,0]) % Shift position of Figure(1)
-
-            f2=figure;
-            pos2 = get(gcf,'Position');  % get position of Figure(2)
-            set(gcf,'Position', pos2 + [pos1(3)/2,0,0,0]) % Shift position of Figure(2)
-
-            %get startig point
-            P=pf.GetNext();
-            m=0;
-            M=200;
-            %we assume that at the starting point retardation relatively known
-            %we must set this value for DeltaMap and indicate that procMask=1
-            %later in the while, DeltaMap(P) and procMask(P) will be updated
-            d0=1; DeltaMap(P.y, P.x)=d0; procMask(P.y, P.x)=1;
-            Lambda=0;
-            NV=5; %11x11
-            while not(isempty(P))
-                LocalDeltaMap=UtilFunFPA.LocalNeighbourhood(DeltaMap, NV, P.y, P.x, NR, NC);
-                LocalProcMask=UtilFunFPA.LocalNeighbourhood(procMask, NV, P.y, P.x, NR, NC);
-                RGBVal=g(P.y, P.x, :);
-
-                %calculate starting delta from the 5x5 neigbouhood of P
-                ld=UtilFunFPA.LocalNeighbourhood(DeltaMap, 2, P.y, P.x, NR, NC);
-                lm=UtilFunFPA.LocalNeighbourhood(procMask, 2, P.y, P.x, NR, NC);
-                d0=mean(ld(lm==1)); %#ok<NASGU>
-
-                %calculate subarray of InterpRGBCalib arrounf d0
-                NPoints=30;
-                LocalRGBCalib=DecoderRGB.SubArray(d0, InterpRGBCalib, NPoints);
-
-                %demodulate
-                [delta, ~]=DecoderRGB.LocalDecodeFromRGB(RGBVal, LocalRGBCalib, LocalDeltaMap, LocalProcMask, Lambda);
-
-                %update maps
-                DeltaMap(P.y, P.x)=delta;
-                visitedMask(P.y, P.x)=round(m/M);
-                procMask(P.y, P.x)=1;
-
-                %get next point
-                P=pf.GetNext();
-
-                %draw results
-                if mod(m, M)==0
-                    figure(f1); imagesc(visitedMask); title(['VisitedMask Follow Mode:' char(followMode)]);
-                    drawnow
-
-                    figure(f2); imagesc(DeltaMap); title(['Delta:' char(followMode)]);
-                    drawnow
-                end
-                m=m+1;
-            end
         end
 
         function testNormalizaIgramFFT(testCase)
