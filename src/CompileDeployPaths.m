@@ -1,7 +1,6 @@
-%% compile DeplotPaths
-%batch de compilacion, de DeployPaths, se ha mantenido lo mas simple
-%posible para que sea multi-plataforma
-%aqui generamos el exe o app en el mismo directorio que DeployPaths y mismo
-%nombre rais
+% CompileDeployPaths compiles DeployPaths.m into a standalone executable
+% Kept deliberately simple (single mcc call, no extra options) for
+% cross-platform portability. Output lands next to DeployPaths.m, same
+% base name.
 
 mcc -m DeployPaths.m -v
