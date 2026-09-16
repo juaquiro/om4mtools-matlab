@@ -1,16 +1,17 @@
 classdef DemodulatorGCPSA < Demodulator
-    %DemodulatorGCPSA combines a GC demodulator with a PSA method for geting the absolute phase
-    
+    % DemodulatorGCPSA combines a Gray Code demodulator with a PSA
+    % (phase-shifting) demodulator to get the absolute phase
+
     %% props
     properties
         PSADemodulator; %PSA demodulator for the smaller GCDemodulator Period
         GCDemodulator; %GC demodulator
     end
-    
+
     %% public methods
     methods
-        % constructor
         function  this=DemodulatorGCPSA()
+            % DemodulatorGCPSA constructs a GC+PSA absolute-phase demodulator
             %%% Pre Initialization %%%
             % Any code not using first output argument (this)
             
@@ -28,8 +29,11 @@ classdef DemodulatorGCPSA < Demodulator
             this.Init();
         end
         
-        % abstract interface
         function this=Process(this, FPList)
+            % Process splits FPList into the GC sub-sequence and the PSA
+            % sub-sequence, demodulates each with its inner demodulator,
+            % and combines their results into the absolute phase
+            % (PSA phase + 2*pi*GC order)
             import OM4MClassLib.Util.*
             callFunc=Logging.WhoCalledMe();
             
@@ -73,10 +77,13 @@ classdef DemodulatorGCPSA < Demodulator
         end
         
         function stepVals=GetStepValues(this)
+            % GetStepValues delegates to the inner PSA demodulator's steps
             stepVals=this.PSADemodulator.steps;
         end
-        
+
         function FPList=GenerateFPs(this, imSize)
+            % GenerateFPs propagates Tx/Ty/PSDir to both inner
+            % demodulators and concatenates their igrams (GC first, then PSA)
             %get Tx, Ty and PSDir
             Tx=this.Get(char(DemodulatorProps.Tx)); %pixels
             Ty=this.Get(char(DemodulatorProps.Ty)); %pixels
@@ -105,14 +112,14 @@ classdef DemodulatorGCPSA < Demodulator
         end
         
         
-        %Override Set interface for AbsolutePhasePSADemType prop
-        %este es un buen ejemplo de que AbsolutePhasePSADemType no puede
-        %ser una propiedad de la superclase demodulador pq necesitamos override el
-        %interfaz set de la propiedad desde una subclase hija, pero al no
-        %estar definida la propiedad en esta subclase hija MATLAB da un
-        %error si tratamos de usar un interfaz set
-        %ver https://stackoverflow.com/questions/20822670/overriding-a-superclass-property-set-method-within-a-subclass-in-matlab
         function this=Set(this, prop, propval)
+            % Set overrides the base Set to also recreate PSADemodulator
+            % when AbsolutePhasePSADemType changes, and to validate that
+            % Tx/Ty stay even (this demodulator's PSA NIgrams = 0.5*Tx).
+            % AbsolutePhasePSADemType can't be a superclass property
+            % because overriding its set behavior from a subclass
+            % requires the property to be declared there too - see
+            % https://stackoverflow.com/questions/20822670
             import OM4MClassLib.Util.*;
             callFunc=Logging.WhoCalledMe();
             
@@ -150,6 +157,9 @@ classdef DemodulatorGCPSA < Demodulator
     %% private methods
     methods (Access=private)
         function this=Init(this)
+            % Init sets defaults appropriate for GC+PSA (no steps/bias/
+            % mod, NIgrams unknown until GenerateFPs) and creates the
+            % default inner GC and PSA demodulators
             %default direction for patterns vertical, we use the base Set
             %to avoid using the superseeded Set of the class
             %here does not matter because the demodulator is multiplexed
