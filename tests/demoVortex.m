@@ -1,15 +1,18 @@
-%% Test Vortex
-% Test for the Vortex function
+%% demoVortex
+% Demo script (not a unit test) showing how to use Vortex
+% (src/Vortex.m) to recover the quadrature term s of a fringe pattern c,
+% given either the true direction or, in the last section, only the
+% orientation (direction folded into [0, pi], e.g. from
+% demoOrientationVortex) to show the resulting sign ambiguity in s.
 %%
 
-%% clear 
+%% clear
 clear all
 close all
 clc
 
 
-%% Test
-
+%% linear phase case, using the true direction
 NR=256;
 NC=257;
 
@@ -27,7 +30,7 @@ s=Vortex(c, dirn);
 figure; imagesc(s); title('s'); colorbar
 figure; imagesc(atan2(s, c));  title('fase');
 
-% fase circular
+%% circular phase case, using the true direction
 p=2*pi*10*abs(x+1i*y)/sqrt(NR*NC);
 
 c=cos(p);
@@ -40,7 +43,9 @@ figure; imagesc(s); title('s'); colorbar
 figure; imagesc(atan2(s, c));  title('fase');
 
 
-% fase circular con orientacion en vez de direccion
+%% same circular case, but using orientation instead of direction
+% orientation only fixes dir up to a sign (mod pi), so s inherits that
+% ambiguity - compare 's orn'/'fase orn' below against the previous section
 [cx, cy]=gradient(c);
 orn=mod(atan2(-cy, cx), pi);
 

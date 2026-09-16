@@ -1,15 +1,17 @@
-%% Test OrientationVortex
-% Test for the OrientationVortex function
+%% demoOrientationVortex
+% Demo script (not a unit test) showing how to use OrientationVortex
+% (src/OrientationVortex.m) to estimate fringe orientation [0, pi]
+% directly from a fringe pattern, and comparing it visually against the
+% orientation computed numerically from the known phase gradient.
 %%
 
-%% clear 
+%% clear
 clear all
 close all
 clc
 
 
-%% Test
-
+%% build a synthetic circular fringe pattern with known phase p
 NR=258;
 NC=257;
 
@@ -21,12 +23,13 @@ p=2*pi*10*abs(x+1i*y)/sqrt(NR*NC);
 c=cos(p);
 [px, py]=gradient(p);
 
-%numerical direction
+%numerical direction (ground truth, from the known phase gradient)
 dirn=atan2(-py, px);
 
-%numerical orientation
+%numerical orientation (direction folded into [0, pi])
 orn=mod(dirn, pi);
 
+% orientation estimated from the fringe pattern alone, no phase gradient
 orVortex=OrientationVortex(c);
 
 figure; imagesc(orVortex); title('OrientationVortex'); colorbar
