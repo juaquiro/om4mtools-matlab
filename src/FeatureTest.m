@@ -1,16 +1,15 @@
 classdef FeatureTest < aFeature
-    %FeatureGlobalMeStd
-    %   This class describes a Feature that calculates the global Mean
-    %   Error and Std of the DPM ins transmission mode
-    
+    % FeatureTest computes 4 global features (mean/std of Seq and C)
+    % from a DPM in transmission mode
+
     %% private props
     properties (Access=private)
     end
-    
+
     %% public methods
     methods
-        % constructor
         function  this=FeatureTest()
+            % FeatureTest constructs this feature
             %%% Pre Initialization %%%
             % Any code not using first output argument (this)
             
@@ -31,9 +30,10 @@ classdef FeatureTest < aFeature
     
     %% public abstract interface of aFeature
     methods
-        % this feature get a list (cell array) of QCStatsStruct strtucts and
-        % computes 4 features by sample the global me and sdc for Seq and C
         function this=Calculate(this, eDPMList)
+            % Calculate computes this.X (mean/std of Seq and C per
+            % sample) from eDPMList, a cell array of DPMStructs, and
+            % derives numeric labels this.y from this.labels if needed
             try
                 import OM4MClassLib.Util.*
                 callFunc=Logging.WhoCalledMe();
@@ -98,9 +98,9 @@ classdef FeatureTest < aFeature
     
     %% private methods
     methods (Access=private)
-        %Initialize
         function this=Init(this)
-            
+            % Init sets this feature's type Id and output size n=4
+
             this.Id=aFeatureTypes.FeatureTest;
             this.n=4;
         end
