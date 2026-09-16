@@ -167,7 +167,7 @@
         su clase (`'test_Util_Logging.testWhoCalledMe'`), no el nombre
         suelto — actualizado el valor esperado.
     - **9/9 Failed resueltos.** `testFFVCalibration` resuelto por completo
-      (4/4). Quedan 5 Incomplete adicionales (fuera de los 9 ya resueltos
+      (4/4). Quedan 4 Incomplete adicionales (fuera de los 9 ya resueltos
       de `LensMapperMeasurement` arriba):
       - [x] `testFFVCalibration/testPolinomicalCalibrationFromLMMs` —
         **arreglado (2026-09-16):** el fixture PSI/Massig de este test tiene
@@ -210,7 +210,16 @@
         como fixture (`datatestFFTlinGV.json`), pero sin el código no hay
         nada que ejecutar — se elimina el test en vez de dejarlo con
         `assumeFail` indefinidamente.
-      - `testFPA_UtilFunFPAClassVer/testCalculatePowerWithCorrectionFromLMMfile`
+      - [x] `testFPA_UtilFunFPAClassVer/testCalculatePowerWithCorrectionFromLMMfile`
+        — **eliminado (2026-09-16), dependencia irrecuperable:** mismo
+        patrón que `testDecodeFromRGBTable`/`testFigFFTLinGV` — ya llevaba
+        su propio `assumeFail` documentando que necesita ficheros de
+        medida LMM (p.ej. `LMM5_B8_32`, de `D:\User\Victor\lentesChinaB8`)
+        que no se pudieron localizar en ningún sitio conocido (ni en este
+        repo, ni en el árbol Dropbox del TFM de VdH, ni en el mirror
+        `om4mmatlabutils`). Test enorme (~520 líneas, casi todo listas de
+        rutas/nombres de lente comentadas de uso manual) — eliminado
+        entero en vez de dejarlo con `assumeFail`.
       - `testJsonlabRoundTrip/{testJsonRoundTrip,testUbjsonRoundTrip}` ×
         `exampleFile={example2,example4}.json` (4 casos parametrizados)
   - `testQC_FeatureTest` (dependía de helpers y de `..\TestDB\`, ninguno de

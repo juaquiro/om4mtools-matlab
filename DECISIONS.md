@@ -2242,3 +2242,26 @@ hueco de fixtures — era código perdido, probablemente solo existió en la
 máquina del propio VdH y nunca se subió a ningún repo. Eliminado en vez
 de dejarlo con `assumeFail` indefinidamente, mismo criterio que
 `testDecodeFromRGBTable`.
+
+## `testCalculatePowerWithCorrectionFromLMMfile` eliminado: dependencia irrecuperable (2026-09-16)
+
+Último de los `testFPA_UtilFunFPAClassVer` Incomplete, mismo patrón que
+`testDecodeFromRGBTable`/`testFigFFTLinGV`. El propio test ya llevaba un
+`assumeFail` documentando la causa: necesita ficheros de medida LMM
+(p.ej. `LMM5_B8_32`, de `baseFolder = 'D:\User\Victor\lentesChinaB8'`)
+que no se pudieron localizar — se buscó en todo el árbol Dropbox del TFM
+de Victor del Hierro (incluyendo `Respuesta lineal\datos\LMM\`, que
+existe pero está vacío) y en el mirror GitHub original de
+`om4mmatlabutils`, sin encontrar nada. El propio comentario del test
+apuntaba a `"67 INFORME-OM4M006 Medida DPM oblicuidad"` como posible
+fuente alternativa de datos de linealización utilizables, pero no se ha
+perseguido esa pista — recuperar/adaptar esos datos no es gratis y no es
+el objetivo de esta sesión (cerrar la suite, no generar datos nuevos).
+
+El método era además enorme (~520 líneas), casi todo listas de
+`LMMFile`/`baseFolder`/`Tx`/`Ty` comentadas para selección manual entre
+distintas lentes/ordenadores de VdH — no había nada reutilizable ni una
+parte pequeña que recuperar. Eliminado entero. Verificado con
+`check_matlab_code` (MCP de MATLAB) sobre el fichero tras el borrado: sin
+errores de sintaxis introducidos, solo warnings/info preexistentes no
+relacionados.
