@@ -108,7 +108,7 @@ classdef testStandardHW_MockCam < matlab.unittest.TestCase
             clear cam;
         end
 
-        function test_GetSethImage(~)
+        function test_GetSethImage(testCase)
             %run(testStandardHW_MockCam, 'test_GetSethImage')
             % Verify that the *hImage* property acts like a regular handle
             % container – setting a graphics object and retrieving it later
