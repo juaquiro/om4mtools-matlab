@@ -11,6 +11,8 @@ Proyecto estrictamente personal por ahora (ver `CLAUDE.md`).
 - `src/` -- codigo fuente, plano salvo los packages `+OM4MClassLib` y `+Zernikes`
 - `tests/` -- un `TestXxx.m` por funcion, framework `matlab.unittest.TestCase`
 - `mex/` -- codigo C/C++ (`mex/src/`) y binarios precompilados (`mex/bin/`)
+- `dll/` -- dependencias `loadlibrary()` (no MEX), codigo en `dll/src/<Nombre>/`
+  y binarios precompilados en `dll/bin/`
 
 Ver `TODO.md` para el estado detallado del proyecto y `DECISIONS.md` para
 el porque de las decisiones de diseno.
@@ -39,6 +41,33 @@ existentes.
 > `mex_dll_working` (estado verificado con el `v120` original, punto de
 > rollback) y DECISIONS.md para el detalle completo, incluida la
 > verificación con `run(testFPAUnwrapper)` (5/5) tras el cambio.
+
+## DLL
+
+`dll/src/<Nombre>/` contiene el codigo C/C++ de dependencias que se
+consumen via `loadlibrary()` en vez de como MEX -- un subdirectorio por
+DLL, con su propio `.vcxproj` (sin `.sln` propio salvo que haga falta).
+Por ahora solo existe `dll/src/CProjector/`, detras de
+`DisplayProjectorC`. `dll/bin/` tiene el `.dll` ya compilado mas los
+`.h` que `loadlibrary()` necesita en tiempo de ejecucion (`CProjector.h`
+y `shrhelp.h`, que este incluye) -- **SI** van al repo, mismo criterio
+que `mex/bin/`.
+
+Para recompilar (Windows, con Visual Studio o Build Tools instalado):
+
+```matlab
+run('dll/build.m')
+```
+
+Localiza `MSBuild.exe` via `vswhere.exe`, compila `CProjector.vcxproj`
+(`Release|x64` -- no hay `.sln` propio, a diferencia de `mex/`, ver
+comentario en cabecera de `dll/build.m`) y copia el `.dll` + headers
+necesarios a `dll/bin/`, sobrescribiendo lo existente.
+
+> Si MATLAB ya tiene la DLL cargada (`loadlibrary`), hay que descargarla
+> primero (`unloadlibrary CProjector`) -- Windows la deja bloqueada
+> mientras siga cargada, y la recompilacion falla al intentar
+> sobrescribir `dll/bin/CProjector.dll`.
 
 ## Convenciones de codigo
 
