@@ -28,9 +28,22 @@
 
 ## Pendiente
 
-- [ ] **Cerrar la suite de tests.** Baseline documentado en DECISIONS.md
-  ("Fase 3 — primera pasada de estandarización y baseline"). Quedan, entre
-  otros:
+- [x] **Cerrar la suite de tests — completado (2026-09-16).** Baseline final
+  confirmado por el usuario tras correr `run('tests/run_all_tests.m')` real:
+  **405 passed, 0 failed, 10 incomplete (of 415) — 34 Hardware-tagged tests
+  excluded.** Las 10 Incomplete están todas documentadas, ninguna es un bug
+  sin explicar:
+  - 9× `testFPA_UtilFunMapperMeasureClassVer/testGetPower_*` +
+    `testCheckCalibrationLensSpectra` + `testFringeProjectionLinearGrid` —
+    ya llevaban su propio `assumeFail('AQDEBUG FFT method 1MAY20 not yet
+    working')` puesto por el autor original (ver más abajo, investigación
+    2026-09-15) — trabajo inacabado del autor original, no un bug de esta
+    migración.
+  - 1× `testJsonlabRoundTrip/testJsonRoundTrip(exampleFile=example4.json)` —
+    ambigüedad de formato JSON documentada abajo, no un bug de MATLAB.
+  Detalle completo de todo lo arreglado en esta sesión (2026-09-15/16), de
+  9 Failed + ~29 Incomplete originales hasta este baseline final, a
+  continuación:
   - **Computer Vision Toolbox SÍ está instalada en esta máquina** (24.2,
     R2024b) — la nota anterior de "no instalada" era errónea, corregida
     2026-09-15 tras verificarlo con el MCP server de MATLAB

@@ -2348,3 +2348,42 @@ arreglado), en vez de tocar `savejson` para que emita el envoltorio
 salida de `savejson` en cualquier otro sitio que lo use, riesgo
 desproporcionado para un solo caso de fixture) o relajar la comparación
 del test con un normalizador ad-hoc.
+
+## "Cerrar la suite de tests" — completado, baseline final confirmado (2026-09-16)
+
+El usuario ha corrido `run('tests/run_all_tests.m')` real tras todos los
+fixes de esta sesión (2026-09-15/16) y confirma el baseline final:
+
+**405 passed, 0 failed, 10 incomplete (of 415) — 34 Hardware-tagged tests
+excluded.**
+
+Comparado con el baseline inicial de la sesión (409 passed, 9 failed, 29
+incomplete de 438 — ver más arriba, "Baseline real obtenido") el número
+total de tests bajó de 438 a 415 porque varios dejaron de ser tests
+(scripts de demo renombrados fuera del descubrimiento, tests eliminados
+por dependencias irrecuperables) — ver el detalle test por test en
+TODO.md.
+
+**Las 10 Incomplete restantes están las 10 documentadas, ninguna sin
+explicar:**
+- 9× en `testFPA_UtilFunMapperMeasureClassVer`
+  (`testGetPower_SwissCoat40L88031L`, `_88051R`, `_YO_D75_SMinus275_C0`,
+  `_CalibrationLensKPC076`, `_KPX223`, `_88050R`, `_VisionLab565964`,
+  `testCheckCalibrationLensSpectra`, `testFringeProjectionLinearGrid`) —
+  investigadas en la sesión anterior (2026-09-15, ver más arriba): ya
+  llevaban su propio `assumeFail('AQDEBUG FFT method 1MAY20 not yet
+  working')` puesto por el autor original antes de esta migración. Trabajo
+  inacabado del propio autor, no un hueco de la migración — sin acción
+  pendiente.
+- 1× `testJsonlabRoundTrip/testJsonRoundTrip(exampleFile=example4.json)` —
+  ambigüedad de formato JSON documentada justo arriba, no un bug de
+  compatibilidad con MATLAB.
+
+Con esto, el objetivo del proyecto reconfirmado el 2026-09-15 ("dejar la
+migración ordenada en Git y la suite de tests corriendo de nuevo") queda
+cumplido: 0 Failed sin explicar, y el 100% de las Incomplete documentadas
+con su causa (trabajo inacabado del autor original vs. ambigüedad de
+formato, ninguna dependencia ausente sin investigar). Quedan solo los dos
+puntos de auditoría de TODO.md ("revisar más huecos silenciosos frente a
+`om4mmatlabutils`" y "revisar si faltan fixtures") como trabajo abierto,
+no bloqueante.
