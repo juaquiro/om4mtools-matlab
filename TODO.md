@@ -167,7 +167,7 @@
         su clase (`'test_Util_Logging.testWhoCalledMe'`), no el nombre
         suelto — actualizado el valor esperado.
     - **9/9 Failed resueltos.** `testFFVCalibration` resuelto por completo
-      (4/4). Quedan 6 Incomplete adicionales (fuera de los 9 ya resueltos
+      (4/4). Quedan 5 Incomplete adicionales (fuera de los 9 ya resueltos
       de `LensMapperMeasurement` arriba):
       - [x] `testFFVCalibration/testPolinomicalCalibrationFromLMMs` —
         **arreglado (2026-09-16):** el fixture PSI/Massig de este test tiene
@@ -200,8 +200,17 @@
         `tests/demoCalculateHomographyAndTransform.m` (mismo patrón que
         los 5 scripts de demo de arriba) — deja de aparecer en
         `run_all_tests.m`/`run_all_tests.log` por completo.
-      - `testFPA_UtilFunFPAClassVer/{testFigFFTLinGV,
-        testCalculatePowerWithCorrectionFromLMMfile}`
+      - [x] `testFPA_UtilFunFPAClassVer/testFigFFTLinGV` — **eliminado
+        (2026-09-16), dependencia irrecuperable:** ya llevaba su propio
+        `assumeFail` documentando que necesita una clase helper
+        `figDemodulator` (`figDemodulator.figuraFFT2v`, etc.) que no se
+        pudo localizar en ningún sitio — ni en este repo, ni en la carpeta
+        Dropbox del TFM de Victor del Hierro, ni en el mirror GitHub
+        original de `om4mmatlabutils`. Los datos sí estaban disponibles
+        como fixture (`datatestFFTlinGV.json`), pero sin el código no hay
+        nada que ejecutar — se elimina el test en vez de dejarlo con
+        `assumeFail` indefinidamente.
+      - `testFPA_UtilFunFPAClassVer/testCalculatePowerWithCorrectionFromLMMfile`
       - `testJsonlabRoundTrip/{testJsonRoundTrip,testUbjsonRoundTrip}` ×
         `exampleFile={example2,example4}.json` (4 casos parametrizados)
   - `testQC_FeatureTest` (dependía de helpers y de `..\TestDB\`, ninguno de

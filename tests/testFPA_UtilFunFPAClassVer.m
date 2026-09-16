@@ -4996,41 +4996,7 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
             figurasLin.figura_Hufin(u, Hu(ONEOFFSET+Tu),u(k), Hu(ONEOFFSET+Tu(k))); %Respuesta lineal v' = H(u') = L(u)
         end
 
-        function testFigFFTLinGV(testCase)
-            %run(testFPA_UtilFunFPAClassVer, 'testFigFFTLinGV')
-            %Its data (datatestFFTlinGV.json) IS available as a fixture
-            %(fixturesRoot()/Datos_LinearzationGV_TFM_20-21-VdHG), but the test also
-            %needs a `figDemodulator` helper class (figDemodulator.figuraFFT2v etc.)
-            %that could not be found anywhere - not in this repo, not in Victor del
-            %Hierro's TFM Dropbox folder, not in the original om4mmatlabutils GitHub
-            %mirror. Likely lived only on his own machine and was lost. Documented as
-            %a known gap (missing code, not missing data) rather than guessed at.
-            testCase.assumeFail(['testFigFFTLinGV needs the figDemodulator helper class, ' ...
-                'which could not be located anywhere - see comment above']);
-
-            close all
-            %Cargamos el json que contiene los datos de testFFTLinGV
-            dropboxFolder=fixturesRoot();
-            baseFolder='Datos_LinearzationGV_TFM_20-21-VdHG';
-            loadJ = loadjson(fullfile(dropboxFolder, baseFolder, 'datatestFFTlinGV.json'));
-            %Representamos las figuras para el TFM de VdH
-            figDemodulator.figuraFFT2v(loadJ.v.FFT2v); %FFT2 de v
-            figDemodulator.figuraPerfilv(loadJ.v.perfilv); %Perfil de v
-            figDemodulator.figuralogFFTv(loadJ.v.logFFTv.xI, loadJ.v.logFFTv.yI, loadJ.v.logFFTv.xpeak, loadJ.v.logFFTv.ypeak); %log(FFT(v)) de v sin filtrar
-            figDemodulator.figuraFFTvfilter(loadJ.v.FFTvfilter.xIf, loadJ.v.FFTvfilter.If, loadJ.v.FFTvfilter.xpkf, loadJ.v.FFTvfilter.ypkf); %FFT(v) de v filtrada
-            figDemodulator.figuralogFFTvfilter(loadJ.v.logFFTvfilter.xIf, loadJ.v.logFFTvfilter.Iflog, loadJ.v.logFFTvfilter.xpeakf, loadJ.v.logFFTvfilter.ypeakf); %log(FFT(v)) de v filtrada
-
-            figDemodulator.figuraFFT2Tu(loadJ.Tu.FFT2Tu); %FFT2 de v'
-            figDemodulator.figuraPerfilTu(loadJ.Tu.perfilTu); %Perfil de v'
-            figDemodulator.figuraPerfilesvTufilter(loadJ.perfilvTu.xperfilvf, [loadJ.perfilvTu.perfilvf; loadJ.perfilvTu.perfilTuf]); %Perfiles de v y v' filtrados
-            figDemodulator.figuralogFFTTu(loadJ.Tu.logFFTTu.xIC, loadJ.Tu.logFFTTu.yIC, loadJ.Tu.logFFTTu.xpeakC, loadJ.Tu.logFFTTu.ypeakC); %log(FFT(v')) de v' sin filtrar
-            figDemodulator.figuralogFFTTufilter(loadJ.Tu.logFFTTufilter.xICf, loadJ.Tu.logFFTTufilter.ICflog, loadJ.Tu.logFFTTufilter.xpeakCf, loadJ.Tu.logFFTTufilter.ypeakCf); %log(FFT(v')) de v' filtrada
-            figDemodulator.figuraFFTTufilter(loadJ.Tu.FFTTufilter.xICf, loadJ.Tu.FFTTufilter.ICf, loadJ.Tu.FFTTufilter.xpkCf, loadJ.Tu.FFTTufilter.ypkCf); %FFT(v') de v' filtrada
-            Imv = loadJ.v.imagenv;
-            ImTu = loadJ.Tu.imagenTu;
-            save(fullfile(dropboxFolder, baseFolder, ['ImgGV_' char(string(date)) '.mat']), 'Imv','ImTu');
-        end
-
+        
         function testCalculatePowerWithCorrectionFromLMMfile(testCase)
             %This is to check the correct working of the LUT T(u). The name
             %of these LMMFile mean: LMM_(m===negative

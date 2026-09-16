@@ -2226,3 +2226,19 @@ solo renombrar un fichero. Extraído a
 explícito al principio ya que como script suelto no hereda el
 `TestMethodSetup` de la clase) y borrado el método original. Deja de
 aparecer en `run_all_tests.m`/`run_all_tests.log`.
+
+## `testFigFFTLinGV` eliminado: dependencia irrecuperable (2026-09-16)
+
+Igual patrón que `testDecodeFromRGBTable`: el propio test ya llevaba un
+`assumeFail` documentando la causa raíz — necesita una clase helper
+`figDemodulator` (`figDemodulator.figuraFFT2v`, `figuraPerfilv`,
+`figuralogFFTv`, etc., varias funciones de figuras del TFM de Victor del
+Hierro) que **no se pudo localizar en ningún sitio**: ni en este repo, ni
+en la carpeta Dropbox original del TFM (`Respuesta lineal`, de donde
+vienen el resto de fixtures de `Datos_LinearzationGV_TFM_20-21-VdHG`), ni
+en el mirror GitHub original de `om4mmatlabutils`. Los datos sí estaban
+disponibles como fixture (`datatestFFTlinGV.json`), así que no era un
+hueco de fixtures — era código perdido, probablemente solo existió en la
+máquina del propio VdH y nunca se subió a ningún repo. Eliminado en vez
+de dejarlo con `assumeFail` indefinidamente, mismo criterio que
+`testDecodeFromRGBTable`.
