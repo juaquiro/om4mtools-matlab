@@ -1,71 +1,49 @@
-%> @file PolarMeasurement.m
-%> @brief this file contains the class PolarMeasurement used to describe the measurement of retardation and local orientation in a photoelastic measurement
-%> @details NA
-%> @copyright 2016 IOT
-%> @author AQ 21MAR16
-%> @see testPolarMeasurement.m
-
-% ======================================================================
-%> @brief using as input isoclinic and isocromatic PSA images this class
-%> calculate isochromatic (delta=2*pi/lambda*d*(n1-n2) and isoclinic 4alpha and 2alpha phase maps
-%> @details
-%> - for calculation of retardation from PS images see https://www.osapublishing.org/ao/abstract.cfm?uri=ao-36-32-8397
-%> - for calculation of isoclinics from PS images see https://www.sciencedirect.com/science/article/abs/pii/S0143816607001819
-%> - for stress separation fron isochromatics and isoclinics see https://iopscience.iop.org/article/10.1088/0957-0233/9/8/010
-%> @details this class is used toguether with the classes
-%> MeasuringStationAppInt and HWPolTB
-%> @author AQ
-%> @see DemodRetarPolPS DemodRetarPolPS6Step testPolarMeasurement DemodulatorTimePSA
-% ======================================================================
 classdef PolarMeasurement < handle
+    % PolarMeasurement measures retardation and local orientation from a
+    % photoelastic (polariscope) measurement
+    %
+    % Description:
+    %   From isoclinic and isochromatic PSA images, computes isochromatic
+    %   (delta=2*pi/lambda*d*(n1-n2)) and isoclinic (4*alpha, 2*alpha)
+    %   phase maps. Used together with MeasuringStationAppInt and
+    %   HWPolTB. See testPolarMeasurement.m for unit tests, and
+    %   DemodRetarPolPS/DemodRetarPolPS6Step/DemodulatorTimePSA for the
+    %   demodulators involved.
+    %
+    % References:
+    %   - Retardation from PS images: https://www.osapublishing.org/ao/abstract.cfm?uri=ao-36-32-8397
+    %   - Isoclinics from PS images: https://www.sciencedirect.com/science/article/abs/pii/S0143816607001819
+    %   - Stress separation from isochromatics/isoclinics: https://iopscience.iop.org/article/10.1088/0957-0233/9/8/010
     %% props
     % public
     properties
-        %> retardation images
-        deltaImList;
-        %> isoclinic images
-        alphaImList;
-        %> ROI
-        M;
-        %>  neighbouhood 2t+1 for w4alpha unwrapping
-        t;
-        %>  regularization for w4alpha unwrapping
-        mu;
-        %> filter size for phasor filtering
-        NFilt;
-        %> normalized threshold [0 1] for ROI calculation
-        ROINormTH;
+        deltaImList; % retardation images
+        alphaImList; % isoclinic images
+        M; % ROI
+        t; % neighborhood half-size (2t+1) for w4alpha unwrapping
+        mu; % regularization for w4alpha unwrapping
+        NFilt; % filter size for phasor filtering
+        ROINormTH; % normalized threshold [0 1] for ROI calculation
     end
-    
+
     %only get
     properties (SetAccess=private, GetAccess=public)
-        %> retardation demodulator @see DemodRetarPolPS DemodRetarPolPS6Step
-        deltaDem;
-        %> isoclinic demodulator @see DemodulatorTimePSA
-        alphaDem;
-        %> phase unwrapper (tipically for delta)
-        pu;
-        %> retardation phasor
-        zdelta;
-        %> unwrapper retardtion in rads
-        udelta;
-        %> 4alpha isolinic phasor
-        z4alpha;
-        %> 2alpha isoclinic phasor
-        z2alpha;
+        deltaDem; % retardation demodulator (see DemodRetarPolPS, DemodRetarPolPS6Step)
+        alphaDem; % isoclinic demodulator (see DemodulatorTimePSA)
+        pu; % phase unwrapper (typically for delta)
+        zdelta; % retardation phasor
+        udelta; % unwrapped retardation, in rad
+        z4alpha; % 4*alpha isoclinic phasor
+        z2alpha; % 2*alpha isoclinic phasor
     end
-    
+
     %% public methods
     methods
-        % ======================================================================
-        %> @brief constructor for the PMM class
-        %> @details NA
-        %> @author AQ
-        %> @param aDem demodulator for isoclinics @see DemodRetarPolPS DemodRetarPolPS6Step
-        %> @param dDem demodulator for isochromatics @see DemodulatorTimePSA
-        %> @param deltaPu Phase unrwapper @see Unwrapper
-        % ======================================================================
         function this=PolarMeasurement(aDem, dDem, deltaPu)
+            % PolarMeasurement constructs a polarimetric measurement from
+            % its isoclinic demodulator aDem (see DemodRetarPolPS,
+            % DemodRetarPolPS6Step), isochromatic demodulator dDem (see
+            % DemodulatorTimePSA), and phase unwrapper deltaPu (see Unwrapper)
             this.deltaDem=dDem;
             this.alphaDem=aDem;
             this.pu=deltaPu;
@@ -77,35 +55,19 @@ classdef PolarMeasurement < handle
             this.ROINormTH=0.1; %normalized threshold [0 1] for ROI calculation
         end
         
-        % ======================================================================
-        %> @brief this function get the steps for retardation demodulation
-        %> @details NA
-                %> @param this self reference to the class
-        %> @author AQ
-        % ======================================================================
         function steps=GetDeltaSteps(this)
+            % GetDeltaSteps returns the retardation demodulator's step values
             steps=this.deltaDem.GetStepValues();
         end
-        
-        % ======================================================================
-        %> @brief this function get the steps for isoclinics demodulation
-        %> @details NA
-                %> @param this self reference to the class
-        %> @author AQ
-        % ======================================================================
 
         function steps=GetAlphaSteps(this)
+            % GetAlphaSteps returns the isoclinic demodulator's step values
             steps=this.alphaDem.GetStepValues();
         end
-        
-        % ======================================================================
-        %> @brief this function filter the phasor specified by type using a conv2 filter with NFilt size
-        %> @details NA
-        %> @author AQ
-        %> @param type the type of phase to be filtered @see PolarMeasPhasorType
-        %> @param this self reference to the class
-        % ======================================================================
+
         function filtPhasor(this, type)
+            % filtPhasor box-filters (conv2, size NFilt) the phasor
+            % property named by type (a PolarMeasPhasorType) in place
             import OM4MClassLib.Util.*;
             callFunc=Logging.WhoCalledMe();
             nameofClass='PolarMeasPhasorType';
@@ -122,13 +84,9 @@ classdef PolarMeasurement < handle
         end
         
         
-        % ======================================================================
-        %> @brief this function demodulates the retardation phase
-        %> @details NA
-        %> @author AQ
-        %> @param this self reference to the class
-        % ======================================================================
         function this=calcWrapRetar(this)
+            % calcWrapRetar demodulates deltaImList into the wrapped
+            % retardation phasor zdelta (using M and z2alpha as demodulator inputs)
             gList=this.deltaImList;
             
             %set ROI
@@ -142,26 +100,17 @@ classdef PolarMeasurement < handle
         end
         
         
-        % ======================================================================
-        %> @brief this function unwraps the retardation phase
-        %> @details NA
-        %> @author AQ
-        %> @param this self reference to the class
-        % ======================================================================
         function this=calcUnwRetar(this)
+            % calcUnwRetar unwraps angle(zdelta) within M into udelta
             %process
             this.pu.Process(angle(this.zdelta), this.M, this.M);
             %get results
             this.udelta=this.pu.Get(char(UnwrapperProps.unw));
         end
         
-        % ======================================================================
-        %> @brief this function demodulates 4Alpha
-        %> @details NA
-        %> @author AQ
-        %> @param this self reference to the class
-        % ======================================================================
         function this=calc4Alpha(this)
+            % calc4Alpha demodulates alphaImList into the 4*alpha
+            % isoclinic phasor z4alpha (using M as demodulator input)
             gList=this.alphaImList;
             
             %set ROI
@@ -171,17 +120,12 @@ classdef PolarMeasurement < handle
             this.z4alpha=zList{1};
         end
         
-        % ======================================================================
-        %> @brief this function calculates 2Alpha from 4Alpha
-        %> @details NA
-        %> @author AQ
-        %> @param this self reference to the class
-        %> @param unwrapp2Alpha flag for calculatin 2alpha by unwrapping or
-        %> dividing by 2
-        % ======================================================================
         function this=calc2Alpha(this, unwrapp2Alpha)
+            % calc2Alpha derives the 2*alpha isoclinic phasor z2alpha
+            % from z4alpha, either by unwrapping w4alpha
+            % (UtilFunFPA.Calc2Alpha, if unwrapp2Alpha) or simply halving it
             %unwrap w4alpha
-            QM=mat2gray(abs(this.z4alpha)); %relacion señal ruido: la calidad
+            QM=mat2gray(abs(this.z4alpha)); %relacion seï¿½al ruido: la calidad
             this.t=5; % neighbouhood 2t+1
             this.mu=1; % regularization
             
@@ -196,15 +140,10 @@ classdef PolarMeasurement < handle
         end
         
         
-        % ======================================================================
-        %> @brief this function calculates the ROI from the phasor specified by type
-        %> @details NA
-        %> @author AQ
-        %> @param type the type of phase to be filtered @see PolarMeasPhasorType
-        %> @param this self reference to the class
-        % ======================================================================
-        %this function determines the ROI from phasor type, see PolarMeasPhasorType
         function this=calcROI(this, type)
+            % calcROI computes M by thresholding the modulation of the
+            % phasor property named by type (a PolarMeasPhasorType)
+            % above ROINormTH, then median-filtering (size NFilt)
             import OM4MClassLib.Util.*;
             callFunc=Logging.WhoCalledMe();
             nameofClass='PolarMeasPhasorType';
@@ -227,15 +166,10 @@ classdef PolarMeasurement < handle
     %% Static methods
     methods (Static=true)
         
-        % ======================================================================
-        %> @brief this function save the object PM and optionally accepts a fileName
-        %> @details This function saves a PM object, therefore you need in the path the PM constructor
-        %> @param PM PolarMeasurement object
-        %> @param varargin optional file name. Default value is set by defFileName4Saving
-        %> @see PolarMeasurement.load
-        %> @author AQ
-        % ======================================================================
         function save(PM,varargin)
+            % save writes PM (a PolarMeasurement) to a .mat file.
+            % varargin{1}, if given, is the file name (default:
+            % defFileName4Saving())
             import OM4MClassLib.Util.*
             callFunc=Logging.WhoCalledMe();
             PMClassName='PolarMeasurement';
@@ -269,14 +203,9 @@ classdef PolarMeasurement < handle
             save(fileName,'PM');
         end
         
-        % ======================================================================
-        %> @brief this function loads a PM object from fileName
-        %> @details This function loads a PM object, therefore you need in the path the PM constructor
-        %> @param fileName file with the PM object
-        %> @see PolarMeasurement.save
-        %> @author AQ
-        % ======================================================================
         function PM=load(fileName)
+            % load reads a PolarMeasurement previously saved by save()
+            % from fileName
             import OM4MClassLib.Util.*
             callFunc=Logging.WhoCalledMe();
             PMClassName='PolarMeasurement';
@@ -291,6 +220,7 @@ classdef PolarMeasurement < handle
         end
         
         function fileName=defFileName4Saving()
+            % defFileName4Saving returns "PolarMeasurement_<date>.mat"
             PMClassName='PolarMeasurement';
             fileName=[PMClassName '_' date '.mat'];
         end

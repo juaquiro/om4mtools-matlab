@@ -1,8 +1,8 @@
 classdef PolarMeasPhasorType
-    %PolarMeasure phasor Types    
+    % PolarMeasPhasorType enumeration of PolarMeasurement phasor kinds
     enumeration
-        z2alpha; 
-        z4alpha; 
-        zdelta; 
+        z2alpha; % 2*alpha isoclinic phasor
+        z4alpha; % 4*alpha isoclinic phasor
+        zdelta; % retardation phasor
     end
 end
