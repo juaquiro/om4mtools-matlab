@@ -144,7 +144,7 @@ classdef testFFVCalibration < matlab.unittest.TestCase
             %so CalculateLensPower errors "there are no reference phasors".
             %Needs the demodulation recipe (demodulator type/settings) used
             %to derive zrx/zry from LMM.gr for this PSI/Massig fixture set.
-            testCase.assumeFail('zrx/zry not available for this fixture set - see LensMapperMeasurement.CalculateLensPower');
+            %testCase.assumeFail('zrx/zry not available for this fixture set - see LensMapperMeasurement.CalculateLensPower');
             dropboxFolder=fixturesRoot();
             %select this for FFT based FFV
             %(FFV-1-9-2016 not available as a fixture - only the active one below was copied)
@@ -166,7 +166,8 @@ classdef testFFVCalibration < matlab.unittest.TestCase
             for n=1:length(LMMFileList)
                 A=load(fullfile(dropboxFolder, baseFolder, LMMFileList{n}));
                 LMM=A.LMM;
-                LMM.CalculateLensPower(LMM.M, 1); %get power with K=1 mm^-1/rad
+                %For FFV the demodulator odes not need ref  
+                LMM.CalculateLensPower(LMM.M, 1, "noRefMethod",true); %get power with K=1 mm^-1/rad
                 LMMList{n}=LMM;
             end
             
@@ -178,7 +179,8 @@ classdef testFFVCalibration < matlab.unittest.TestCase
             Pnom=zeros(1,N);
             for n=1:length(LMMList)
                 LMM=LMMList{n};
-                LMM.CalculateLensPower(LMM.M, K); %get power with K=1 mm^-1/rad
+
+                LMM.CalculateLensPower(LMM.M, K,"noRefMethod",true); %get power with K=1 mm^-1/rad
                 
                 LMM=LMMList{n};
                 M=mat2gray(LMM.M);

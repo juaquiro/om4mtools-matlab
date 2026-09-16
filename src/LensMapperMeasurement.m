@@ -134,6 +134,8 @@ classdef LensMapperMeasurement < handle
                 % AQDEBUG 29JUN23 highPowerLens is no longer used keep for compatibility 
                 options.highPowerLens (1,1) logical = false
                 options.TmedFactor(1,1) double {mustBeReal} = 1
+                %no ref mesurements like FFV do not need ref
+                options.noRefMethod(1,1) logical = false
             end                    
             import OM4MClassLib.Util.*
             callFunc=Logging.WhoCalledMe();
@@ -155,6 +157,13 @@ classdef LensMapperMeasurement < handle
             LPCycles=options.LPCycles;  %number of LP Cycles for filtering DPM
             TmedFactor = options.TmedFactor; %AQDebug 28JUN23 this option is 1 by defect not clear necessity
             
+
+            %if the method no needs ref simply copy zx and zy
+            if options.noRefMethod
+                this.zrx=this.zx;
+                this.zry=this.zy;
+            end
+
 
             %estimate mean fringe period of the carrier for filtering
             if not(isempty(this.zrx)||isempty(this.zry))
@@ -180,8 +189,8 @@ classdef LensMapperMeasurement < handle
                 end                
                 
             else
-                retMsg=[callFunc ' there are no reference phasors'];
-                error([callFunc, '->' retMsg]);
+                  retMsg=[callFunc ' there are no reference phasors'];
+                  error([callFunc, '->' retMsg]);
             end                        
             
             
