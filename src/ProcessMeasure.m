@@ -1,5 +1,12 @@
 classdef ProcessMeasure < handle
-%% AQDEBUG ahora de esta clase heradada de DR solo estamos usando la funcion ProcessMeasure.Polyval2
+    % ProcessMeasure static utilities for surface fitting/processing:
+    % Zernike coefficient fitting (with optional curvature regularization),
+    % bivariate polynomial evaluation/derivatives, ball-radius correction,
+    % spline surface fitting, and .hmf file export.
+    %
+    % Note: only ProcessMeasure.Polyval2 and Polyder2 are actually
+    % called from elsewhere in this codebase (verified via grep,
+    % 2026-09-16) - the rest may be dead code kept for reference.
     properties(Access='private', Constant)
         spatialPeriod=1;
         meshLimits=[-40 40]
@@ -8,8 +15,9 @@ classdef ProcessMeasure < handle
         
     methods(Access='public', Static=true)
         
-        %Correction for lens position and orientation
         function [Xa,Ya]=AlignToLaserMarks(offset,angle, X,Y)
+            % AlignToLaserMarks corrects (X, Y) for lens position/orientation:
+            % translates by -offset then rotates by -angle
             % Coordinates of the geometrical center of the lens
             X0 = offset(1);
             Y0 = offset(2);
@@ -23,8 +31,8 @@ classdef ProcessMeasure < handle
         end
         
         function [C, res] = AdjustToZernike(X,Y,Z,ZOrder)
-            %Calculate the Zernike coefficientes that interpolate
-            %inputed data
+            % AdjustToZernike fits Zernike coefficients C (order ZOrder)
+            % to the cloud of points (X,Y,Z), returning fit residuals res
             C = ProcessMeasure.ZernikeCoefficients(X,Y,Z,ZOrder);
             %Calculate the sagitas that correspond to the interpolating
             %zernike polynomial
@@ -35,8 +43,9 @@ classdef ProcessMeasure < handle
         end
         
         function [C, res] = AdjustToZernikeReg(X,Y,Z,ZOrder,lambda, mu)
-            %Calculate the Zernike coefficientes that interpolate
-            %inputed data
+            % AdjustToZernikeReg fits curvature-regularized Zernike
+            % coefficients C (order ZOrder, lambda/mu regularization) to
+            % the cloud of points (X,Y,Z), returning fit residuals res
             C = ProcessMeasure.ZernikeCoefficientsRegCurv(X,Y,Z,ZOrder,lambda,mu);
             %Calculate the sagitas that correspond to the interpolating
             %zernike polynomial
@@ -47,6 +56,10 @@ classdef ProcessMeasure < handle
         end
     
         function [X,Y,Z,C,res, resStats]=FilterNoisyPoints(X,Y,Z, ZOrder, filterThresholds, lambda, mu)
+            % FilterNoisyPoints iteratively fits a regularized Zernike
+            % surface (AdjustToZernikeReg) and removes points whose
+            % residual exceeds each successive filterThresholds entry,
+            % returning the cleaned data plus the final fit and residual stats
             if(nargin<7)
                 mu=0;
             elseif (nargin<6)
@@ -77,6 +90,9 @@ classdef ProcessMeasure < handle
         
         
         function [xx,yy,zz]=BuildSquareGrid(C,ZernikeRegionParams, safetyMargin)
+            % BuildSquareGrid evaluates Zernike surface C on a fresh
+            % square mesh, extrapolating outside ZernikeRegionParams
+            % (shrunk by safetyMargin) via Rescepol
             %Generate a new clean and complete mesh
             meshIndexs=ProcessMeasure.meshLimits(1):ProcessMeasure.spatialPeriod:ProcessMeasure.meshLimits(2);
             [xx,yy] = meshgrid(meshIndexs);
@@ -86,14 +102,18 @@ classdef ProcessMeasure < handle
         end
         
         function [zzOut]= CorrectBallRadius(xx,yy,zz,rad, waitbarDomain)
-        
+            % CorrectBallRadius compensates surface zz for the finite
+            % probe-ball radius rad, fitting a spline (ApspCoefficients)
+            % to get the local normal and offsetting each point along it
+            % before resampling back onto the original grid. Optional
+            % waitbarDomain=[start,end] drives a progress waitbar.
             if nargin<5
                waitbarDomain=[]; 
             end
             if(~isempty(waitbarDomain))
                 waitbar(waitbarDomain(1));
             end
-            % Compensación del radio de la bola
+            % Compensaciï¿½n del radio de la bola
             C = ProcessMeasure.ApspCoefficients(xx,yy,zz,'pval', 0.9);
             if(~isempty(waitbarDomain))
                 waitbar(waitbarDomain(1)+(waitbarDomain(2)-waitbarDomain(1))*0.2);
@@ -120,7 +140,10 @@ classdef ProcessMeasure < handle
         end
         
          function [zzOut, COut, ZerPoly]= CorrectBallRadiusZer(xx, yy, zz,rad,ZOrder, lambda, mu)
-
+            % CorrectBallRadiusZer compensates (xx,yy,zz) for probe-ball
+            % radius rad, using a fitted ClassifierZernikes surface
+            % (order ZOrder, lambda/mu regularization) for the local
+            % normal instead of a spline (compare CorrectBallRadius)
             xx=xx(:);   yy=yy(:);     zz=zz(:);            
              
             cl=ClassifierZernikes();
@@ -154,7 +177,10 @@ classdef ProcessMeasure < handle
         end
         
         function [zzOut]= CorrectBallRadiusZerSph(xx, yy, CMatrix,R0,X0,Y0,rad)
-
+            % CorrectBallRadiusZerSph compensates for probe-ball radius
+            % rad on a surface given as a polynomial CMatrix plus a base
+            % sphere (radius R0, center X0/Y0), combining both terms'
+            % gradients for the local normal
             zz=ProcessMeasure.Polyval2(xx,yy,CMatrix)+ CalibSphere.mSphere(R0,0,0,0, 0,0,0, xx, yy);
             CMX=Polyder2(CMatrix,1);
             CMY=Polyder2(CMatrix,2);
@@ -183,8 +209,8 @@ classdef ProcessMeasure < handle
 
         
         function zzAdj=AdjustBaseHeight(zz)
-
-            % Ajuste de cero y convexidad
+            % AdjustBaseHeight zeroes zz at its center point, then flips
+            % its sign if the mean is negative (so the surface is convex)
             n0 = (size(zz,1)+1)/2;
             zz = zz - zz(n0,n0);
             if mean(zz(:)) < 0;
@@ -193,9 +219,12 @@ classdef ProcessMeasure < handle
             zzAdj=zz;
         end
         
-        %Calculate the Zernike coefficients up to ZOrder that interpolate
-        %the cloud of points defined by (X,Y,Z)
         function C=ZernikeCoefficients(X,Y,Z,ZOrder)
+            % ZernikeCoefficients fits a Zernike expansion (up to ZOrder,
+            % OSA/ANSI indexing) to the cloud of points (X,Y,Z) via
+            % pseudoinverse least squares, returning a coefficient
+            % struct C (with C.A the equivalent XY-monomial matrix for
+            % fast evaluation via Zernike/Polyval2)
             r = sqrt(max(X.*X + Y.*Y));
             K = length(X);
             % Normalization to the unit circle
@@ -251,7 +280,9 @@ classdef ProcessMeasure < handle
         end
         
         function [C]=ZernikeCoefficientsReg(X,Y,Z,ZOrder, lambda)
-            
+            % ZernikeCoefficientsReg is ZernikeCoefficients with L2
+            % (Tikhonov) regularization strength lambda, fitted via
+            % RegresionByNormalEqn instead of a plain pseudoinverse
             r = sqrt(max(X.*X + Y.*Y));
             K = length(X);
             % Normalization to the unit circle
@@ -312,7 +343,10 @@ classdef ProcessMeasure < handle
         end
         
         function [C]=ZernikeCoefficientsRegCurv(X,Y,Z,ZOrder, lambda, mu)
-            
+            % ZernikeCoefficientsRegCurv is ZernikeCoefficientsReg (L2
+            % strength lambda) plus an additional curvature-smoothness
+            % penalty (strength mu) evaluated at points near the unit
+            % circle boundary, to control edge curl
             r = sqrt(max(X.*X + Y.*Y));
             K = length(X);
             % Normalization to the unit circle
@@ -390,10 +424,11 @@ classdef ProcessMeasure < handle
             C.Squeme = 'osa';
         end
         
-        %Calculate powermaps in given points from the coefficients of the
-        %polynomial that define the surface.
         function [ou]=PolyPowers(x ,y, SCoeff, n)
-            
+            % PolyPowers computes power maps (Pxx/Pyy/Pxy, C, S, Seq,
+            % scaled by refractive index n) at (x, y) from the surface's
+            % polynomial coefficients SCoeff, via its principal curvatures
+
             Sx=ProcessMeasure.Polyder2(SCoeff,1);
             Sy=ProcessMeasure.Polyder2(SCoeff,2);
             Sxx=ProcessMeasure.Polyder2(Sx,1);
@@ -462,13 +497,12 @@ classdef ProcessMeasure < handle
 
         end
         
-        % Calculate surface sags from an expansion into Zernike polynomials.
-        % X, Y define the points where the zernike gets evaluated. They can be meshgrid-type matrices
-        % or vectors (column vectors is faster).
-        % C is a coefficient structure with the at least the next fields:
-        %   C.A: Coefficient matrix. This is the matrix of the final polynomial,
-        %   used for faster computation
         function Z=Zernike(X, Y, Cest)
+            % Zernike evaluates surface sags Z at (X, Y) - meshgrid
+            % matrices or vectors (column vectors are faster) - from a
+            % Zernike coefficient struct Cest (needs at least Cest.A,
+            % the equivalent XY-monomial coefficient matrix, per 2D
+            % Horner's rule for speed)
             C = Cest.A;
             N = length(C);
             B = X;
@@ -486,10 +520,11 @@ classdef ProcessMeasure < handle
         end
         
         
-        %Writes an .hmf file for the given sagitas and spatial period.
-        %z must be a square matrix. fileName must not include file extension
         function WriteHMF(z, filePath, fileName)
-            
+            % WriteHMF writes surface sags z (a square matrix, spacing
+            % ProcessMeasure.spatialPeriod) to filePath/fileName.hmf
+            % (fileName without extension)
+
             lData=length(z);
             %Open file to write
             fileName=strcat(filePath,fileName);
@@ -518,13 +553,17 @@ classdef ProcessMeasure < handle
     methods(Access='public', Static=true)
         
         function M = ZernikeMatrix(j)
+            % ZernikeMatrix returns the monomial coefficient matrix for
+            % single-index (OSA/ANSI) Zernike term j, via ZMosa
             n = ceil((-3 + sqrt(9+8*j))/2);
             m = 2*j - n.*(n + 2);
             M = ProcessMeasure.ZMosa(n,m);                
         end
         
-        %Calculate sagita at given points. Extrapolates using parabolic curves
         function zz =Rescepol(xx,yy,C,rho,contourFunc)
+            % Rescepol evaluates Zernike surface C at (xx, yy), extrapolating
+            % points beyond contourFunc's radius via parabolic fits
+            % (ParabolaCoefficients) using rho as sample offsets
             rlim = contourFunc;
 
             sx = size(xx);
@@ -554,6 +593,9 @@ classdef ProcessMeasure < handle
         end
         
         function R = GetRegionLimitFunction(regionParams, delta)
+            % GetRegionLimitFunction returns a function R(theta) giving
+            % the radius of an ellipse (regionParams.a/b/offset/angle,
+            % shrunk by delta) at polar angle theta
             x0=regionParams.offset(1);
             y0=regionParams.offset(2);
             a = regionParams.a - delta;
@@ -564,6 +606,8 @@ classdef ProcessMeasure < handle
         end
         
         function [a, b, c]=ParabolaCoefficients(x,y)
+            % ParabolaCoefficients returns [a,b,c] for the parabola
+            % y=a+b*x+c*x^2 passing exactly through the 3 points (x,y)
             det = (x(1)-x(2))*(x(1)-x(3))*(x(2)-x(3));
             a = ( x(1)*x(3)*y(2)*(x(3)-x(1)) + x(2)^2*(x(3)*y(1)-x(1)*y(3))+x(2)*(x(1)^2*y(3)-x(3)^2*y(1)) )/det;
             b = ( x(3)^2*(y(1)-y(2)) + x(1)^2*(y(2)-y(3)) + x(2)^2*(y(3)-y(1)) )/det;
@@ -571,6 +615,9 @@ classdef ProcessMeasure < handle
         end
         
         function M = ZMosa(n,m)
+            % ZMosa returns the monomial coefficient matrix for the
+            % (n,m)-indexed (radial/azimuthal, OSA convention) Zernike
+            % polynomial
             N = n + 1;
             M = zeros(N, N);
             switch sign(m)
@@ -618,8 +665,9 @@ classdef ProcessMeasure < handle
             end
         end
         
-        %Aproximant spline construction for gridded data
         function C = ApspCoefficients(X, Y, Z, type, par)
+            % ApspCoefficients builds an approximant spline for gridded data
+            %
             % DESCRIPTION
             % X,Y,Z are gridded data, in matrix format, as given by meshgrid. Because
             % the MATLAB spline toolbox assumes gridded data generated with ndgrid, the
@@ -649,7 +697,7 @@ classdef ProcessMeasure < handle
             % 2) All the splines are converted to the pp-form for improved evaluating
             % speed
             % Copyright 2009-2010. IOT S.L.
-            % Author: José Alonso
+            % Author: Josï¿½ Alonso
             
             % Data must be gridded
             x = X(1,:);
@@ -743,13 +791,14 @@ classdef ProcessMeasure < handle
             end
         end
         
-        % Piecewise 2D spline defined surface
         function Z = Apsp(X, Y, C)
+            % Apsp evaluates a piecewise 2D spline surface
+            %
             % DESCRIPTION
             % X and Y can be any size (but equal). Z is the same size than X and Y.
             % C = Structure defining MATLAB spline
             % Copyright 2009-2010. IOT S.L.
-            % Author: José Alonso
+            % Author: Josï¿½ Alonso
             
             S = size(X);
             if S(1) == 1
@@ -762,9 +811,7 @@ classdef ProcessMeasure < handle
         end
         
         function z = Polyval2(x, y, C, type)
-
-            % Polyval2
-            % Efficient computation of bivariate polynomials
+            % Polyval2 efficiently evaluates bivariate polynomials
             %
             % SINTAX
             % z = Polyval2(x, y, C)
@@ -790,7 +837,7 @@ classdef ProcessMeasure < handle
             % application of Horne's rule to compute the whole polynomial.
             %
             % COPYRIGHT 2009-2010. IOT S.L.
-            % AUTHOR: José Alonso
+            % AUTHOR: Josï¿½ Alonso
             %__________________________________________________________________________
 
             if nargin == 3
@@ -836,9 +883,8 @@ classdef ProcessMeasure < handle
         end
         
         function [ Cder ] = Polyder2(C, dim)
-        %POLYDER2 Derivative of bivariate polynomials
-        %   This function returns the coefficient matrix of the given bivariate
-        %   polynomial derived along the given dimension
+        % Polyder2 returns the coefficient matrix of bivariate
+        % polynomial C differentiated along dimension dim (1=x, 2=y)
 
             switch(dim)
                 case 1
@@ -877,9 +923,11 @@ classdef ProcessMeasure < handle
         end
         
         function [ Lx, Ly ] = PolyLaplacian( Pcoeffs )
-        %POLYLAPLACIAN Calculates the laplacian of a bivariate polynomial
-        %   Pcoeffs: coefficient matrix of the initial polynomial
-        %    L:     coefficient matrix of the laplacian
+        % PolyLaplacian returns the second partial derivatives Lx=d2P/dx2
+        % and Ly=d2P/dy2 of bivariate polynomial Pcoeffs, as separate
+        % coefficient matrices - despite the name, it does NOT sum them
+        % into a single Laplacian Lx+Ly (its only caller,
+        % ZernikeCoefficientsRegCurv, keeps them separate too)
 
             Px=ProcessMeasure.Polyder2(Pcoeffs,1);
             Py=ProcessMeasure.Polyder2(Pcoeffs,2);
@@ -891,10 +939,11 @@ classdef ProcessMeasure < handle
             Ly=Pyy;
         end
         
-        %Linear regresion for the list of features X to adjust the values Y
-        %using a regularization coefficient lamda
         function [theta] = RegresionByNormalEqn(X, Y, lambda)
-            
+            % RegresionByNormalEqn fits theta via the ridge-regularized
+            % normal equation (L2 penalty lambda, not applied to the
+            % intercept term) for features X and targets Y
+
             if(nargin<3)
                 lambda=0;
             end
@@ -916,6 +965,8 @@ classdef ProcessMeasure < handle
         end
         
         function out=PadArray(inArr, padSize, padValue, direction) %#ok<INUSD>
+            % PadArray pads inArr with padValue, adding padSize(2)
+            % columns and padSize(1) rows (direction argument is unused)
             inSize=size(inArr);
             inter=[inArr ones(inSize(1),padSize(2))*padValue];
             interSize=size(inter);
