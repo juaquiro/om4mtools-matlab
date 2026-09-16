@@ -1,16 +1,16 @@
 classdef DemodulatorLSPSA < Demodulator
-    %DemodulatorPS LS implementation of demodulator, given a set of PS
-    %steps, the demodulator finds the LS solution
-    
+    % DemodulatorLSPSA least-squares PSI demodulator for arbitrary
+    % (not necessarily equispaced) phase-shift steps in deltaList
+
     %% props
     %private set
     properties (GetAccess=public, SetAccess=private)
     end
-    
+
     %% public methods
     methods
-        % constructor
         function  this=DemodulatorLSPSA()
+            % DemodulatorLSPSA constructs an arbitrary-steps LS PSI demodulator
             %%% Pre Initialization %%%
             % Any code not using first output argument (this)
             
@@ -28,8 +28,10 @@ classdef DemodulatorLSPSA < Demodulator
             this.Init();
         end
         
-        % abstract interface
         function this=Process(this, FPList)
+            % Process demodulates the phase-shifted igrams in FPList via
+            % least squares against deltaList (UtilFunFPA.LSDemod), then
+            % refines the mask M with the modulation-based ROI
             import OM4MClassLib.Util.*
             callFunc=Logging.WhoCalledMe();
             
@@ -75,10 +77,14 @@ classdef DemodulatorLSPSA < Demodulator
         end
         
         function stepVals=GetStepValues(this)
+            % GetStepValues returns the NIgrams phase-shift steps, in
+            % StepsTwoPwiRange units
             stepVals=this.steps;
         end
-        
+
         function FPList=GenerateFPs(this, imSize)
+            % GenerateFPs generates NIgrams fringe patterns (period Tx or
+            % Ty per PSDir), each phase-shifted by deltaList(n)
             NR=imSize(1);
             NC=imSize(2);
             
@@ -123,8 +129,10 @@ classdef DemodulatorLSPSA < Demodulator
             
         end
         
-        %Override Set interface
         function this=Set(this, prop, propval)
+            % Set overrides the base Set: setting deltaList directly also
+            % updates NIgrams to match; setting any other prop
+            % (e.g. NIgrams) recomputes deltaList/steps via set_deltaList
             import OM4MClassLib.Util.*;
             callFunc=Logging.WhoCalledMe();
             
@@ -150,7 +158,10 @@ classdef DemodulatorLSPSA < Demodulator
     
     %% private methods
     methods (Access=private)
-        function this=Init(this)            
+        function this=Init(this)
+            % Init sets default PSDir/NIgrams (4) and derives an initial
+            % equispaced deltaList/steps (deltaList can be overridden
+            % afterwards via Set for non-equispaced steps)
             %default direction for patterns vertical, we use the base Set
             %to avoid using the superseeded Set of the class
             this.props.Set(char(DemodulatorProps.PSDir), 0);
@@ -164,7 +175,9 @@ classdef DemodulatorLSPSA < Demodulator
         end
         
         function this=set_deltaList(this)
-            %Get Number of Igrams          
+            % set_deltaList derives an initial equispaced deltaList (over
+            % [0, 2*pi)) and steps from the current NIgrams
+            %Get Number of Igrams
             N=this.Get(char(DemodulatorProps.NIgrams));                                  
             %set deltaList whithout using the class Set
             this.props.Set(char(DemodulatorProps.deltaList), [0:N-1]'*2*pi/N); 
