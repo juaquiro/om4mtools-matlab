@@ -1,8 +1,11 @@
 classdef ClassifierFactory
-    %ClassifierFactory static factory for classifiers
-    
+    % ClassifierFactory static factory that builds a concrete Classifier
+    % subclass from a ClassifierTypes enum value
+
     %% public methods
     methods(Static)
+        % Create returns a new classifier instance matching type (a
+        % ClassifierTypes enum value); errors if type is unknown/invalid
         function obj=Create(type)
             try
                 import OM4MClassLib.Util.*;
