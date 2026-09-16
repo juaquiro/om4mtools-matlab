@@ -5,10 +5,14 @@ Modernización de om4mmatlabutils.
 
 ## Contexto
 - Objetivo del proyecto (reconfirmado 2026-09-15): dejar la migración desde
-  `om4mmatlabutils` ordenada en Git y la suite de tests corriendo de nuevo.
-  Nada más — proyecto estrictamente personal, sin plan de refactorización de
-  código ni de empaquetarlo/distribuirlo como toolbox o módulo MATLAB. Ver
-  TODO.md para el detalle de lo pendiente y lo descartado explícitamente.
+  `om4mmatlabutils` ordenada en Git y la suite de tests corriendo de nuevo —
+  cumplido y liberado como v1.0.0 (2026-09-16). Proyecto estrictamente
+  personal, sin plan de empaquetarlo/distribuirlo como toolbox o módulo
+  MATLAB. **Excepciones puntuales (2026-09-16):** unificar la validación de
+  parámetros con bloques `arguments` (name-value) en todo `src/`, y unificar
+  docstrings (convención estándar de MATLAB, incluida una breve por test)
+  sí están en alcance ahora — ver TODO.md para el detalle y lo demás que
+  sigue descartado explícitamente.
 - Directorio de trabajo: `C:\user\AQ_SCC\GitHub\om4mtools-matlab` — repo Git, migrado
   desde `Dropbox\AQ_EXP\75 om4mtools-matlab\` el 2026-09-14 (esa copia de Dropbox se
   conserva solo como backup, ver `README_IMPORTANTE_14SEP26.md` ahí — no es el sitio
@@ -46,8 +50,11 @@ Modernización de om4mmatlabutils.
 - Bloques `arguments` para toda validación de entrada (no inputParser)
 - Nunca usar `i`, `j` como variables de bucle
 - Seguir MATLAB-Coding-Guidelines en todo momento (`MATLAB-Coding-Guidelines.pdf`)
-- Sin refactor ni modernización masiva de `src/` existente — solo aplicar
-  estas convenciones a código nuevo o que ya se esté tocando por otro motivo
+- Sin refactor ni modernización masiva de `src/` existente, **salvo la
+  unificación de validación de parámetros con `arguments` (name-value) y
+  la unificación de docstrings** (excepciones explícitas añadidas
+  2026-09-16, ver TODO.md). Fuera de eso, aplicar estas convenciones solo
+  a código nuevo o que ya se esté tocando por otro motivo
 
 ## MEX
 - Código fuente en mex/src/ — proyecto Visual Studio (.sln)
