@@ -156,6 +156,8 @@ classdef testFPADemodulatorSpatialFT < matlab.unittest.TestCase
                         testCase.assertEqual(p,5);
                     case DemodulatorProps.ROINormTH
                         testCase.assertEqual(p,0);
+                    case DemodulatorProps.AbsolutePhasePSADemType
+                        testCase.assertEqual(p,DemodulatorTypes.LSEquispacedPSA);
                     otherwise
                         testCase.assertTrue(isempty(p));
                 end
