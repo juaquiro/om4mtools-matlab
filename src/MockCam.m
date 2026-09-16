@@ -1,5 +1,7 @@
 classdef MockCam < handle
-    %% MockCam  -  Software mock‑up of a physical camera
+    % MockCam software mock-up of a physical camera
+    %
+    % Description:
     %  This implementation is intentionally lightweight and only aims to
     %  satisfy the subset of the imaqCam API exercised by the unit tests
     %  in *testStandardHW_MockCam.m*.
@@ -50,14 +52,18 @@ classdef MockCam < handle
     %% Basic camera control ----------------------------------------------
     methods
         function Start(this)
+            % Start marks the camera as running
             this.isStopped = false;
         end
 
         function Stop(this)
+            % Stop marks the camera as stopped
             this.isStopped = true;
         end
 
         function StartPreview(this)
+            % StartPreview opens (or reuses) a preview figure and starts
+            % a 5 fps timer that refreshes it with a new synthetic frame
             % Create figure / image if the user did not supply one
             if isempty(this.hImage) || ~ishandle(this.hImage)
                 f = figure('Name','MockCam Preview','NumberTitle','off', ...
@@ -78,6 +84,7 @@ classdef MockCam < handle
         end
 
         function StopPreview(this)
+            % StopPreview stops and deletes the preview timer, if any
             if ~isempty(this.previewTimer) && isvalid(this.previewTimer)
                 stop(this.previewTimer);
                 delete(this.previewTimer);
@@ -86,6 +93,8 @@ classdef MockCam < handle
         end
 
         function Capture(this, varargin)
+            % Capture generates a new synthetic frame into this.Data
+            % (auto-starting the camera if it was stopped)
             if this.isStopped
                 this.Start(); % auto‑start when needed
             end
@@ -102,6 +111,8 @@ classdef MockCam < handle
     %% Preview helpers ----------------------------------------------------
     methods
         function SetUpdatePreviewWindowFcnCamera(this, fh)
+            % SetUpdatePreviewWindowFcnCamera installs fh as the preview
+            % update callback (defaults to VoidUpdatePreviewCallback)
             if nargin < 2 || isempty(fh)
                 fh = @MockCam.VoidUpdatePreviewCallback;
             end
@@ -111,6 +122,9 @@ classdef MockCam < handle
 
     methods (Access = private)
         function updatePreview(this)
+            % updatePreview refreshes the preview image via userUpdateFcn
+            % if set (falling back to a plain frame update on error), or
+            % directly if no callback is installed
             if isempty(this.hImage) || ~ishandle(this.hImage)
                 return
             end
@@ -145,6 +159,8 @@ classdef MockCam < handle
     %% Static utilities / callbacks --------------------------------------
     methods (Static)
         function save(obj, fileName)
+            % save writes obj to fileName (.mat), after stopping its
+            % preview and clearing the timer/image handles (not serializable)
             if nargin < 2
                 error('Usage: MockCam.save(camObj, ''fileName.mat'')');
             end
@@ -156,6 +172,7 @@ classdef MockCam < handle
         end
 
         function cam = load(fileName)
+            % load reads a MockCam previously saved by save() from fileName
             s = load(fileName);
             fn = fieldnames(s);
             cam = s.(fn{1});
@@ -163,10 +180,13 @@ classdef MockCam < handle
 
         % -------- Preview callbacks -------------------------------------
         function VoidUpdatePreviewCallback(obj, ~, hImage) %#ok<INUSD>
+            % VoidUpdatePreviewCallback shows a plain new synthetic frame
             set(hImage,'CData', obj.generateFrame());
         end
 
         function detectEdgeCallback(obj, ~, hImage)
+            % detectEdgeCallback overlays Canny edges (in red) on a new
+            % synthetic frame
             I = obj.generateFrame();
             BW = edge(rgb2gray(I), 'Canny');
             overlay = cat(3, uint8(BW)*255, zeros(size(BW), 'uint8'), zeros(size(BW), 'uint8'));
@@ -174,7 +194,8 @@ classdef MockCam < handle
         end
 
         function detectCornerPointsCallback(obj, ~, hImage) %#ok<INUSD>
-            % Very crude "corner" overlay: draw green squares in the image corners
+            % detectCornerPointsCallback draws a green square in each
+            % corner of a new synthetic frame (crude corner-detection mock)
             I = obj.generateFrame();
             rows = size(I,1);
             cols = size(I,2);
@@ -187,6 +208,9 @@ classdef MockCam < handle
         end
 
         function insertLensMarks(obj, ~, hImage, lensMarks)
+            % insertLensMarks draws two vertical red marks on a new
+            % synthetic frame, at +/- lensMarks.pos (px, scaled from
+            % lensMarks.imageSizeX) from the horizontal center
             I = obj.generateFrame();
             cols = size(I,2);
             centre = round(cols/2);
