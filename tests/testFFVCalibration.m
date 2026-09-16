@@ -140,11 +140,6 @@ classdef testFFVCalibration < matlab.unittest.TestCase
             %run(testFFVCalibration, 'testPolinomicalCalibrationFromLMMs')
             import OM4MClassLib.Util.*;
             fprintf('\ntest %s...\n ',Logging.WhoCalledMe());
-            %TODO: fixture LMMs for this baseFolder have zx/zy but no zrx/zry,
-            %so CalculateLensPower errors "there are no reference phasors".
-            %Needs the demodulation recipe (demodulator type/settings) used
-            %to derive zrx/zry from LMM.gr for this PSI/Massig fixture set.
-            %testCase.assumeFail('zrx/zry not available for this fixture set - see LensMapperMeasurement.CalculateLensPower');
             dropboxFolder=fixturesRoot();
             %select this for FFT based FFV
             %(FFV-1-9-2016 not available as a fixture - only the active one below was copied)
