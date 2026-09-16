@@ -2189,6 +2189,9 @@ un cálculo de referencia aparte. Test actualizado para pasar
 el `assumeFail` que lo bloqueaba. Verificado con
 `run(testFFVCalibration, 'testPolinomicalCalibrationFromLMMs')` → Passed.
 
-Nota: `testPolinomicalCalibrationFromLMMsV2` usa el mismo fixture y
-patrón de llamada, pero **no** se ha tocado — sigue con su propio
-`assumeFail` y sin `noRefMethod`, pendiente de categorizar aparte.
+**`testPolinomicalCalibrationFromLMMsV2` arreglado igual (2026-09-16):**
+mismo fixture y patrón de llamada que `testPolinomicalCalibrationFromLMMs`
+— pasado `noRefMethod=true` en las dos llamadas a `CalculateLensPower` y
+quitado su propio `assumeFail`. Verificado con
+`run(testFFVCalibration, 'testPolinomicalCalibrationFromLMMsV2')` →
+Passed.

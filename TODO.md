@@ -179,8 +179,13 @@
         phasors de referencia calculados aparte. Test actualizado para pasar
         `noRefMethod=true` en ambas llamadas a `CalculateLensPower` y quitado
         el `assumeFail` que lo bloqueaba.
-      - `testFFVCalibration/{testPolinomicalCalibrationFromLMMsV2,
-        testCalibration2TimesAndRecal, testCalibration2Times}`
+      - [x] `testFFVCalibration/testPolinomicalCalibrationFromLMMsV2` —
+        **arreglado (2026-09-16):** mismo fixture y causa que
+        `testPolinomicalCalibrationFromLMMs` de arriba — pasado
+        `noRefMethod=true` en las dos llamadas a `CalculateLensPower` y
+        quitado el `assumeFail`.
+      - `testFFVCalibration/{testCalibration2TimesAndRecal,
+        testCalibration2Times}`
       - `testFPA_UtilFunFPAClassVer/{testCalculateHomographyAndTransform,
         testFigFFTLinGV, testCalculatePowerWithCorrectionFromLMMfile}`
       - `testJsonlabRoundTrip/{testJsonRoundTrip,testUbjsonRoundTrip}` ×
