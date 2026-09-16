@@ -1,44 +1,32 @@
-%> @file PathFollowerCQueue.m
-%> @brief File iwth the PathFollowerCQueue implementation
-%> @details NA
-%> @copyright 2016 IOT
-%> @author AQ 21MAR16
-
-
-% ======================================================================
-%> @brief this class implements a CQueue based path follower for spatial image processing
-%> @details this class is based in Proyectos\Legacy\Iot-om4m\Om4mLib\Trunk\src\XtremeFringe\PathFollower.cs and uses the CQueue class for the queue storage
-%> @see PathFollowerTypes for avalible path follower types
-%> @see PathFollowerFactory for a static factory
-%> @see testFPAPathFollowerCQueue for unit tests
-%> @see PathFollowerCQueue
-%> @see PathFollowerModes for modes of path follower
-%> @see look for "Quality Map" in Servin, M., Quiroga, J. A., & Padilla, M. (2014). Fringe Pattern Analysis for Optical Metrology: Theory, Algorithms, and Applications. Wiley vch.
-% ======================================================================
 classdef PathFollowerCQueue <  PathFollower
-        
+    % PathFollowerCQueue CQueue-based path follower for spatial image
+    % processing - one CQueue per quality level, pops from the highest
+    % non-empty level first
+    %
+    % Description:
+    %   Based on the legacy PathFollower.cs implementation. See
+    %   PathFollowerTypes for available types, PathFollowerFactory for a
+    %   static factory, testFPAPathFollowerCQueue for unit tests, and
+    %   PathFollowerModes for path-follower modes.
+
     %% props
     %protected
     properties (Access=protected)
-        %> cell Array of nLevels Queues for pixel storage
-        pixelQueueArr; 
-        
-        %> binary mask of the points already put into pixelQueueArr
-        enqueuedMask; 
+        pixelQueueArr; % cell array of nLevels CQueue objects for pixel storage
+        enqueuedMask; % binary mask of points already added to pixelQueueArr
     end
-    
+
     %public
     properties
     end
-    
-    
-    
+
+
+
     %% public methods
     methods
-        % ======================================================================
-        %> @brief constructor Concrete implementation.  See superclass.
-        % ======================================================================
         function this=PathFollowerCQueue(nLevels, qualityImage, roiMask, followMode)
+            % PathFollowerCQueue constructs a CQueue-based path follower
+            % (concrete PathFollower implementation - see superclass)
             %%% Pre Initialization %%%
             % Any code not using first output argument (this)
             
@@ -56,13 +44,10 @@ classdef PathFollowerCQueue <  PathFollower
             this.Init();
         end
         
-        % ======================================================================
-        %> @brief abstract interface of PathFollower
-        %> @details this function return the next pixel in the queue with the higest quality. If all queues are empty returns empty
-        %> @param this instance of the class.
-        % ======================================================================
-        
         function P=GetNext(this)
+            % GetNext adds PCurrent's neighbors, then pops and returns
+            % the next pixel from the highest non-empty quality-level
+            % queue ([] if all queues are empty)
             this.Add4Neighbour();
             P=[];
             for n=this.nLevels:-1:1
@@ -75,15 +60,10 @@ classdef PathFollowerCQueue <  PathFollower
         end
         
         
-        % ======================================================================
-        %> @brief abstract interface of PathFollower
-        %> @details this function adds a point to the queues if not previuosly added
-        %> @param P XY point to add to the queue
-        %> @param this instance of the class.
-        % ======================================================================
         function this=AddPoint(this, P)
-            %import OM4MClassLib.Util.*;
-            %callFunc=Logging.WhoCalledMe();
+            % AddPoint pushes P (x, y) onto the queue matching its
+            % quality level, if it wasn't already enqueued; errors if P
+            % is outside roiMask
             callFunc='PathFollower:AddPoint';
             
             if this.roiMask(P.y, P.x)==0
@@ -109,12 +89,8 @@ classdef PathFollowerCQueue <  PathFollower
     
     %% private methods
     methods (Access=private)
-        % ======================================================================
-        %> @brief private Init
-        %> @details this function is called form the constructor
-        %> @param this instance of the class.
-        % ======================================================================
         function this=Init(this)
+            % Init allocates enqueuedMask and one CQueue per quality level
             this.enqueuedMask=false(size(this.roiMask));
             
             import OM4MClassLib.DataStructs.*;

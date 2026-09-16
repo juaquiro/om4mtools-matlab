@@ -1,62 +1,41 @@
-%> @file PathFollower.m
-%> @brief This file contains the PathFollower class
-%> @details NA
-%> @copyright 2016 IOT
-%> @author AQ 21MAR16
-
-
-% ======================================================================
-%> @brief this class implements the PathFollower abstract interface
-%> @details this class is very useful in procesing igrams in the spatial
-%> realm.
-%> @see PathFollowerTypes for avalible path follower types
-%> @see PathFollowerFactory for a static factory
-%> @see testFPAPathFollowerCQueue for unit tests
-%> @see PathFollowerCQueue
-%> @see PathFollowerModes for modes of path follower
-%> @see look for "Quality Map" in Servin, M., Quiroga, J. A., & Padilla, M. (2014). Fringe Pattern Analysis for Optical Metrology: Theory, Algorithms, and Applications. Wiley vch.
-% ======================================================================
 classdef PathFollower <  handle
-    %PathFollower 
-    
+    % PathFollower abstract interface for path followers, useful when
+    % processing igrams in the spatial domain
+    %
+    % Description:
+    %   See PathFollowerTypes for available types, PathFollowerFactory
+    %   for a static factory, testFPAPathFollowerCQueue for unit tests,
+    %   PathFollowerCQueue for a concrete implementation,
+    %   PathFollowerModes for path-follower modes, and "Quality Map" in
+    %   Servin, Quiroga & Padilla, "Fringe Pattern Analysis for Optical
+    %   Metrology: Theory, Algorithms, and Applications," Wiley-VCH (2014).
+
     %% props
     %private
     properties (Access=protected)
-        %> current pixel
-        PCurrent;
-        %> binary processing ROI
-        roiMask;
-        %> roiMask size R
-        NR;
-        %> roiMask size C
-        NC;
+        PCurrent; % current pixel
+        roiMask; % binary processing ROI
+        NR; % roiMask row count
+        NC; % roiMask column count
         connectedRows;
         connectedCols;
-        %> Number of levels of the Quality Map
-        nLevels;
+        nLevels; % number of levels of the quality map
     end
-    
+
     %public
     properties
-        %> Quality map to guide the path follower
-        qualityMap;
+        qualityMap; % quality map used to guide the path follower
     end
-    
-    
+
+
     %% abstract methods
     %public interface
     methods (Abstract=true)
-        % ======================================================================
-        %> @brief get next point from the pathFollower        
-        %> @return next available Point
-        % ======================================================================
+        % GetNext returns the next available point from the path follower
         P=GetNext(this); %
-        
-        % ======================================================================
-        %> @brief this funcion adds a point to the path follower, usually it is used once
-        %> @param P XY point to add to the queue
-        %> @param this instance of the class.
-        % ======================================================================
+
+        % AddPoint adds point P (x, y) to the path follower's queue,
+        % usually called once to seed it
         this=AddPoint(this, P); %
     end
     
@@ -64,14 +43,10 @@ classdef PathFollower <  handle
     
     %% public methods
     methods
-        % ======================================================================
-        %> @brief constructor
-        %> @param nLevels Quality map number of levels
-        %> @param qualityImage Quality image to guide the process
-        %> @param roiMask ROU
-        %> @param followMode see PathFollowerModes
-        % ======================================================================        
         function this=PathFollower(nLevels, qualityImage, roiMask, followMode)
+            % PathFollower constructs a path follower, computing its
+            % discrete quality map (see ComputeQualityMap) from
+            % qualityImage/roiMask/nLevels/followMode (see PathFollowerModes)
             import OM4MClassLib.Util.*;
             callFunc=Logging.WhoCalledMe();
             
@@ -102,10 +77,9 @@ classdef PathFollower <  handle
         
         
         
-        % ======================================================================
-        %> @brief Adds the 4 connected Neighbours of point PCurrent to the pixel Queues
-        % ======================================================================
         function this=Add4Neighbour(this)
+            % Add4Neighbour adds PCurrent's 4-connected neighbors that
+            % fall inside roiMask to the pixel queue (via AddPoint)
             N=length(this.connectedCols);
             if not(isempty(this.PCurrent))
                 for n=1:N
@@ -137,14 +111,12 @@ classdef PathFollower <  handle
     %%static methods
     methods(Static)
         
-        % ======================================================================
-        %> @brief this funcion calculate the discrete qualityMap from the quality image using nLevels and followMode and roiMask
-        %> @param nLevels Quality map number of levels
-        %> @param qualityImage Quality image to guide the process
-        %> @param roiMask ROU
-        %> @param followMode see PathFollowerModes
-        % ======================================================================
         function qualityMap=ComputeQualityMap(qualityImage, roiMask, nLevels, followMode)
+            % ComputeQualityMap discretizes qualityImage into nLevels
+            % levels, per followMode (see PathFollowerModes): abs
+            % magnitude, absdel2 (Laplacian), absgrad (gradient
+            % magnitude), image (raw values), or distance-to-mask
+            % (optionally combined with qualityImage)
             import OM4MClassLib.Util.*;
             callFunc=Logging.WhoCalledMe();
             
