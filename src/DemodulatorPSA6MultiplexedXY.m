@@ -1,15 +1,17 @@
 classdef DemodulatorPSA6MultiplexedXY < Demodulator
-    %DemodulatorPSA6MultiplexedXY XY Multiplexed PSA 6 steps 
-        
+    % DemodulatorPSA6MultiplexedXY 6-step PSA demodulator for X and Y
+    % fringe patterns multiplexed together in the same igrams
+
     %% props
     %private set
     properties (GetAccess=public, SetAccess=private)
     end
-    
+
     %% public methods
     methods
-        % constructor
         function  this=DemodulatorPSA6MultiplexedXY()
+            % DemodulatorPSA6MultiplexedXY constructs an XY-multiplexed
+            % 6-step PSA demodulator
             %%% Pre Initialization %%%
             % Any code not using first output argument (this)
             
@@ -27,8 +29,10 @@ classdef DemodulatorPSA6MultiplexedXY < Demodulator
             this.Init();
         end
         
-        % abstract interface
         function this=Process(this, FPList)
+            % Process demodulates the 6 XY-multiplexed igrams in FPList
+            % (deltaList.X/deltaList.Y phase steps) into a 1x2 zList of
+            % X and Y phasors/modulations, then refines M against both
             import OM4MClassLib.Util.*
             callFunc=Logging.WhoCalledMe();
             
@@ -76,10 +80,15 @@ classdef DemodulatorPSA6MultiplexedXY < Demodulator
         end
         
         function stepVals=GetStepValues(this)
+            % GetStepValues returns a struct with X/Y phase-shift steps,
+            % in StepsTwoPwiRange units
             stepVals=this.steps;
         end
-        
+
         function FPList=GenerateFPs(this, imSize)
+            % GenerateFPs generates the 6 XY-multiplexed fringe patterns
+            % (period Tx horizontally, Ty vertically), summing the X and
+            % Y components phase-shifted per deltaList.X/deltaList.Y
             NR=imSize(1);
             NC=imSize(2);
             
@@ -119,8 +128,10 @@ classdef DemodulatorPSA6MultiplexedXY < Demodulator
             
         end
         
-        %Override Set interface
         function this=Set(this, prop, propval)
+            % Set overrides the base Set: setting deltaList directly also
+            % updates NIgrams to match; setting any other prop
+            % (e.g. NIgrams) recomputes deltaList/steps via set_deltaList
             import OM4MClassLib.Util.*;
             callFunc=Logging.WhoCalledMe();
             
@@ -146,7 +157,10 @@ classdef DemodulatorPSA6MultiplexedXY < Demodulator
     
     %% private methods
     methods (Access=private)
-        function this=Init(this)            
+        function this=Init(this)
+            % Init sets defaults for XY-multiplexed 6-step PSA
+            % (biasFP/modFP scaled for 2 superposed components,
+            % NIgrams=6) and derives deltaList/steps
             %default direction for patterns vertical, we use the base Set
             %to avoid using the superseeded Set of the class
             %here does not matter because the demodulator is multiplexed
@@ -166,6 +180,9 @@ classdef DemodulatorPSA6MultiplexedXY < Demodulator
         end
         
         function this=set_deltaList(this)
+            % set_deltaList sets the fixed 6-step X/Y phase steps
+            % (deltaList.X, deltaList.Y) and derives steps.X/steps.Y;
+            % errors if NIgrams isn't 6 (the only supported step count)
             import OM4MClassLib.Util.*;
             callFunc=Logging.WhoCalledMe();
             
