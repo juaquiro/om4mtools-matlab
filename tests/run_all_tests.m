@@ -14,6 +14,11 @@ function results = run_all_tests()
 % Note: some remaining tests require external data intentionally excluded
 % from this repo (Coursera course files) and will fail/error - that is
 % expected, see DECISIONS.md.
+%
+% Also writes the full Command Window output (per-test pass/fail plus a
+% failed/incomplete name list) to tests/run_all_tests.log, so the run can
+% be handed off without keeping the MATLAB session attached - see
+% .gitignore, this log is local/untracked.
 
 thisDir = fileparts(mfilename('fullpath'));
 addpath(thisDir);
@@ -26,9 +31,32 @@ nExcluded = nnz(isHardwareTest);
 suite = suite(~isHardwareTest);
 
 runner = matlab.unittest.TestRunner.withTextOutput();
-results = runner.run(suite);
+
+logFile = fullfile(thisDir, 'run_all_tests.log');
+diary(logFile);
+diary on;
+try
+    results = runner.run(suite);
+catch ME
+    diary off;
+    rethrow(ME);
+end
 
 fprintf('\n%d passed, %d failed, %d incomplete (of %d) - %d Hardware-tagged tests excluded\n', ...
     nnz([results.Passed]), nnz([results.Failed]), nnz([results.Incomplete]), numel(results), nExcluded);
+
+failedNames = {results([results.Failed]).Name};
+incompleteNames = {results([results.Incomplete]).Name};
+
+if ~isempty(failedNames)
+    fprintf('\nFailed tests:\n');
+    fprintf('  %s\n', failedNames{:});
+end
+if ~isempty(incompleteNames)
+    fprintf('\nIncomplete tests:\n');
+    fprintf('  %s\n', incompleteNames{:});
+end
+
+diary off;
 
 end

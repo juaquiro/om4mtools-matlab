@@ -274,7 +274,7 @@ classdef testFPADemodulatorLSEquispacedPSA < matlab.unittest.TestCase
                 absTol=1e-5;
                 testCase.assertEqual(mean(dp(:)),0, 'AbsTol', absTol);
                 
-                [pzx, pzy, Mxy]=UtilFunFPA.phaseGradient(z, M, 1, 1);
+                [pzx, pzy, Mxy]=UtilFunFPA.phaseGradientDirect(z, M, 1, 1);
                 
                 x=linspace(-0.2*pi, 0.2*pi, 150);
                 hx=mat2gray(hist(pzx(Mxy), x));
@@ -530,7 +530,7 @@ classdef testFPADemodulatorLSEquispacedPSA < matlab.unittest.TestCase
             
             hx=1; %1 mm/px
             hy=1; %mm/px
-            [px, py, ~]=UtilFunFPA.phaseGradient1(z, ones(size(z)), hx, hy);
+            [px, py, ~]=UtilFunFPA.phaseGradientDirect(z, ones(size(z)), hx, hy);
                        
             absTol=1e-5;
             testCase.assertEqual(mean(py(:)),0, 'AbsTol', absTol);
@@ -569,7 +569,7 @@ classdef testFPADemodulatorLSEquispacedPSA < matlab.unittest.TestCase
             
             hx=1; %1 mm/px
             hy=1; %mm/px
-            [px, py, ~]=UtilFunFPA.phaseGradient1(z, ones(size(z)), hx, hy);
+            [px, py, ~]=UtilFunFPA.phaseGradientDirect(z, ones(size(z)), hx, hy);
             
             absTol=1e-5;
             testCase.assertEqual(mean(px(:)),0, 'AbsTol', absTol);

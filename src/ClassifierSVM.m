@@ -4,7 +4,7 @@ classdef ClassifierSVM < Classifier
     
     %% private props
     properties (Access=private)
-        SVMstruct; %MATLAB SVM struct
+        SVMstruct; %cell array of fitcsvm ClassificationSVM models, one per class -- ClassificationSVM doesn't support growing into a plain object array
         clr; %logistic regression classifier to calculate posterior probabilities
     end
     
@@ -46,18 +46,19 @@ classdef ClassifierSVM < Classifier
     methods (Access=protected)
         %Classfier hypothesis h_theta(X)
         function [pred,prb]=HypothesisP(this, X)
-            
+
             num_labels=length(this.SVMstruct);
             m = size(X, 1); % Number of training examples
             f=zeros(m, num_labels);
-            
-            for c=1:num_labels                               
+
+            for c=1:num_labels
                 %f is the the SVM decision function for every sample, is an
                 %array of m rows and num_labels columns
                 %we need to calculate it to train the LR classfier
-                [~, f(:, c)]=this.svmdecision(X, this.SVMstruct(c));
+                [~, scores]=predict(this.SVMstruct{c}, X);
+                f(:, c)=scores(:, 2);
             end
-            
+
             %here we make a one-vs-all classification of X
             [~,pred]=max(f,[], 2);
             
@@ -82,18 +83,18 @@ classdef ClassifierSVM < Classifier
             n = size(X, 2); % features number
             num_labels=length(unique(y));
             f=zeros(m, num_labels);
-            this.InitSVMstruct(num_labels);
-            
+
             for c=1:num_labels
                 if sp
                     figure;
                 end
-                this.SVMstruct(c)=svmtrain(X,(y==c),'Kernel_Function', KF, 'showplot',sp, 'boxconstraint', C, 'rbf_sigma', sigma, 'polyorder', p);
-                
+                this.SVMstruct{c}=this.trainBinarySVM(X, y==c, KF, C, sigma, p);
+
                 %f is the the SVM decision function for every sample, is an
                 %array of m rows and num_labels columns
                 %we need to calculate it to train the LR classfier
-                [~, f(:, c)]=this.svmdecision(X, this.SVMstruct(c));
+                [~, scores]=predict(this.SVMstruct{c}, X);
+                f(:, c)=scores(:, 2);
             end
                         
             %here we make a one-vs-all classification of Xnorm
@@ -145,12 +146,7 @@ classdef ClassifierSVM < Classifier
     methods (Access=private)
         %Initialize
         function this=Init(this)
-            
-            
-            %remove warning
-            warning('off', 'stats:svmtrain:RBFParamNotRBFKernel');
-            warning('off', 'stats:svmtrain:PolyOrderNotPolyKernel');
-            
+
             this.Set(char(ClassifierProps.lambda), 1); %the C param of SVM
             this.Set(char(ClassifierProps.KF), 'rbf');
             this.Set(char(ClassifierProps.KFp), 1);
@@ -164,40 +160,20 @@ classdef ClassifierSVM < Classifier
         end
                 
         
-        function this=InitSVMstruct(this, num_labels)
-            this.SVMstruct(num_labels).SupportVectors=[];
-            this.SVMstruct(num_labels).Alpha = [];
-            this.SVMstruct(num_labels).Bias = [];
-            this.SVMstruct(num_labels).KernelFunction = [];
-            this.SVMstruct(num_labels).KernelFunctionArgs = [];
-            this.SVMstruct(num_labels).GroupNames = [];
-            this.SVMstruct(num_labels).SupportVectorIndices = [];
-            this.SVMstruct(num_labels).ScaleData = [];
-            this.SVMstruct(num_labels).FigureHandles = [];                        
-        end
-        
-        function [out,f]=svmdecision(this, X, SVMstruct)
-            %SVMDECISION Evaluates the SVM decision function
-            %first normalize
-            n = size(X, 2); % features number
-            Xnorm=zeros(size(X));
-            for k = 1:n
-                Xnorm(:,k) = SVMstruct.ScaleData.scaleFactor(k)*(X(:,k) +  SVMstruct.ScaleData.shift(k));
+        function model=trainBinarySVM(~, X, yBinary, KF, C, sigma, polyOrder)
+            %TRAINBINARYSVM Train one fitcsvm model, passing only the
+            %kernel-specific option that matches KF (fitcsvm errors if
+            %given an option that doesn't apply to the selected kernel --
+            %svmtrain, which this replaces, tolerated passing all of
+            %them regardless of kernel).
+            args={'KernelFunction', KF, 'BoxConstraint', C, 'Standardize', true};
+            if strcmpi(KF, 'polynomial')
+                args=[args, {'PolynomialOrder', polyOrder}];
+            else
+                args=[args, {'KernelScale', sigma}];
             end
-            
-            sv = SVMstruct.SupportVectors;
-            alphaHat = SVMstruct.Alpha;
-            bias = SVMstruct.Bias;
-            kfun = SVMstruct.KernelFunction;
-            kfunargs = SVMstruct.KernelFunctionArgs;
-            
-            %evaluate f
-            f = -1.0*((feval(kfun,sv,Xnorm,kfunargs{:})'*alphaHat(:)) + bias);
-            % points on the boundary are assigned to class 1
-            out = sign(f);
-            out(out==0) = 1;
-            
+            model=fitcsvm(X, yBinary, args{:});
         end
-        
+
     end
 end

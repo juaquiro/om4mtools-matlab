@@ -30,7 +30,7 @@ classdef testKMeansToolbox < matlab.unittest.TestCase
             
             % Load from ex6data2:
             % You will have X, y in your environment
-            load('ex6data1.mat');
+            load(fullfile(fixturesRoot(), 'CourseraMLData', 'ex6data1.mat'));
             
             figure; gscatter(X(:,1),X(:,2),y, 'gr','so');
             
@@ -59,7 +59,7 @@ classdef testKMeansToolbox < matlab.unittest.TestCase
             
             % Load from ex6data2:
             % You will have X, y in your environment
-            load('ex6data1.mat');
+            load(fullfile(fixturesRoot(), 'CourseraMLData', 'ex6data1.mat'));
             
             K=20;
             d=zeros(1, K);
@@ -76,7 +76,7 @@ classdef testKMeansToolbox < matlab.unittest.TestCase
             idx=kmeans(X,K, 'display','off', 'replicates',5);
             figure; gscatter(X(:,1),X(:,2),idx); title('optimun k-means clusters');
             
-            load('ex7data2.mat');
+            load(fullfile(fixturesRoot(), 'CourseraMLData', 'ex7data2.mat'));
             
             K=20;
             d=zeros(1, K);
@@ -138,7 +138,7 @@ classdef testKMeansToolbox < matlab.unittest.TestCase
             checkStats_Toolbox();
             
             %  Load an image of a bird
-            A = double(imresize(imread('bird_small.png'), [64,64]));
+            A = double(imresize(imread(fullfile(fixturesRoot(), 'CourseraMLData', 'bird_small.png')), [64,64]));
             %A=double(imread('peppers.png'));
             
             % If imread does not work for you, you can try instead

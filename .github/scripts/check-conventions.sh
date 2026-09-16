@@ -11,16 +11,24 @@ set -uo pipefail
 fail=0
 base="$1"
 
-changed_m=$(git diff --name-only "$base"...HEAD -- '*.m' 2>/dev/null || true)
+# Only src/ and tests/ follow the repo's own MATLAB conventions (arguments
+# blocks, no i/j, resetPath over pathdef, ...). mex/src/tests/ holds a
+# legacy C-project test harness moved in as-is -- not in scope here.
+changed_m=$(git diff --name-only "$base"...HEAD -- 'src/*.m' 'src/**/*.m' 'tests/*.m' 2>/dev/null || true)
 
 for f in $changed_m; do
   [ -f "$f" ] || continue
-  if grep -nE '^\s*for\s+[ij]\s*=' "$f"; then
-    echo "::error file=$f::uses 'i' or 'j' as a loop variable (CLAUDE.md: never use i, j as loop variables)"
+  # Lint only lines this change actually adds, not the whole file -- most
+  # of this legacy codebase still has pre-existing i/j loops (that's Fase 4's
+  # own unmarked TODO item), so whole-file linting would fail CI on any
+  # future touch to nearly any file for reasons unrelated to that change.
+  added=$(git diff -U0 "$base"...HEAD -- "$f" 2>/dev/null | grep -E '^\+' | grep -v '^\+\+\+' | sed 's/^\+//')
+  if echo "$added" | grep -qE '^\s*for\s+[ij]\s*='; then
+    echo "::error file=$f::adds 'i' or 'j' as a loop variable (CLAUDE.md: never use i, j as loop variables)"
     fail=1
   fi
-  if grep -n 'matlabpath(pathdef)' "$f"; then
-    echo "::error file=$f::resets path with pathdef (wipes the user's own path) -- use tests/resetPath.m instead"
+  if echo "$added" | grep -q 'matlabpath(pathdef)'; then
+    echo "::error file=$f::adds a matlabpath(pathdef) reset (wipes the user's own path) -- use tests/resetPath.m instead"
     fail=1
   fi
 done

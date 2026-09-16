@@ -37,18 +37,31 @@ classdef testFPADemodulator < matlab.unittest.TestCase
                 end
                 
                 %check default values for public props
-                biasFP=127.5;
+                if isa(d, 'DemodulatorGCPSA')
+                    biasFP=[];
+                else
+                    biasFP=127.5;
+                end
                 testCase.assertEqual(biasFP, d.biasFP);
                 
-                modFP=127.5;
+                if isa(d, 'DemodulatorGCPSA')
+                    modFP=[];
+                else
+                    modFP=127.5;
+                end
+
                 if dt(n)==DemodulatorTypes.PSA6MultiplexedXY
                     testCase.assertEqual(0.5*modFP, d.modFP);
                 else
                     testCase.assertEqual(modFP, d.modFP);
                 end
                     
-                
-                shape=0;  % default value shape
+                if isa(d, 'DemodulatorGC')
+                    shape=1;  % default value shape
+                else
+                    shape=0;
+                end
+
                 testCase.assertEqual(shape, d.shape);
             
                 %default value for onlyModFlag

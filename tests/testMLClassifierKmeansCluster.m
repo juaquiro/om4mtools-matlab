@@ -169,7 +169,7 @@ classdef testMLClassifierKmeansCluster < matlab.unittest.TestCase
             
             % Load from ex6data2:
             % You will have X, y in your environment
-            load('ex6data1.mat');
+            load(fullfile(fixturesRoot(), 'CourseraMLData', 'ex6data1.mat'));
             
             %we start using the default params
             c=ClassifierFactory.Create(ClassifierTypes.KmeansCluster);

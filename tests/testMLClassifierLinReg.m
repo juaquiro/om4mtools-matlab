@@ -82,7 +82,7 @@ classdef testMLClassifierLinReg < matlab.unittest.TestCase
             c=ClassifierFactory.Create(ClassifierTypes.LinReg);
             
             % Load Data
-            data = csvread('ex1data2.txt');
+            data = csvread(fullfile(fixturesRoot(), 'CourseraMLData', 'ex1data2.txt'));
             X = data(:, 1:2);
             y = data(:, 3);
             m = length(y);
@@ -126,7 +126,7 @@ classdef testMLClassifierLinReg < matlab.unittest.TestCase
             
             c=ClassifierFactory.Create(ClassifierTypes.LinReg);
             
-            load ('ex5data1.mat');
+            load (fullfile(fixturesRoot(), 'CourseraMLData', 'ex5data1.mat'));
             
             m = size(X, 1); % Number of training examples
             
@@ -164,7 +164,7 @@ classdef testMLClassifierLinReg < matlab.unittest.TestCase
             
             c=ClassifierFactory.Create(ClassifierTypes.LinReg);
             
-            load ('ex5data1.mat');
+            load (fullfile(fixturesRoot(), 'CourseraMLData', 'ex5data1.mat'));
             
             m = size(X, 1); % Number of training examples
             
@@ -198,7 +198,7 @@ classdef testMLClassifierLinReg < matlab.unittest.TestCase
             c=ClassifierFactory.Create(ClassifierTypes.LinReg);
             
             % Load Data
-            data = csvread('ex1data2.txt');
+            data = csvread(fullfile(fixturesRoot(), 'CourseraMLData', 'ex1data2.txt'));
             X = data(:, 1:2);
             y = data(:, 3);
             m = length(y);

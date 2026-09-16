@@ -24,7 +24,7 @@ classdef testStandardHW_MockCam < matlab.unittest.TestCase
     %  Dependencies
     %  ------------------------------------------------------------------
     %  *setupPath* (tests/setupPath.m) must be on the path; it adds src/,
-    %  tests/fixtures/ and the legacy IOT2DPU/deploy MEX folder, making
+    %  tests/fixtures/ and mex/bin/ (the compiled MEX), making
     %  third‑party utilities (e.g. *OM4MClassLib.Util.Logging*) available
     %  during the tests. *resetPath* (tests/resetPath.m) restores the path
     %  snapshot captured at session start in TestMethodTeardown.
@@ -108,7 +108,7 @@ classdef testStandardHW_MockCam < matlab.unittest.TestCase
             clear cam;
         end
 
-        function test_GetSethImage(~)
+        function test_GetSethImage(testCase)
             %run(testStandardHW_MockCam, 'test_GetSethImage')
             % Verify that the *hImage* property acts like a regular handle
             % container – setting a graphics object and retrieving it later
@@ -129,7 +129,7 @@ classdef testStandardHW_MockCam < matlab.unittest.TestCase
             hImageReturned = cam.hImage;
 
             % Same handle object?
-            assertEqual(hImageReturned, hImage);
+            testCase.assertEqual(hImageReturned, hImage);
 
             delete(hFig);
             delete(cam);

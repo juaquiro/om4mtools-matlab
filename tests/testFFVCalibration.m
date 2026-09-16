@@ -121,6 +121,10 @@ classdef testFFVCalibration < matlab.unittest.TestCase
                 
                 LMM.zx=zx;
                 LMM.zy=zy;
+                LMM.zrx=zrx;
+                LMM.zry=zry;
+
+
                 LMM.CalculateLensPower(LMM.M, 1);
                 
                 MVS=abs((x-x0)+1i*(y-y0))<20;
@@ -133,7 +137,7 @@ classdef testFFVCalibration < matlab.unittest.TestCase
         end
         
         function testPolinomicalCalibrationFromLMMs(testCase)
-            %run(testFFVCalibration, 'testPolinomicalCalibrationFromLMMs')            
+            %run(testFFVCalibration, 'testPolinomicalCalibrationFromLMMs')
             import OM4MClassLib.Util.*;
             fprintf('\ntest %s...\n ',Logging.WhoCalledMe());
             dropboxFolder=fixturesRoot();
@@ -157,7 +161,8 @@ classdef testFFVCalibration < matlab.unittest.TestCase
             for n=1:length(LMMFileList)
                 A=load(fullfile(dropboxFolder, baseFolder, LMMFileList{n}));
                 LMM=A.LMM;
-                LMM.CalculateLensPower(LMM.M, 1); %get power with K=1 mm^-1/rad
+                %For FFV the demodulator odes not need ref  
+                LMM.CalculateLensPower(LMM.M, 1, "noRefMethod",true); %get power with K=1 mm^-1/rad
                 LMMList{n}=LMM;
             end
             
@@ -169,7 +174,8 @@ classdef testFFVCalibration < matlab.unittest.TestCase
             Pnom=zeros(1,N);
             for n=1:length(LMMList)
                 LMM=LMMList{n};
-                LMM.CalculateLensPower(LMM.M, K); %get power with K=1 mm^-1/rad
+
+                LMM.CalculateLensPower(LMM.M, K,"noRefMethod",true); %get power with K=1 mm^-1/rad
                 
                 LMM=LMMList{n};
                 M=mat2gray(LMM.M);
@@ -222,7 +228,7 @@ classdef testFFVCalibration < matlab.unittest.TestCase
             for n=1:length(LMMFileList)
                 A=load(fullfile(dropboxFolder, baseFolder, LMMFileList{n}));
                 LMM=A.LMM;
-                LMM.CalculateLensPower(LMM.M, 1); %get power with K=1 mm^-1/rad
+                LMM.CalculateLensPower(LMM.M, 1, "noRefMethod",true); %get power with K=1 mm^-1/rad
                 LMMList{n}=LMM;
             end
             
@@ -232,7 +238,7 @@ classdef testFFVCalibration < matlab.unittest.TestCase
             %recalculate power using K
             for n=1:length(LMMFileList)
                 LMM=LMMList{n};
-                LMM.CalculateLensPower(LMM.M, K); %get power with K=1 mm^-1/rad
+                LMM.CalculateLensPower(LMM.M, K, "noRefMethod",true); %get power with K=1 mm^-1/rad
                 LMMList{n}=LMM;
             end                 
             
@@ -265,7 +271,7 @@ classdef testFFVCalibration < matlab.unittest.TestCase
             %(FFV-1-9-2016 not available as a fixture - only the active one below was copied)
             %select this for PSI based Massig-type deflectometer
             baseFolder='CalibracionDeflectometroVertical-13-OCT-16';
-            
+
             LMMFileList={
                 'LensMapperMeasurement_2D.mat',...  % -1/500 mm^-1 2D
                 'LensMapperMeasurement_5D.mat',...  % -1/200 mm^-1 5D
@@ -274,36 +280,36 @@ classdef testFFVCalibration < matlab.unittest.TestCase
                 'LensMapperMeasurement_n5D.mat',... %  -1/200 mm^-1 -5D
                 'LensMapperMeasurement_n10D.mat'    % -1/100 mm^-1 -10D
                 };
-            
-            
+
+
             %iterate for all the measurements, and recalculate power with
             %K=1 mm^-1/rad
             LMMList=cell(1, length(LMMFileList));
             for n=1:length(LMMFileList)
                 A=load(fullfile(dropboxFolder, baseFolder, LMMFileList{n}));
                 LMM=A.LMM;
-                LMM.CalculateLensPower(LMM.M, 1); %get power with K=1 mm^-1/rad
+                LMM.CalculateLensPower(LMM.M, 1, "noRefMethod",true); %get power with K=1 mm^-1/rad
                 LMMList{n}=LMM;
-            end                                                
-            
+            end
+
             K1=LMM.Calibrate(LMMList);
-            
+
             %calculate lens power with K1 calibration
             for n=1:length(LMMFileList)
                 A=load(fullfile(dropboxFolder, baseFolder, LMMFileList{n}));
                 LMM=A.LMM;
-                LMM.CalculateLensPower(LMM.M, K1); %get power with K=1 mm^-1/rad
+                LMM.CalculateLensPower(LMM.M, K1, "noRefMethod",true); %get power with K=1 mm^-1/rad
                 LMMList{n}=LMM;
             end
             
-            %if we repite calibration result K~[1 0] and now Nominalpower vs
+            %if we repite calibration result K~[1 1] and now Nominalpower vs
             %measured power should be a line, set AQDEUG=1 in LensMapperMeasurement.Measurement
             %to see the plot
             K2=LMM.Calibrate(LMMList);
                                
             N=length(K2);
             testCase.assertEqual(K2(N-1), 1, 'AbsTol', 1e-1);
-            testCase.assertEqual(K2(N), 0, 'AbsTol', 1e-1);
+            testCase.assertEqual(K2(N), 1, 'AbsTol', 1e-1);
             
             
         end                        
@@ -319,7 +325,7 @@ classdef testFFVCalibration < matlab.unittest.TestCase
             %(FFV-1-9-2016 not available as a fixture - only the active one below was copied)
             %select this for PSI based Massig-type deflectometer
             baseFolder='CalibracionDeflectometroVertical-13-OCT-16';
-            
+
             LMMFileList={
                 'LensMapperMeasurement_2D.mat',...  % -1/500 mm^-1 2D
                 'LensMapperMeasurement_5D.mat',...  % -1/200 mm^-1 5D
@@ -328,20 +334,20 @@ classdef testFFVCalibration < matlab.unittest.TestCase
                 'LensMapperMeasurement_n5D.mat',... %  -1/200 mm^-1 -5D
                 'LensMapperMeasurement_n10D.mat'    % -1/100 mm^-1 -10D
                 };
-            
-            
+
+
             %iterate for all the measurements, and recalculate power with
             %K=1 mm^-1/rad
             LMMList=cell(1, length(LMMFileList));
             for n=1:length(LMMFileList)
                 A=load(fullfile(dropboxFolder, baseFolder, LMMFileList{n}));
                 LMM=A.LMM;
-                LMM.CalculateLensPower(LMM.M, 1); %get power with K=1 mm^-1/rad
+                LMM.CalculateLensPower(LMM.M, 1, "noRefMethod",true); %get power with K=1 mm^-1/rad
                 LMMList{n}=LMM;
-            end                                                
-            
+            end
+
             K1=LMM.Calibrate(LMMList);
-                        
+
             %if we repite calibration result K1==K2
             K2=LMM.Calibrate(LMMList);
                                            

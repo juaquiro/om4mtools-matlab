@@ -67,7 +67,7 @@ classdef testNN_Toolbox < matlab.unittest.TestCase
 
             fprintf('\n%s: ',Logging.WhoCalledMe());
 
-            data = load('ex2data2.txt');
+            data = load(fullfile(fixturesRoot(), 'CourseraMLData', 'ex2data2.txt'));
             X = data(:, [1, 2]); y = data(:, 3);
             X = mapFeature(X(:,1), X(:,2));
 
@@ -114,7 +114,7 @@ classdef testNN_Toolbox < matlab.unittest.TestCase
             import OM4MClassLib.Util.* Util.*;
             fprintf('\n%s: ',Logging.WhoCalledMe());
 
-            load('ex3data1.mat'); % training data stored in arrays X, y
+            load(fullfile(fixturesRoot(), 'CourseraMLData', 'ex3data1.mat')); % training data stored in arrays X, y
 
             m=size(X, 1);
             p=randperm(m);

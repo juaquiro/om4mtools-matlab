@@ -14,13 +14,51 @@ mex/bin/**/*.pdb
 !mex/bin/**/*.mexa64
 !mex/bin/**/*.mexmaci64
 
-# MEX legacy IOT2DPU (aún sin migrar a mex/src/, ver TODO.md Fase 2) — mismo criterio,
-# el .mexw64 precompilado sí va al repo (lo usa UnwrapperTypes.FlynMd)
-!om4mtools-matlab/IOT2DPU/deploy/*.mexw64
+# MEX — mex/src/ es el proyecto Visual Studio: MSBuild escribe sus
+# intermedios ahí mismo (x64/Release/ por proyecto, obj, pdb, ...) y el
+# post-build event de cada .vcxproj copia el binario final a
+# mex/src/deploy/ — mex/build.m copia de ahí a mex/bin/ y ambos son
+# transitorios, no van al repo
+mex/src/**/x64/
+mex/src/**/Win32/
+mex/src/**/Debug/
+mex/src/**/Release/
+mex/src/**/*.obj
+mex/src/**/*.pdb
+mex/src/**/*.ilk
+mex/src/**/*.exp
+mex/src/**/*.lib
+mex/src/**/*.tlog
+mex/src/**/*.log
+mex/src/**/*.idb
+mex/src/deploy/
+.vs/
+
+# DLL — dll/src/ es el proyecto Visual Studio de CProjector (sin .sln
+# propio, ver DECISIONS.md): MSBuild escribe sus intermedios ahí mismo y
+# el post-build event del .vcxproj copia el binario final a
+# dll/src/Deploy/ — dll/build.m copia de ahí a dll/bin/ y ambos son
+# transitorios, no van al repo
+dll/src/**/x64/
+dll/src/**/Win32/
+dll/src/**/Debug/
+dll/src/**/Release/
+dll/src/**/*.obj
+dll/src/**/*.pdb
+dll/src/**/*.ilk
+dll/src/**/*.exp
+dll/src/**/*.lib
+dll/src/**/*.tlog
+dll/src/**/*.log
+dll/src/**/*.idb
+dll/src/Deploy/
 
 # Fixtures de test (viven en Dropbox, no en el repo — ver tests/fixtures/README.md)
 tests/fixtures/**/*
 !tests/fixtures/README.md
+
+# Log generado por run_all_tests.m (diary) — local, no va al repo
+tests/run_all_tests.log
 
 # Claude Code — settings.local.json es específico de esta máquina/usuario
 .claude/settings.local.json
@@ -31,3 +69,10 @@ src/.ignore/
 # OS
 .DS_Store
 Thumbs.db
+
+# Stray plaintext credential file (a global git credential.helper
+# misconfiguration on this machine scatters this into whatever directory
+# is cwd during a git auth — real fix is the global config, this is just
+# defense in depth so it can never land in a commit here)
+.gitcredentials
+.git-credentials

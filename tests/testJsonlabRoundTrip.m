@@ -9,18 +9,46 @@ classdef testJsonlabRoundTrip < matlab.unittest.TestCase
         exampleFile = {'example1.json', 'example2.json', 'example3.json', 'example4.json'};
     end
 
+    methods(TestMethodSetup)
+        function SetUp(testCase)
+            setupPath();
+        end
+    end
+
+    methods(TestMethodTeardown)
+        function TearDown(testCase)
+            matlabpath(resetPath); %#ok<RESETPATH>
+        end
+    end
+
     methods (Test)
         function testJsonRoundTrip(testCase, exampleFile)
             original = loadjson(fullfile(fixturesRoot(), exampleFile));
 
-            try
-                json = savejson('', original);
-                reloaded = loadjson(json);
-            catch ME
-                testCase.assumeFail(sprintf(['jsonlab no soporta bien este JSON con la ' ...
-                    'version de MATLAB actual (arrays de strings planos parecen disparar ' ...
-                    'la rama matlabobject2json de savejson): %s'], ME.message));
+            if strcmp(exampleFile, 'example4.json')
+                % example4.json's 3rd top-level element is a JSON array of 3
+                % objects, each wrapping a [1,2] double via jsonlab's own
+                % "_ArrayType_"/"_ArraySize_"/"_ArrayData_" struct encoding -
+                % deliberately written that way (it's jsonlab's own selftest
+                % fixture) to force loadjson to keep them as 3 separate 1x2
+                % arrays in a cell, rather than one matrix. savejson has no
+                % way to reproduce that wrapping when serializing a plain
+                % cell of numeric arrays - it writes plain nested JSON
+                % arrays instead ("[[1,0],[1,1],[1,2]]"), and loadjson's
+                % (version-independent, pure sscanf) fast-array parser then
+                % auto-collapses that uniform array-of-arrays into a single
+                % 3x2 matrix on reload. This is a JSON-format ambiguity
+                % (plain JSON can't distinguish "3 separate arrays" from "one
+                % matrix"), not a MATLAB-version compatibility bug - see
+                % DECISIONS.md. testUbjsonRoundTrip for the same fixture
+                % passes: UBJSON's binary array encoding doesn't have this
+                % ambiguity.
+                testCase.assumeFail(['testJsonRoundTrip/example4.json: JSON-format ambiguity, ' ...
+                    'not a MATLAB-version bug - see comment above and DECISIONS.md']);
             end
+
+            json = savejson('', original);
+            reloaded = loadjson(json);
 
             testCase.verifyEqual(reloaded, original);
         end
@@ -28,14 +56,8 @@ classdef testJsonlabRoundTrip < matlab.unittest.TestCase
         function testUbjsonRoundTrip(testCase, exampleFile)
             original = loadjson(fullfile(fixturesRoot(), exampleFile));
 
-            try
-                ubj = saveubjson('', original);
-                reloaded = loadubjson(ubj);
-            catch ME
-                testCase.assumeFail(sprintf(['jsonlab no soporta bien este JSON con la ' ...
-                    'version de MATLAB actual (arrays de strings planos parecen disparar ' ...
-                    'la rama matlabobject2ubjson de saveubjson): %s'], ME.message));
-            end
+            ubj = saveubjson('', original);
+            reloaded = loadubjson(ubj);
 
             % UBJSON is binary and stores integer-valued doubles in the
             % smallest integer type that fits (e.g. age=25 -> int8) -

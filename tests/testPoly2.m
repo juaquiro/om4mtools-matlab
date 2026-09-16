@@ -1,5 +1,18 @@
-classdef testPoly2< matlab.unittest.TestCase
-    
+classdef testPoly2 < matlab.unittest.TestCase
+    %run(testPoly2)
+
+    methods(TestMethodSetup)
+        function SetUp(testCase)
+            setupPath();
+        end
+    end
+
+    methods(TestMethodTeardown)
+        function TearDown(testCase)
+            matlabpath(resetPath); %#ok<RESETPATH>
+        end
+    end
+
     methods(Test)
         
         function testEvaluateSinglePoint(testCase)

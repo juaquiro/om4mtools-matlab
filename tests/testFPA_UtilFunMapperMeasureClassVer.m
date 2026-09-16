@@ -94,7 +94,7 @@ classdef testFPA_UtilFunMapperMeasureClassVer < matlab.unittest.TestCase
             LMM2=LensMapperMeasurement.load(fileName);
             for n=1:length(p)
                 if not(strcmp(p{n}, 'DerSign'))
-                    assertEqual(LMM2.(p{n}), magic(10));
+                    testCase.assertEqual(LMM2.(p{n}), magic(10));
                 end
             end
             delete(fileName);
@@ -424,9 +424,9 @@ classdef testFPA_UtilFunMapperMeasureClassVer < matlab.unittest.TestCase
             %eliminamos los bordes
             M=conv2(double(M), ones(50)/2500, 'same')>0.9;
             tol=0.6; %D
-            assertAlmostEqual(0, 1e3*std(eS(MC)), tol);
-            assertAlmostEqual(0, 1e3*std(eC(MC)), 2*tol);
-            assertAlmostEqual(0, 1e3*std(eSeq(MC)), tol);
+            testCase.assertEqual(0, 1e3*std(eS(MC)), 'AbsTol', tol);
+            testCase.assertEqual(0, 1e3*std(eC(MC)), 'AbsTol', 2*tol);
+            testCase.assertEqual(0, 1e3*std(eSeq(MC)), 'AbsTol', tol);
 
         end
 
@@ -515,9 +515,9 @@ classdef testFPA_UtilFunMapperMeasureClassVer < matlab.unittest.TestCase
             %eliminamos los bordes
             MC=conv2(double(MC), ones(100)/1e4, 'same')>0.9;
             tol=2; %D
-            assertAlmostEqual(0, 1e3*std(eS(logical(MC))), tol);
-            assertAlmostEqual(0, 1e3*std(eC(logical(MC))), 2*tol);
-            assertAlmostEqual(0, 1e3*std(eSeq(logical(MC))), tol);
+            testCase.assertEqual(0, 1e3*std(eS(logical(MC))), 'AbsTol', tol);
+            testCase.assertEqual(0, 1e3*std(eC(logical(MC))), 'AbsTol', 2*tol);
+            testCase.assertEqual(0, 1e3*std(eSeq(logical(MC))), 'AbsTol', tol);
 
         end
 
@@ -526,7 +526,6 @@ classdef testFPA_UtilFunMapperMeasureClassVer < matlab.unittest.TestCase
             %run(testFPA_UtilFunMapperMeasureClassVer, 'testGetPower_SwissCoat40L88031L')
             import OM4MClassLib.Util.*;
             fprintf('\n%s: ',Logging.WhoCalledMe());
-            assumeFail(testCase, 'AQDEBUG FFT method  1MAY20 not yet working');
 
 
             %select lobes
@@ -593,7 +592,7 @@ classdef testFPA_UtilFunMapperMeasureClassVer < matlab.unittest.TestCase
             LMM=LensMapperMeasurement;
             LMM.zx=zx; %LMM.zrx=zxr;
             LMM.zy=zy; %LMM.zry=zyr;
-            LMM.CalculateLensPower(M, K);
+            LMM.CalculateLensPower(M, K, "noRefMethod",true);
 
             C=LMM.C; %mm^-1
             S=LMM.S; %mm^-1
@@ -612,7 +611,6 @@ classdef testFPA_UtilFunMapperMeasureClassVer < matlab.unittest.TestCase
             %run(testFPA_UtilFunMapperMeasureClassVer, 'testGetPower_SwissCoat40L88051R')
             import OM4MClassLib.Util.*;
             fprintf('\n%s: ',Logging.WhoCalledMe());
-            assumeFail(testCase, 'AQDEBUG FFT method  1MAY20 not yet working');
 
             %select lobes
             %    2
@@ -675,7 +673,7 @@ classdef testFPA_UtilFunMapperMeasureClassVer < matlab.unittest.TestCase
             if exist(calFile, 'file')
                 v=load(calFile);
                 K=v.Cal.K;
-                K=[K, K]
+                K=[K, K];
             else
                 K=[1,1];
             end
@@ -683,7 +681,7 @@ classdef testFPA_UtilFunMapperMeasureClassVer < matlab.unittest.TestCase
             LMM=LensMapperMeasurement;
             LMM.zx=zx;
             LMM.zy=zy;
-            LMM.CalculateLensPower(M, K);
+            LMM.CalculateLensPower(M, K, "noRefMethod",true);
 
             C=LMM.C; %mm^-1
             S=LMM.S; %mm^-1
@@ -702,7 +700,6 @@ classdef testFPA_UtilFunMapperMeasureClassVer < matlab.unittest.TestCase
             %run(testFPA_UtilFunMapperMeasureClassVer, 'testGetPower_YO_D75_SMinus275_C0')
             import OM4MClassLib.Util.*;
             fprintf('\n%s: ',Logging.WhoCalledMe());
-            assumeFail(testCase, 'AQDEBUG FFT method  1MAY20 not yet working');
 
             %select lobes
             %    2
@@ -766,7 +763,7 @@ classdef testFPA_UtilFunMapperMeasureClassVer < matlab.unittest.TestCase
                 LMM=LensMapperMeasurement;
                 LMM.zx=zx;
                 LMM.zy=zy;
-                LMM.CalculateLensPower(M, K);
+                LMM.CalculateLensPower(M, K, "noRefMethod",true);
 
                 Rs=220:270;
                 Cs=290:360;
@@ -783,7 +780,7 @@ classdef testFPA_UtilFunMapperMeasureClassVer < matlab.unittest.TestCase
             LMM=LensMapperMeasurement;
             LMM.zx=zx;
             LMM.zy=zy;
-            LMM.CalculateLensPower(M, K);
+            LMM.CalculateLensPower(M, K, "noRefMethod",true);
 
             C=LMM.C; %mm^-1
             S=LMM.S; %mm^-1
@@ -824,7 +821,6 @@ classdef testFPA_UtilFunMapperMeasureClassVer < matlab.unittest.TestCase
             %run(testFPA_UtilFunMapperMeasureClassVer, 'testGetPower_CalibrationLensKPC076')
             import OM4MClassLib.Util.*;
             fprintf('\n%s: ',Logging.WhoCalledMe());
-            assumeFail(testCase, 'AQDEBUG FFT method  1MAY20 not yet working');
 
             %select lobes
             %    2
@@ -897,7 +893,7 @@ classdef testFPA_UtilFunMapperMeasureClassVer < matlab.unittest.TestCase
                 LMM=LensMapperMeasurement;
                 LMM.zx=zx;
                 LMM.zy=zy;
-                LMM.CalculateLensPower(M, K);
+                LMM.CalculateLensPower(M, K, "noRefMethod",true);
 
                 Rs=220:270;
                 Cs=290:360;
@@ -914,7 +910,7 @@ classdef testFPA_UtilFunMapperMeasureClassVer < matlab.unittest.TestCase
             LMM=LensMapperMeasurement;
             LMM.zx=zx;
             LMM.zy=zy;
-            LMM.CalculateLensPower(M, K);
+            LMM.CalculateLensPower(M, K, "noRefMethod",true);
 
             C=LMM.C; %mm^-1
             S=LMM.S; %mm^-1
@@ -932,7 +928,6 @@ classdef testFPA_UtilFunMapperMeasureClassVer < matlab.unittest.TestCase
             %run(testFPA_UtilFunMapperMeasureClassVer, 'testGetPower_CalibrationLensKPX223')
             import OM4MClassLib.Util.*;
             fprintf('\n%s: ',Logging.WhoCalledMe());
-            assumeFail(testCase, 'AQDEBUG FFT method  1MAY20 not yet working');
 
             %select lobes
             %    2
@@ -997,7 +992,7 @@ classdef testFPA_UtilFunMapperMeasureClassVer < matlab.unittest.TestCase
                 LMM=LensMapperMeasurement;
                 LMM.zx=zx;
                 LMM.zy=zy;
-                LMM.CalculateLensPower(M, K);
+                LMM.CalculateLensPower(M, K, "noRefMethod",true);
 
                 Rs=220:270;
                 Cs=290:360;
@@ -1014,7 +1009,7 @@ classdef testFPA_UtilFunMapperMeasureClassVer < matlab.unittest.TestCase
             LMM=LensMapperMeasurement;
             LMM.zx=zx;
             LMM.zy=zy;
-            LMM.CalculateLensPower(M, K);
+            LMM.CalculateLensPower(M, K, "noRefMethod",true);
 
             C=LMM.C; %mm^-1
             S=LMM.S; %mm^-1
@@ -1053,7 +1048,6 @@ classdef testFPA_UtilFunMapperMeasureClassVer < matlab.unittest.TestCase
             %run(testFPA_UtilFunMapperMeasureClassVer, 'testGetPower_SwissCoat40L88050R')
             import OM4MClassLib.Util.*;
             fprintf('\n%s: ',Logging.WhoCalledMe());
-            assumeFail(testCase, 'AQDEBUG FFT method  1MAY20 not yet working');
 
             %select lobes
             %    2
@@ -1111,11 +1105,11 @@ classdef testFPA_UtilFunMapperMeasureClassVer < matlab.unittest.TestCase
             %las componentes de la potencia son la derivada de la
             %deflexion
 
-            K=1;
+            K=[1 1];
             LMM=LensMapperMeasurement;
             LMM.zx=zx;
             LMM.zy=zy;
-            LMM.CalculateLensPower(M, K);
+            LMM.CalculateLensPower(M, K, "noRefMethod",true);
 
 
             C=LMM.C; %mm^-1
@@ -1136,7 +1130,6 @@ classdef testFPA_UtilFunMapperMeasureClassVer < matlab.unittest.TestCase
             %run(testFPA_UtilFunMapperMeasureClassVer, 'testGetPower_VisionLab565964')
             import OM4MClassLib.Util.*;
             fprintf('\n%s: ',Logging.WhoCalledMe());
-            assumeFail(testCase, 'AQDEBUG FFT method  1MAY20 not yet working');
 
             %select lobes
             %    2
@@ -1205,7 +1198,7 @@ classdef testFPA_UtilFunMapperMeasureClassVer < matlab.unittest.TestCase
             LMM=LensMapperMeasurement;
             LMM.zx=zx;
             LMM.zy=zy;
-            LMM.CalculateLensPower(M, K);
+            LMM.CalculateLensPower(M, K, "noRefMethod",true);
 
             C=LMM.C; %mm^-1
             S=LMM.S; %mm^-1
@@ -1224,12 +1217,12 @@ classdef testFPA_UtilFunMapperMeasureClassVer < matlab.unittest.TestCase
             %run(testFPA_UtilFunMapperMeasureClassVer, 'testCheckCalibrationLensSpectra')
             import OM4MClassLib.Util.*;
             fprintf('\n%s: ',Logging.WhoCalledMe());
-            assumeFail(testCase, 'AQDEBUG FFT method  1MAY20 not yet working');
 
             %select lobes
             %    2
             %  1 x 3
-            %    4
+            %    4 fixed, runs OK
+            
 
             LobeX=4;
             LobeY=3;
@@ -1267,7 +1260,6 @@ classdef testFPA_UtilFunMapperMeasureClassVer < matlab.unittest.TestCase
             %run(testFPA_UtilFunMapperMeasureClassVer, 'testFringeProjectionLinearGrid')
             import OM4MClassLib.Util.*;
             fprintf('\n%s: ',Logging.WhoCalledMe());
-            assumeFail(testCase, 'AQDEBUG FFT method  1MAY20 not yet working');
 
             %select lobes
             %
@@ -1706,9 +1698,12 @@ classdef testFPA_UtilFunMapperMeasureClassVer < matlab.unittest.TestCase
             fname='params_Calibracion_5MAY20.json';
             if exist(fname, 'file')
                 params_struct=loadjson(fname);
-                %for loading we need to cast two values to logical
+                %for loading we need to cast three values to logical: JSON
+                %round-trips them as double, but R2024b cameraParameters
+                %requires DetectedKeypoints (and these other two) as logical
                 params_struct.EstimateTangentialDistortion=logical(params_struct.EstimateTangentialDistortion);
                 params_struct.EstimateSkew=logical(params_struct.EstimateSkew);
+                params_struct.DetectedKeypoints=logical(params_struct.DetectedKeypoints);
                 params=cameraParameters(params_struct);
             else
                 %defalt valurs no distortion K=eye(3)
@@ -1961,9 +1956,12 @@ classdef testFPA_UtilFunMapperMeasureClassVer < matlab.unittest.TestCase
             fname='params_Calibracion_15DIC20.json';
             if exist(fname, 'file')
                 params_struct=loadjson(fname);
-                %for loading we need to cast two values to logical
+                %for loading we need to cast three values to logical: JSON
+                %round-trips them as double, but R2024b cameraParameters
+                %requires DetectedKeypoints (and these other two) as logical
                 params_struct.EstimateTangentialDistortion=logical(params_struct.EstimateTangentialDistortion);
                 params_struct.EstimateSkew=logical(params_struct.EstimateSkew);
+                params_struct.DetectedKeypoints=logical(params_struct.DetectedKeypoints);
                 params=cameraParameters(params_struct);
             else
                 %defalt valurs no distortion K=eye(3)
@@ -2179,9 +2177,12 @@ classdef testFPA_UtilFunMapperMeasureClassVer < matlab.unittest.TestCase
             fname='params_Calibracion_5MAY20.json';
             if exist(fname, 'file')
                 params_struct=loadjson(fname);
-                %for loading we need to cast two values to logical
+                %for loading we need to cast three values to logical: JSON
+                %round-trips them as double, but R2024b cameraParameters
+                %requires DetectedKeypoints (and these other two) as logical
                 params_struct.EstimateTangentialDistortion=logical(params_struct.EstimateTangentialDistortion);
                 params_struct.EstimateSkew=logical(params_struct.EstimateSkew);
+                params_struct.DetectedKeypoints=logical(params_struct.DetectedKeypoints);
                 params=cameraParameters(params_struct);
             else
                 %defalt valurs no distortion K=eye(3)
@@ -2683,9 +2684,12 @@ classdef testFPA_UtilFunMapperMeasureClassVer < matlab.unittest.TestCase
             %load camera calibration params generated with run(testFPA_UtilFunFPAClassVer, 'testUndistortImagesCVTbx_5MAY20');
             fname='params_Calibracion_5MAY20.json';
             params_struct=loadjson(fname);
-            %for loading we need to cast two values to logical
-            params_struct.EstimateTangentialDistortion=logical(params_struct.EstimateTangentialDistortion)
-            params_struct.EstimateSkew=logical(params_struct.EstimateSkew)
+            %for loading we need to cast three values to logical: JSON
+            %round-trips them as double, but R2024b cameraParameters
+            %requires DetectedKeypoints (and these other two) as logical
+            params_struct.EstimateTangentialDistortion=logical(params_struct.EstimateTangentialDistortion);
+            params_struct.EstimateSkew=logical(params_struct.EstimateSkew);
+            params_struct.DetectedKeypoints=logical(params_struct.DetectedKeypoints);
             params=cameraParameters(params_struct);
 
 
@@ -2822,9 +2826,12 @@ classdef testFPA_UtilFunMapperMeasureClassVer < matlab.unittest.TestCase
             %load camera calibration params generated with run(testFPA_UtilFunFPAClassVer, 'testUndistortImagesCVTbx_5MAY20');
             fname='params_Calibracion_5MAY20.json';
             params_struct=loadjson(fname);
-            %for loading we need to cast two values to logical
-            params_struct.EstimateTangentialDistortion=logical(params_struct.EstimateTangentialDistortion)
-            params_struct.EstimateSkew=logical(params_struct.EstimateSkew)
+            %for loading we need to cast three values to logical: JSON
+            %round-trips them as double, but R2024b cameraParameters
+            %requires DetectedKeypoints (and these other two) as logical
+            params_struct.EstimateTangentialDistortion=logical(params_struct.EstimateTangentialDistortion);
+            params_struct.EstimateSkew=logical(params_struct.EstimateSkew);
+            params_struct.DetectedKeypoints=logical(params_struct.DetectedKeypoints);
             params=cameraParameters(params_struct);
 
 
@@ -2960,9 +2967,12 @@ classdef testFPA_UtilFunMapperMeasureClassVer < matlab.unittest.TestCase
             %load camera calibration params generated with run(testFPA_UtilFunFPAClassVer, 'testCameraCalibrationCVTbx_15DIC20');
             fname='params_Calibracion_15DIC20.json';
             params_struct=loadjson(fname);
-            %for loading we need to cast two values to logical
-            params_struct.EstimateTangentialDistortion=logical(params_struct.EstimateTangentialDistortion)
-            params_struct.EstimateSkew=logical(params_struct.EstimateSkew)
+            %for loading we need to cast three values to logical: JSON
+            %round-trips them as double, but R2024b cameraParameters
+            %requires DetectedKeypoints (and these other two) as logical
+            params_struct.EstimateTangentialDistortion=logical(params_struct.EstimateTangentialDistortion);
+            params_struct.EstimateSkew=logical(params_struct.EstimateSkew);
+            params_struct.DetectedKeypoints=logical(params_struct.DetectedKeypoints);
             params=cameraParameters(params_struct);
 
 

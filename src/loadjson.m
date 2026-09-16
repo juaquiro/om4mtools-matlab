@@ -209,6 +209,17 @@ global pos inStr isoct
                 error('Octave eval can produce empty cells for JSON-like input');
            end
            object=eval(arraystr);
+           if(isstring(object))
+               % MATLAB >= R2017a parses "..." as a string literal, so a JSON
+               % array of unescaped quoted strings (e.g. '["GML","XML"]') now
+               % evals here into a string array, instead of erroring (as it
+               % did on the pre-string MATLAB this fast path originally
+               % targeted) and falling through to the per-element cell
+               % parser below. Convert back to a cell of char so downstream
+               % code (savejson/saveubjson, callers throughout this repo)
+               % keeps getting the cell array of char it always expected.
+               object=cellstr(object);
+           end
            pos=endpos;
         catch
          while 1

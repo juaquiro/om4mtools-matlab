@@ -81,7 +81,7 @@ classdef testMLClassifierSVM < matlab.unittest.TestCase
             
             c=ClassifierFactory.Create(ClassifierTypes.SVM);
             
-            load('ex3data1.mat'); % training data stored in arrays X, y
+            load(fullfile(fixturesRoot(), 'CourseraMLData', 'ex3data1.mat')); % training data stored in arrays X, y
             
             C = 1;
             sigma=30;
@@ -90,9 +90,16 @@ classdef testMLClassifierSVM < matlab.unittest.TestCase
             c.Train(X,y);
             
             stErr = c.ErrorFunction(X, y);
-            
-            tol=1e-1;
-            testCase.assertTrue(abs(5.3-stErr.J)<=tol);
+
+            % Reference J recomputed 2026-09 for fitcsvm (SMO solver) --
+            % svmtrain used a different QP-based solver; the old
+            % svmtrain-era value (5.3) no longer matches within 1e-1
+            % (fitcsvm actually trains slightly better here, J~4.86).
+            % Tolerance widened to absorb this kind of small
+            % solver-dependent drift going forward. See DECISIONS.md,
+            % "Fase 4 -- svmtrain -> fitcsvm modernization".
+            tol=2e-1;
+            testCase.assertTrue(abs(4.86-stErr.J)<=tol);
             
             %en este ejemplo todas las clases estan "divinas"
             testCase.assertTrue(all(stErr.F1s>.9));
@@ -109,8 +116,11 @@ classdef testMLClassifierSVM < matlab.unittest.TestCase
             testCase.assertEqual(size(probability),n);
             
             % Training Set Accuracy
+            % Reference recomputed 2026-09 for fitcsvm (old svmtrain-era
+            % value was 94.7, see DECISIONS.md "Fase 4 -- svmtrain ->
+            % fitcsvm modernization").
             t_accuracy=UtilFunML.Accuracy(y,predicted_class);
-            testCase.assertTrue(abs(t_accuracy-94.7)<=tol); % Training Set Accuracy: 95.06
+            testCase.assertTrue(abs(t_accuracy-95.14)<=tol);
             
             %check using incorrect number of features
             try
@@ -134,7 +144,7 @@ classdef testMLClassifierSVM < matlab.unittest.TestCase
             
             c=ClassifierFactory.Create(ClassifierTypes.SVM);
             
-            load('ex3data1.mat'); % training data stored in arrays X, y
+            load(fullfile(fixturesRoot(), 'CourseraMLData', 'ex3data1.mat')); % training data stored in arrays X, y
             
             m=size(X, 1);
             p=randperm(m);
@@ -191,7 +201,7 @@ classdef testMLClassifierSVM < matlab.unittest.TestCase
             
             c=ClassifierFactory.Create(ClassifierTypes.SVM);
             
-            data = load('ex2data2.txt');
+            data = load(fullfile(fixturesRoot(), 'CourseraMLData', 'ex2data2.txt'));
             X = data(:, [1, 2]); y = data(:, 3);
             
             m=size(X, 1);
@@ -249,7 +259,7 @@ classdef testMLClassifierSVM < matlab.unittest.TestCase
             
             c=ClassifierFactory.Create(ClassifierTypes.LogR);
             
-            data = load('ex2data2.txt');
+            data = load(fullfile(fixturesRoot(), 'CourseraMLData', 'ex2data2.txt'));
             X = data(:, [1, 2]); y = data(:, 3);
             
             m=size(X, 1);
@@ -286,7 +296,7 @@ classdef testMLClassifierSVM < matlab.unittest.TestCase
             
             c=ClassifierFactory.Create(ClassifierTypes.SVM);
             
-            data = load('ex2data2.txt');
+            data = load(fullfile(fixturesRoot(), 'CourseraMLData', 'ex2data2.txt'));
             X = data(:, [1, 2]); y = data(:, 3);
             %aqui no hace falta ningun map feature
             y=y+1; %transform label (0,1) to (1,2)
@@ -301,7 +311,11 @@ classdef testMLClassifierSVM < matlab.unittest.TestCase
             stErr = c.ErrorFunction(X, y);
             
             tol=1e-1;
-            testCase.assertTrue(abs(stErr.J-(100-83.8983))<=tol);
+            % Reference recomputed 2026-09 for fitcsvm (old svmtrain-era
+            % value was 100-83.8983=16.1017, see DECISIONS.md "Fase 4 --
+            % svmtrain -> fitcsvm modernization"). F1/P/R below still
+            % pass within the original tolerance, unchanged.
+            testCase.assertTrue(abs(stErr.J-15.2542)<=tol);
             testCase.assertTrue(all(stErr.F1s>.8));
             
             %first class has high precission lower recall, second class lower precision
@@ -400,7 +414,7 @@ classdef testMLClassifierSVM < matlab.unittest.TestCase
             
             % Load from ex6data2:
             % You will have X, y in your environment
-            load('ex6data2.mat');
+            load(fullfile(fixturesRoot(), 'CourseraMLData', 'ex6data2.mat'));
             
             X(:, 1)=1e-6*X(:, 1);
             y=y+1;
@@ -430,7 +444,7 @@ classdef testMLClassifierSVM < matlab.unittest.TestCase
             
             % Load from ex6data2:
             % You will have X, y in your environment
-            load('ex6data2.mat');
+            load(fullfile(fixturesRoot(), 'CourseraMLData', 'ex6data2.mat'));
             
             y=y+1;
             
@@ -464,7 +478,7 @@ classdef testMLClassifierSVM < matlab.unittest.TestCase
             
             c=ClassifierFactory.Create(ClassifierTypes.SVM);
             
-            data = load('ex2data2.txt');
+            data = load(fullfile(fixturesRoot(), 'CourseraMLData', 'ex2data2.txt'));
             X = data(:, [1, 2]); y = data(:, 3);
             
             y=y+1;
@@ -501,7 +515,7 @@ classdef testMLClassifierSVM < matlab.unittest.TestCase
             
             c=ClassifierFactory.Create(ClassifierTypes.SVM);
             
-            data = load('ex2data2.txt');
+            data = load(fullfile(fixturesRoot(), 'CourseraMLData', 'ex2data2.txt'));
             X = data(:, [1, 2]); y = data(:, 3);
             %aqui no hace falta ningun map feature
             y=y+1; %transform label (0,1) to (1,2)

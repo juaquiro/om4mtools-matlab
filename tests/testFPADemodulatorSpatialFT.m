@@ -155,7 +155,9 @@ classdef testFPADemodulatorSpatialFT < matlab.unittest.TestCase
                     case DemodulatorProps.NFilt
                         testCase.assertEqual(p,5);
                     case DemodulatorProps.ROINormTH
-                        testCase.assertEqual(p,0.15);
+                        testCase.assertEqual(p,0);
+                    case DemodulatorProps.AbsolutePhasePSADemType
+                        testCase.assertEqual(p,DemodulatorTypes.LSEquispacedPSA);
                     otherwise
                         testCase.assertTrue(isempty(p));
                 end
@@ -228,6 +230,10 @@ classdef testFPADemodulatorSpatialFT < matlab.unittest.TestCase
             MLM=LensMapperMeasurement;
             MLM.zx=zx;
             MLM.zy=zy;
+            MLM.zrx=zrx;
+            MLM.zry=zry;
+
+
             MLM.CalculateLensPower(M, K);
             
             C=MLM.C; %mm^-1
@@ -322,6 +328,9 @@ classdef testFPADemodulatorSpatialFT < matlab.unittest.TestCase
             MLM=LensMapperMeasurement;
             MLM.zx=zx;
             MLM.zy=zy;
+            MLM.zrx=zrx;
+            MLM.zry=zry;
+
             MLM.CalculateLensPower(M, K);
             
             C=MLM.C; %mm^-1

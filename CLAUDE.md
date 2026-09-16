@@ -4,8 +4,11 @@ Toolbox de utilidades MATLAB del grupo OM4M (Optical Methods for Measuring).
 Modernización de om4mmatlabutils.
 
 ## Contexto
-- Fase actual: Fase 2 prácticamente completa (solo falta mover `IOT2DPU` a `mex/src/`),
-  Fase 3 avanzada — ver TODO.md para el detalle exacto
+- Objetivo del proyecto (reconfirmado 2026-09-15): dejar la migración desde
+  `om4mmatlabutils` ordenada en Git y la suite de tests corriendo de nuevo.
+  Nada más — proyecto estrictamente personal, sin plan de refactorización de
+  código ni de empaquetarlo/distribuirlo como toolbox o módulo MATLAB. Ver
+  TODO.md para el detalle de lo pendiente y lo descartado explícitamente.
 - Directorio de trabajo: `C:\user\AQ_SCC\GitHub\om4mtools-matlab` — repo Git, migrado
   desde `Dropbox\AQ_EXP\75 om4mtools-matlab\` el 2026-09-14 (esa copia de Dropbox se
   conserva solo como backup, ver `README_IMPORTANTE_14SEP26.md` ahí — no es el sitio
@@ -19,13 +22,11 @@ Modernización de om4mmatlabutils.
 
 ## Recursos de referencia
 - MATLAB Agentic Toolkit:    https://github.com/matlab/matlab-agentic-toolkit
+  (servidor MCP — ver sección "MATLAB MCP" en README.md para instalación y
+  verificación)
 - MATLAB Coding Guidelines:  https://github.com/mathworks/MATLAB-Coding-Guidelines
-- Toolbox best practices:    https://github.com/mathworks/toolboxdesign
+  (copia local en `MATLAB-Coding-Guidelines.pdf`, raíz del repo)
 - Prompts de referencia:     https://github.com/matlab/prompts/tree/main/prompts/programming
-
-## Modelo de consumo
-Se usa como Git submodule congelado en proyectos consumidores.
-Ver FASE 0.5 en TODO.md para detalles y comandos.
 
 ## Estructura
 - `src/`     — todo plano, sin subdirectorios ni namespaces, **salvo `+OM4MClassLib` y
@@ -34,12 +35,19 @@ Ver FASE 0.5 en TODO.md para detalles y comandos.
 - `tests/`   — todo plano, un TestXxx.m por función
 - `mex/src/` — código C/C++ + proyecto Visual Studio (.sln)
 - `mex/bin/` — binarios precompilados (SÍ van al repo)
+- `dll/src/<Nombre>/` — código C/C++ de dependencias `loadlibrary()` (no MEX),
+  un subdirectorio por DLL, con su `.vcxproj` (sin `.sln` propio salvo que
+  haga falta)
+- `dll/bin/` — `.dll` + `.h` (headers, incluidos los que el propio header
+  incluya, p.ej. `shrhelp.h`) que `loadlibrary()` necesita en tiempo de
+  ejecución (SÍ van al repo, mismo criterio que `mex/bin/`)
 
 ## Convenciones de código
 - Bloques `arguments` para toda validación de entrada (no inputParser)
 - Nunca usar `i`, `j` como variables de bucle
-- Docstrings en formato estándar OM4M (ver FASE 5 en TODO.md)
-- Seguir MATLAB-Coding-Guidelines en todo momento
+- Seguir MATLAB-Coding-Guidelines en todo momento (`MATLAB-Coding-Guidelines.pdf`)
+- Sin refactor ni modernización masiva de `src/` existente — solo aplicar
+  estas convenciones a código nuevo o que ya se esté tocando por otro motivo
 
 ## MEX
 - Código fuente en mex/src/ — proyecto Visual Studio (.sln)
@@ -55,7 +63,7 @@ Ver FASE 0.5 en TODO.md para detalles y comandos.
   `methods (Test, TestTags = {'Hardware'})` — excluidos de run_all_tests.m automáticamente.
   Excepción: los tests contra `MockCam` (software, sin hardware real) NO se etiquetan.
 - `tests/setupPath.m` en cada `TestMethodSetup` (`setupPath();`) añade src/,
-  tests/fixtures/ y el MEX legacy `IOT2DPU/deploy` (usado por `UnwrapperTypes.FlynMd`) —
+  tests/fixtures/ y `mex/bin/` (usado por `UnwrapperTypes.FlynMd`) —
   único punto de entrada, sustituye a los antiguos helpers por dominio
   (`testAAAddReferencesPath*.m`, `testAddReferemcesML_hg.m`, ya eliminados). También lo
   llaman `run_all_tests.m`/`run_hardware_tests.m`, así que cada test sigue siendo

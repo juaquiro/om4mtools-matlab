@@ -1,5 +1,18 @@
 classdef testEvaluateTerms < matlab.unittest.TestCase
-    
+    %run(testEvaluateTerms)
+
+    methods(TestMethodSetup)
+        function SetUp(testCase)
+            setupPath();
+        end
+    end
+
+    methods(TestMethodTeardown)
+        function TearDown(testCase)
+            matlabpath(resetPath); %#ok<RESETPATH>
+        end
+    end
+
     methods(Test)
         
         function testSinglePoint(testCase) %#ok<*DEFNU>
