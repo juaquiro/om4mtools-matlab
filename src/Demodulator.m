@@ -1,69 +1,44 @@
-%> @file Demodulator.m
-%> @brief Demodulator abstract interface
-%> @details NA
-%> @copyright 2016 IOT
-%> @author AQ
-
-
-% ======================================================================
-%> @brief this class implements the Demodulator abstract interface
-%> @details a demodulator is any object that obtains the phase from igrams
-% ======================================================================
 classdef Demodulator <  handle & OM4MClassLib.DataStructs.IProps
-    
+    % Demodulator abstract interface for fringe-pattern demodulators
+    %
+    % Description:
+    %   A demodulator is any object that obtains the phase from igrams
+    %   (interferograms/fringe patterns). Concrete subclasses implement
+    %   Process/GenerateFPs/GetStepValues below.
+
     %% props
     %private
     properties (Access=protected)
-        %> demodulator properties as a PropsEnumList of DemodulatorProps propes @see IProps, PropsEnumList, DemodulatorProps 
-        props;
-        %> PSI steps in Volts, degress etc necessary for the generation of the igrams
-        steps;
+        props; % demodulator properties, a PropsEnumList of DemodulatorProps (see IProps, PropsEnumList, DemodulatorProps)
+        steps; % PSI steps (volts, degrees, etc.) needed to generate the igrams
     end
-    
+
     %% props
     %public
     properties
-        %> modulacion del patron de ftanajas que se va a generar
-        modFP;
-        %> bias del patron de franjas que se va a generar
-        biasFP;
-        %> Forma del patron de franjas que se va a generar (0 coseno, 1 binario)
-        shape;
-        %> this flag indicates if the demodulatro will compute obly the modulation or both modulation and phase (default is "false")
-        onlyModFlag;
+        modFP; % modulation of the fringe pattern to be generated
+        biasFP; % bias of the fringe pattern to be generated
+        shape; % shape of the fringe pattern to be generated (0 cosine, 1 binary)
+        onlyModFlag; % if true, only the modulation is computed (not phase); default false
     end
-    
+
     %% abstract methods
     %public interface
     methods (Abstract=true)
-        % ======================================================================
-        %> @brief abstract Process
-        %> @details This method uses the igram list for demodulation.
-        %> If M (the ROI) is [] all pixels are processed and M is set ones(). If M is not [],
-        %>  only M=true points are processed. Afther demodulation M is combined
-        %> with a thersholded version of the modulation calculated using the
-        %> static function GetROIFromModule(z, ROINormTH, NFilt)
-        %> that uses current values for ROINormTH (def 0) and NFilt (def 5 px). If the ROI must be reset, set to [] before Process.
-        %> If the ROI must be saved, copy it before Process
-        %> @param FPList Cell array of input igrams
-        %> @param this instance of the class.
-        %> see GetROIFromModule
-        %>
-        % ======================================================================
+        % Process demodulates the cell array of igrams FPList. If the ROI
+        % M is [], all pixels are processed and M is set to ones(); if
+        % not, only M=true points are processed. After demodulation, M
+        % is combined with a thresholded version of the modulation
+        % (GetROIFromModule(z, ROINormTH, NFilt), using the current
+        % ROINormTH/NFilt props). Set M to [] before Process to reset the
+        % ROI, or copy it first to preserve it.
         this=Process(this, FPList);
-        
-        % ======================================================================
-        %> @brief this function must generate FPs to be diplayed/projected that the demodulator can process
-        %> @param imSize igram size
-        %> @param this instance of the class.
-        %> @retval FPList Cell array igrams
-        % ======================================================================
+
+        % GenerateFPs generates the igrams (cell array, size imSize) that
+        % this demodulator can process, for display/projection
         FPList=GenerateFPs(this, imSize); %
-        
-        % ======================================================================
-        %> @brief this function generates the steps vals (voltage, angle) necessary for the PSi method
-        %> @retval FPList Cell array igrams
-        % ======================================================================
+
+        % GetStepValues returns the PSI step values (voltage, angle, etc.)
         stepVals=GetStepValues(this); %
     end
     
@@ -71,8 +46,8 @@ classdef Demodulator <  handle & OM4MClassLib.DataStructs.IProps
     
     %% public methods
     methods
-        %constructor
         function this=Demodulator()
+            % Demodulator constructs a demodulator with default props (see Init)
             import OM4MClassLib.DataStructs.*;
             this.props=PropsEnumList('DemodulatorProps');
             
@@ -86,6 +61,7 @@ classdef Demodulator <  handle & OM4MClassLib.DataStructs.IProps
     %% private methods
     methods (Access=private)
         function this=Init(this)
+            % Init sets every demodulator prop to its default value
             %             %pn cell array of classifier props names
             %             %pt list of Classifier Prop Types
             %             [pt, pn]=enumeration('DemodulatorProps');
@@ -126,10 +102,11 @@ classdef Demodulator <  handle & OM4MClassLib.DataStructs.IProps
     end
     
     %% public IProps interface
-    %check Get implementation¡¡
+    %check Get implementationï¿½ï¿½
     methods
-        % Get interface, note the no parameter
         function ret=Get(this, props)
+            % Get returns the value of props, or the full props struct if
+            % called with no props argument
             if nargin==1
                 ret=this.props.Get();
             else
@@ -137,8 +114,8 @@ classdef Demodulator <  handle & OM4MClassLib.DataStructs.IProps
             end
         end
         
-        %Set interface
         function this=Set(this, props, propvals)
+            % Set assigns propvals to props, type/value-checking zList/NL
             import OM4MClassLib.Util.*;
             callFunc=Logging.WhoCalledMe();
             
@@ -162,12 +139,18 @@ classdef Demodulator <  handle & OM4MClassLib.DataStructs.IProps
     %%static methods
     methods(Static)
         function Mz=GetROIFromModule(z, ROINormTH, NFilt)
+            % GetROIFromModule thresholds phasor z's modulation |z|
+            % (box-filtered by NFilt) above ROINormTH, then median-filters
+            % the resulting mask
             MQ=conv2(abs(z), ones(NFilt), 'same');
             Mz=mat2gray(MQ)>ROINormTH;
             Mz=medfilt2(Mz, [NFilt, NFilt]);
         end
-        
+
         function Mz=GetROIFromAngle(z, ROINormTH, NFilt)
+            % GetROIFromAngle thresholds phasor z's angle above ROINormTH
+            % (after box-filtering z with a fixed 10x10 kernel), then
+            % median-filters the resulting mask
             z=conv2(z, ones(10), 'same');
             Mz=abs(angle(z))>ROINormTH;
             Mz=medfilt2(Mz, [NFilt, NFilt]);
