@@ -1,91 +1,51 @@
-%> @file LensMapperMeasurement.m
-%> @brief this file contain the class LensMapperMeasurement used to descrive the IOT Mapper measurments
-%> @details NA
-%> @copyright 2016 IOT
-%> @author AQ
-
-
-% ======================================================================
-%> @brief this class describes a complete measurement of the IOT Lens Mapper
-%> @details And here we can put some more detailed informations about the class.
-%> @see file testFPA_UtilFunMapperMeasure.m for unit tests with mtest
-%> testFPA_UtilFunMapperMeasureClassVer for unit test with MATLAB framework
-%> and UtilFunFPA.m for related functions aux functions
-%> @author AQ 21MAR16
-% ======================================================================
 classdef LensMapperMeasurement < handle
+    % LensMapperMeasurement describes a complete measurement from the
+    % IOT Lens Mapper deflectometer
+    %
+    % Description:
+    %   See testFPA_UtilFunMapperMeasure.m (legacy mtest) and
+    %   testFPA_UtilFunMapperMeasureClassVer (matlab.unittest) for unit
+    %   tests, and UtilFunFPA.m for related auxiliary functions.
     %% public props
     properties
-        %> fringe pattern (it can be a cell array) g=b+m*cos(2*pi/Tx*(Deltax*Z + w0)*x))
-        g;
-        %> reference fringe pattern (it can be a cell array) gr=b+m*cos(2*pi/Tx*w0*x))
-        gr;
-        %> deflectometric phasor X direction zx=bx*exp(i*phix) phix=2*pi/Tx*Deltax*Z,
-        zx;
-        %> deflectometric phasor Y direction zy=by*exp(i*phiy) phiy=2*pi/Ty*Deltay*Z,
-        zy;
-        %> sqrt(abs(zx)^2+abs(zy)^2)
-        zAbs;
-        %> x carrier phasor zrx=bx*exp(2*pi/Tx*w0*x)
-        zrx;
-        %> y carrier phasor zry=by*exp(2*pi/Ty*w0*y)
-        zry;
-        %>  sphere
-        S,
-        %>  cylinder
-        C,
-        %>  axis
-        A,
-        %>  medium or equivalent sphere
-        Seq,
-        %>  xx comp of the DPM
-        Pxx ,
-        %>  yy comp of the DPM
-        Pyy,
-        %>  xy comp of the DPM
-        Pxy,
-        %>  yx comp of the DPM
-        Pyx,
-        %> afther CalculatePower ROI with valid DPM values
-        M,
-        %> Quality map for the Dx and Dy deflections, log scale, @see GradientConsistency
-        Q,
-        %> Quality ma for the DPM, it checks for symetry of the DMP relative error
-        Qdpm;
-        %> nominal power in D, this is used only in the case of a calibration procedure with a set of monofocal lenes
-        Pnom,
-        %> Measurement parameters, init as empty is a structure with the
-        %> relevant measurement parameters that are particular for each
-        %> measurement technique
-        measurementParams
+        g; % fringe pattern (can be a cell array): g=b+m*cos(2*pi/Tx*(Deltax*Z+w0)*x)
+        gr; % reference fringe pattern (can be a cell array): gr=b+m*cos(2*pi/Tx*w0*x)
+        zx; % deflectometric phasor, X direction: zx=bx*exp(i*phix), phix=2*pi/Tx*Deltax*Z
+        zy; % deflectometric phasor, Y direction: zy=by*exp(i*phiy), phiy=2*pi/Ty*Deltay*Z
+        zAbs; % sqrt(abs(zx)^2+abs(zy)^2)
+        zrx; % X carrier phasor: zrx=bx*exp(2*pi/Tx*w0*x)
+        zry; % Y carrier phasor: zry=by*exp(2*pi/Ty*w0*y)
+        S, % sphere
+        C, % cylinder
+        A, % axis
+        Seq, % medium/equivalent sphere
+        Pxx , % xx component of the DPM
+        Pyy, % yy component of the DPM
+        Pxy, % xy component of the DPM
+        Pyx, % yx component of the DPM
+        M, % ROI with valid DPM values, set by CalculateLensPower
+        Q, % quality map for the Dx/Dy deflections (log scale, see GradientConsistency)
+        Qdpm; % quality map for the DPM (checks symmetry of the DPM relative error)
+        Pnom, % nominal power in D, only used in calibration with monofocal lenses
+        measurementParams % struct with measurement-technique-specific params, empty by default
     end
-    
+
     properties (Constant)
-        %> sign used for calculation of the relation between calculated
-        %gradients and power
-        DerSign=-1;
+        DerSign=-1; % sign used relating calculated gradients to power
     end
     
     
     %% public methods
     methods
-        % ======================================================================
-        %> @brief constructor,
-        %> @details NA
-        %> @author AQ
-        % ======================================================================
         function this = LensMapperMeasurement()
+            % LensMapperMeasurement constructs an empty measurement (see Init)
             this.Init();
         end
-        % ======================================================================
-        %> @brief resets LMM props, init properties to default
-        %> @details NA
-        %> @param this self reference to the class
-        %> @author AQ 2/6/2020
-        % ======================================================================
+
         function this = Init(this)
+            % Init resets every property to [] (except the constant DerSign)
             for p = properties(this)'
-                %check for DerSign becauses is a constat, this is a ñapa
+                %check for DerSign becauses is a constat, this is a ï¿½apa
                 %the good solution will be to  create a meta.class object using the ? operator with the class name
                 if not(strcmp(p{1}, 'DerSign'))
                     this.(p{1})=[];
@@ -94,31 +54,36 @@ classdef LensMapperMeasurement < handle
         end
         
         
-        % ======================================================================
-        %> @brief Calculates the DPM from the measurement
-        %> @details here the phasors Dx and Dy are bx*exp(i*phix), zy=by*exp(i*phiy);
-        %> @param this self reference to the class
-        %> @param M ROI for calculation (optional delfault ones(size(zx)))
-        %> @param K (optional def [1 1]) convesion factor between phase-rad/px to deflection*rad/mm. K is the constant in mm^-1/rad*px^-1 to transform from phase derivative to power
-        %> for square pixels K is a scalar K=Kx=Ky, for non square pixels K
-        %> is a 1x2 vector [Kx, Ky]
-        %> @param options optional pairs of name-vales 'Nmed' (2)(px  median
-        %> filter size for filtering outliers), 'NS' (1)(2*NS+1 is the
-        %> neigbouhoord size for phasor filtering at the period estimation from the reference, 
-        %> afther this is recalculated using the ref fringe period) fields, 'LPCycles' (2)
-        %> is the number of low pass cycles used for filtering the phase
-        %> derivatives, extendedRange (false) this parameter determines if
-        %> filter or not the phasors zx and zy for power > 5-6 D it is
-        %> recomended to set highPowerLens to false, for power higer than 6 D it
-        %> is recomenden to set highPowerLens to true
-        %> @see function Calibrate for K calculation
-        %> @copyright 2016 IOT
-        %> @author AQ 2/6/20
-        %> @details NOTE: in our deflectoemter the image direction and the signs of the gradient produce a sign change of the DPM
-        %> that only affects tr because t1 and t2 are squared
-        %> In future mappers image direction can change and therefore the sign of tr
-        % ======================================================================
         function this = CalculateLensPower(this, M, K, options)
+            % CalculateLensPower computes the DPM (S/C/A/Seq, Pxx/Pyy/
+            % Pxy/Pyx) from this.zx/zy (bx*exp(i*phix), by*exp(i*phiy))
+            % and the reference phasors zrx/zry (used to estimate the
+            % carrier fringe period for filtering).
+            %
+            % Inputs:
+            %   M ROI for calculation (default ones(size(zx)))
+            %   K conversion factor phase-rad/px -> deflection-rad*mm^-1
+            %     (default [1 1]); scalar for square pixels, [Kx, Ky] for
+            %     non-square pixels. See Calibrate for how to obtain it.
+            %   options.Nmed (2) median filter size (px) for outlier removal
+            %   options.NS (2) half-size of the phasor-filtering
+            %     neighborhood used when estimating the carrier period
+            %     (recalculated afterwards from the reference fringe period)
+            %   options.LPCycles (3) number of low-pass cycles for
+            %     filtering the phase derivatives
+            %   options.TmedFactor (1) scales NS for the DPM gradient
+            %     filtering step (unclear if actually needed beyond 1)
+            %   options.highPowerLens (false) no longer used, kept for
+            %     backwards compatibility only
+            %   options.noRefMethod (false) for demodulation recipes
+            %     (e.g. FFV) that never produce separate reference
+            %     phasors: copies zx/zy into zrx/zry instead of requiring
+            %     them to already be set
+            %
+            % Note: in this deflectometer, image direction and gradient
+            % sign produce a sign change in the DPM that only affects tr
+            % (t1/t2 are squared); on a future mapper with different
+            % image direction, tr's sign may need to change accordingly.
             arguments
                 % g must be double numeric value 
                 this 
@@ -254,17 +219,18 @@ classdef LensMapperMeasurement < handle
             this.Qdpm=abs(this.Pxy - this.Pyx);
         end
                
-        % ======================================================================
-        %> @brief automatic calculation of the region of interest (ROI)
-        %> from the phasor modulation
-        %> @param options optional pairs of name-vales 'P0' (0.5*(size(M))(this point selects the label for the ROI
-        %> 'GVTh' (10)(threshold for zrx and zry, 'seSize' (20)
-        %> structuring ellement sise for closing and opening the mask,
-        %> 'normModTh' (0.5) normalized modulation threshold
-        %> @author AQ
-        %> @copyright 2016 IOT
-        % ======================================================================
         function this=calculateROIFromPhasor(this, options)
+            % calculateROIFromPhasor computes this.M automatically from
+            % the zx/zy/zrx/zry phasor modulation: thresholds zrx/zry by
+            % GVTh, thresholds the mean zx/zy modulation by normModTh,
+            % combines both, opens/closes the mask (seSize), then keeps
+            % only the connected region containing point P0.
+            %
+            % options: P0 (default 0.5*size(zrx)) point selecting which
+            % labeled region becomes the ROI; GVTh (10) threshold for
+            % zrx/zry; seSize (20) structuring element size for
+            % opening/closing; normModTh (0.5) normalized modulation
+            % threshold.
             arguments
                 % is compulsory to add 'this' to the argument list
                 this
@@ -320,17 +286,9 @@ classdef LensMapperMeasurement < handle
         end
         
         
-        % ======================================================================
-        %> @brief converts structure s to an object of class LensMapperMeasurement.
-        %> @details This function copy the fields of struct s into the
-        %> public properties of LMM that have the same name
-        %> @param this self reference to the class
-        %> @param s input struct
-        %> @see LensMapperMeasurement.load and LensMapperMeasurement.save
-        %> @copyright 2016 IOT
-        %> @author AQ 2/6/20
-        % ======================================================================
         function this = struct2class(this, s)
+            % struct2class copies each field of struct s into the public
+            % property of this with the same name (see load/save)
             import OM4MClassLib.Util.*
             callFunc=Logging.WhoCalledMe();
             
@@ -362,17 +320,9 @@ classdef LensMapperMeasurement < handle
             end
         end
         
-        % ======================================================================
-        %> @brief converts LMM public properties to a structure s
-        %> @details This function copy the public propuierties of LMM to a
-        %> struct using the same names
-        %> @param this self reference to the class
-        %> @param s input struct
-        %> @see LensMapperMeasurement.load and LensMapperMeasurement.save
-        %> @copyright 2016 IOT
-        %> @author AQ 2/6/20
-        % ======================================================================
         function s = class2struct(this)
+            % class2struct copies every public property of this into a
+            % struct field of the same name (see load/save)
             import OM4MClassLib.Util.*
             callFunc=Logging.WhoCalledMe();
             
@@ -392,15 +342,10 @@ classdef LensMapperMeasurement < handle
     %% Static methods
     methods (Static=true)
         
-        % ======================================================================
-        %> @brief this function save the object LMM and optionally accepts a fileName
-        %> @details This function saves a LMM object, therefore you need in the path the LMM constructor
-        %> @param LMM LensMapperMeasurement object
-        %> @param varargin optional file name. Default value is set by defFileName4Saving
-        %> @see LensMapperMeasurement.load
-        %> @author AQ
-        % ======================================================================
         function save(LMM,varargin)
+            % save writes LMM (a LensMapperMeasurement) to a .mat file,
+            % converted to a struct first (see class2struct). varargin{1},
+            % if given, is the file name (default: defFileName4Saving()).
             import OM4MClassLib.Util.*
             callFunc=Logging.WhoCalledMe();
             LMMClassName='LensMapperMeasurement';
@@ -438,14 +383,10 @@ classdef LensMapperMeasurement < handle
             save(fileName,'LMM');
         end
         
-        % ======================================================================
-        %> @brief this function loads a LMM object from fileName
-        %> @details This function loads a LMM object, therefore you need in the path the LMM constructor
-        %> @param fileName file with the LMM object
-        %> @see LensMapperMeasurement.save
-        %> @author AQ
-        % ======================================================================
         function LMM=load(fileName)
+            % load reads a LensMapperMeasurement from fileName, saved by
+            % save() either as a struct (new format since 2020-06-02, via
+            % struct2class) or as a raw LMM object (legacy format)
             import OM4MClassLib.Util.*
             callFunc=Logging.WhoCalledMe();
             LMMClassName='LensMapperMeasurement';
@@ -465,27 +406,27 @@ classdef LensMapperMeasurement < handle
         end
         
         function fileName=defFileName4Saving()
+            % defFileName4Saving returns "LensMapperMeasurement_<date>.mat"
             LMMClassName='LensMapperMeasurement';
             fileName=[LMMClassName '_' date '.mat'];
         end
         
         
-        % ======================================================================
-        %> @brief calibration between rad/px and D
-        %> @details here we assume that a list of calibrated monofocal
-        %> lenses is input with known power in D. Rhe output is the calibration
-        %> param such P(mm^-1)=polyval(Km P(rad/px)); aditionally Calibrate returns
-        %> Pmr(n) an array with the mean power in rad/px (using K=1) and Pnd(n) the nominal power in mm^-1
-        %> @param LMMList cell list of LMM of monofocal lenses with known paraxial power at the center
-        %> @param varargin optional input parameters, verbose(true) shows
-        %> fitting results
-        %> @retval K calibration param
-        %> @retval Pmr cell array with the mean power in rad/px
-        %> @retval Pnd cell array with the mean power in mm^-1
-        %> @see LensMapperMeasurement.save
-        %> @author AQ
-        % ======================================================================
         function [K, Pmrx, Pmry, Pnd]=Calibrate(LMMList, varargin)
+            % Calibrate derives the rad/px -> D calibration factor K from
+            % a cell array LMMList of monofocal lenses with known
+            % paraxial power (LMM.Pnom), by linear-fitting (through the
+            % origin) the mean measured power at each lens center
+            % (K=1 rad/px) against its nominal power.
+            %
+            % Inputs: LMMList cell array of LensMapperMeasurement for
+            % monofocal lenses; varargin{1} verbose (default false) shows
+            % fitting plots.
+            %
+            % Outputs: K=[Kx,Ky] calibration factors (mm^-1/rad, use with
+            % CalculateLensPower); Pmrx/Pmry mean measured power at each
+            % lens center in rad/px; Pnd the corresponding nominal powers
+            % in mm^-1.
             import OM4MClassLib.Util.*
             callFunc=Logging.WhoCalledMe();
             LMMClassName='LensMapperMeasurement';
