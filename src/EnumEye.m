@@ -1,10 +1,10 @@
 classdef EnumEye
-    %ENUMEYE enum with the eye type
+    % EnumEye enumeration of eye/side selectors
     enumeration
-        R,
-        L,
-        B,
+        R, % right eye
+        L, % left eye
+        B, % both eyes
     end
-    
+
 end
 

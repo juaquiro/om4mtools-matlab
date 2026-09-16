@@ -1,10 +1,10 @@
 classdef EnumLens
-    %ENUMLENS enum with allowed lens types
+    % EnumLens enumeration of allowed lens types
     enumeration
         Progressive,
         Monofocal,
-        All,
+        All, % matches any lens type
     end
-    
+
 end
 
