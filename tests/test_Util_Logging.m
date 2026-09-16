@@ -30,7 +30,7 @@ classdef test_Util_Logging < matlab.unittest.TestCase
 
             [funcName, fileName]=Logging.WhoCalledMe();
 
-            testCase.assertTrue(strcmp(funcName, 'testWhoCalledMe'))
+            testCase.assertTrue(strcmp(funcName, 'test_Util_Logging.testWhoCalledMe'))
             testCase.assertTrue(strcmp(fileName, 'test_Util_Logging.m'))
         end
     end
