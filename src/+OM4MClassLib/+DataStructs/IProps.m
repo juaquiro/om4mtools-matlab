@@ -1,5 +1,5 @@
 classdef IProps < handle
-    %IPROPS Interface for objects with props
+    % IProps Interface for objects with props
     % to use this interface add a PropsEnumList as a memeber of your class
     % and implement the Get and Set using the PropsEnumList object
     

@@ -1,4 +1,9 @@
 function [CurvDer]=CalculateCurvatureDer(X,Y, ZMatrix)
+    % CalculateCurvatureDer evaluates, at points (X,Y), the four
+    % third-order partial derivatives (d3P/dx3, d3P/dx2dy, d3P/dy2dx,
+    % d3P/dy3) of each XY-equivalent polynomial in ZMatrix (as returned
+    % by Zernikes.PolyEquivalent), stacking the four results per term
+    % into columns of CurvDer (4*length(X) rows)
     import Zernikes.*
 
 

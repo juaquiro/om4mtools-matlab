@@ -1,5 +1,5 @@
 function [ SMatrix] = GetScaling( r, n )
-%GETSCALING Builds a scaling matrix to compensate the fact that the measured area
+% GetScaling Builds a scaling matrix to compensate the fact that the measured area
 % can be bigger than the unit circle
 %   r is the radius of the measured area and n is the principal order of
 %   the higher order zernike polynomial.

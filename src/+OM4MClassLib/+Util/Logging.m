@@ -1,25 +1,11 @@
-%> @file Logging.m
-%> @brief this file contains utilities for logging
-%> @details NA
-%> @copyright 2016 IOT
-%> @author AQ 21MAR16
-%> @see test_Util_Logging.m
-
-% ======================================================================
-%> @brief static class helper for logging
-% ======================================================================
 classdef Logging
+    % Logging is a static helper class for logging utilities
     %% static methods
     methods(Static)
-        % ======================================================================
-        %> @brief this function returns the name of the calling function
-        %
-        %> WhoCalledMe() returns the name of the current function that calls it. It
-        %> is very usefull for logging calling funcion names in error messages
-        %> @retval funcName calling function name
-        %> @retval fileName calling file name
-        % ======================================================================
         function [funcName, fileName]=WhoCalledMe()
+            % WhoCalledMe returns the name/file of the function that
+            % called the current function; useful for prefixing error
+            % messages with the caller's name
             r=dbstack();
             if length(r)>1
                 funcName=r(2).name;

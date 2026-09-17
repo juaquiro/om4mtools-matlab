@@ -1,5 +1,5 @@
 function [ ZValues, ZMatrix] = EvaluateTerms( X,Y, orders )
-%EVALUATETERMS Calculate the value of the given order Zernike term 
+% EvaluateTerms Calculate the value of the given order Zernike term
 %   X and Y are column vectors with the coordinates of the points whose
 %   values will be evaluated.
 %   Order is a row vector with the orders of the terms we want to evaluate.
