@@ -1,10 +1,11 @@
-%aux fun to generate the maps associated with a PAL design
-%the deflecyometric igrams are generates assuming a grid pattern imaged
-%through the PAL lens as descrived in Massig, J. H. (1999). Measurement 
-%of Phase Objects by Simple Means. Applied Optics, 38(19), 4103.
-%http://doi.org/10.1364/AO.38.004103
-
 function Lens=GenerateProgressive()
+    % GenerateProgressive simulates a progressive addition lens (PAL) and
+    % its crossed-grid deflectometric fringe patterns, returning a struct
+    % with the simulated curvature/astigmatism maps and fringe patterns.
+    % The deflectometric igrams are generated assuming a grid pattern
+    % imaged through the PAL lens as described in Massig, J. H. (1999).
+    % Measurement of Phase Objects by Simple Means. Applied Optics,
+    % 38(19), 4103. http://doi.org/10.1364/AO.38.004103
 %display flag
 dispFlag=false;
 
