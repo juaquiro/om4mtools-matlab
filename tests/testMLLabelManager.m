@@ -1,4 +1,5 @@
 classdef testMLLabelManager < matlab.unittest.TestCase
+    % testMLLabelManager tests labelManager (gety/getlabel/ind2vec/vec2ind)
     %before running the tests
     methods(TestMethodSetup)
         function SetUp(testCase)
@@ -18,9 +19,10 @@ classdef testMLLabelManager < matlab.unittest.TestCase
     methods (Test)
         %% Checking gety method
         
-        % label is a cell array of strings
         function testML_labelManager_gety01(testCase)
-            
+            % testML_labelManager_gety01 checks gety with label as a
+            % cell array of strings
+
             import  OM4MClassLib.Util.*;
             fprintf('\n%s: ',Logging.WhoCalledMe());
             
@@ -32,9 +34,9 @@ classdef testMLLabelManager < matlab.unittest.TestCase
         end
         
         
-        % label is a string
         function testML_labelManager_gety02(testCase)
-            
+            % testML_labelManager_gety02 checks gety with a single-string label
+
             import  OM4MClassLib.Util.*;
             fprintf('\n%s: ',Logging.WhoCalledMe());
             
@@ -46,9 +48,10 @@ classdef testMLLabelManager < matlab.unittest.TestCase
         end
         
         
-        % label or strList are aren't strings or cell arrays of strings
         function testML_labelManager_gety03(testCase)
-            
+            % testML_labelManager_gety03 checks gety errors when label
+            % or strList is not a string/cell array of strings
+
             import  OM4MClassLib.Util.*;
             fprintf('\n%s: ',Logging.WhoCalledMe());
             
@@ -64,9 +67,10 @@ classdef testMLLabelManager < matlab.unittest.TestCase
         end
         
         
-        % label is not contained in the given list, checking the exception
         function testML_labelManager_gety04(testCase)
-            
+            % testML_labelManager_gety04 checks gety errors when label
+            % is not present in strList
+
             import  OM4MClassLib.Util.*;
             fprintf('\n%s: ',Logging.WhoCalledMe());
             label='z';
@@ -77,9 +81,10 @@ classdef testMLLabelManager < matlab.unittest.TestCase
         
         %% Checking getlabel method
         
-        % Checking that function getlabel works OK
         function testML_labelManager_getlabel01(testCase)
-            
+            % testML_labelManager_getlabel01 checks getlabel returns the
+            % expected string labels for a vector of numeric indices
+
             import  OM4MClassLib.Util.*;
             fprintf('\n%s: ',Logging.WhoCalledMe());
             
@@ -92,9 +97,10 @@ classdef testMLLabelManager < matlab.unittest.TestCase
         end
         
         
-        % Checking the cases when numList format is wrong
         function testML_labelManager_getlabel02(testCase)
-            
+            % testML_labelManager_getlabel02 checks getlabel errors when
+            % numList contains a zero or a non-integer element
+
             import  OM4MClassLib.Util.*;
             fprintf('\n%s: ',Logging.WhoCalledMe());
             
@@ -113,10 +119,11 @@ classdef testMLLabelManager < matlab.unittest.TestCase
         end
         
         
-        % Checking the case when at least one of the numbers contained in numList
-        % doesn't correspond to the range [1,number of different labels]
         function testML_labelManager_getlabel03(testCase)
-            
+            % testML_labelManager_getlabel03 checks getlabel errors when
+            % numList is outside [1, number of distinct labels]
+            % (including negative values)
+
             import  OM4MClassLib.Util.*;
             fprintf('\n%s: ',Logging.WhoCalledMe());
             
@@ -133,9 +140,10 @@ classdef testMLLabelManager < matlab.unittest.TestCase
         
         %% Checking that static method ind2vec
         
-        % Checking if it works correctly
         function testML_labelManager_ind2vec01(testCase)
-            
+            % testML_labelManager_ind2vec01 checks ind2vec's one-hot
+            % encoding against a manually built reference matrix
+
             import  OM4MClassLib.Util.*;
             fprintf('\n%s: ',Logging.WhoCalledMe());
             
@@ -151,9 +159,10 @@ classdef testMLLabelManager < matlab.unittest.TestCase
         end
         
         
-        % Checking the exceptions
         function testML_labelManager_ind2vec02(testCase)
-            
+            % testML_labelManager_ind2vec02 checks ind2vec errors on a
+            % non-vector input, and on zero/non-integer/negative elements
+
             import  OM4MClassLib.Util.*;
             fprintf('\n%s: ',Logging.WhoCalledMe());
             
@@ -176,9 +185,10 @@ classdef testMLLabelManager < matlab.unittest.TestCase
         
         %% Checking that static method vec2ind
         
-        % Checking if it works correctly
         function testML_labelManager_vec2ind01(testCase)
-            
+            % testML_labelManager_vec2ind01 checks vec2ind decodes a
+            % one-hot matrix back to the expected index vector
+
             import  OM4MClassLib.Util.*;
             fprintf('\n%s: ',Logging.WhoCalledMe());
             
@@ -193,9 +203,10 @@ classdef testMLLabelManager < matlab.unittest.TestCase
         end
         
         
-        % Checking the exceptions
         function testML_labelManager_vec2ind02(testCase)
-            
+            % testML_labelManager_vec2ind02 checks vec2ind errors when
+            % vec has more or fewer than one 1 per row, or is not numeric
+
             import  OM4MClassLib.Util.*;
             fprintf('\n%s: ',Logging.WhoCalledMe());
             
