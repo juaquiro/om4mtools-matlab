@@ -738,7 +738,12 @@ classdef UtilFunML
         % NN algorithm with one hidden layer
         function [J grad]=nnCostFunction(nn_params,input_layer_size, ...
                 hidden_layer_size,num_labels,X,y,lambda)
-            
+            % nnCostFunction computes the regularized cost J and
+            % gradient grad (unrolled Theta1_grad/Theta2_grad) of a
+            % single-hidden-layer neural network, via forward
+            % propagation (cost) and backpropagation (gradient).
+            % nn_params is Theta1/Theta2 unrolled into one vector; X/y
+            % are the training data/labels (1-indexed classes).
             % Reshape nn_params back into the parameters Theta1 and Theta2, the weight matrices
             % for our 2 layer neural network
             Theta1=reshape(nn_params(1:hidden_layer_size * (input_layer_size + 1)), ...
@@ -819,25 +824,27 @@ classdef UtilFunML
         end
         
         function g=sigmoidGradient(z)
+            % sigmoidGradient computes the derivative of the sigmoid
+            % function at z
             g=UtilFunML.sigmoid(z).*(1-UtilFunML.sigmoid(z));
         end
-        
+
         function W=randInitializeNNWeights(L_in,L_out)
-            % RANDINITIALIZEWEIGHTS(L_in, L_out) randomly initializes the weights
-            % of a layer with L_in incoming connections and L_out outgoing connections
+            % randInitializeNNWeights randomly initializes the L_out x
+            % (1+L_in) weight matrix W of a layer with L_in incoming and
+            % L_out outgoing connections, in [-epsilon, epsilon] with
+            % epsilon=sqrt(6/(L_in+L_out))
             epsilon=sqrt(6/(L_in+L_out));
             W=rand(L_out,1+L_in)*2*epsilon-epsilon;
         end
-        
+
         function checkNNGradients(lambda)
-            % CHECKNNGRADIENTS Creates a small neural network to check the
-            % backpropagation gradients.
-            % CHECKNNGRADIENTS(lambda) Creates a small neural network to check the
-            % backpropagation gradients, it will output the analytical gradients
-            % produced by your backprop code and the numerical gradients (computed
-            % using computeNumericalGradient). These two gradient computations should
-            % result in very similar values.
-            
+            % checkNNGradients builds a small neural network with random
+            % test data and compares its analytical backprop gradient
+            % (nnCostFunction) against a numerically-estimated gradient
+            % (computeNumericalGradient) - the two should be very
+            % similar. lambda (default 0) is the regularization strength
+            % to test with.
             if ~exist('lambda', 'var') || isempty(lambda)
                 lambda = 0;
             end
