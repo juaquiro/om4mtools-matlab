@@ -13,14 +13,15 @@ classdef labelManager < handle
     %% Public Methods
     methods
         
-        % Constructor
         function this=labelManager()
+            % labelManager constructs an empty label manager (stateless)
         end
-        
-        
-        % gety returns the numeric labels that corresponds to the given string label/s in
-        % a given list of strings
+
+
         function y=gety(this,label,strList)
+            % gety returns the 1-based numeric label(s) (index into
+            % unique(strList)) corresponding to label (a string or cell
+            % array of strings contained in strList)
             
             try
                 % Checking that label and strList are strings or cell arrays of strings
@@ -55,9 +56,9 @@ classdef labelManager < handle
         end
         
         
-        % getlabels returns the string labels that corresponds to the given number/s in
-        % a given list of strings
         function label=getlabel(this,numList,strList)
+            % getlabel returns the string label(s) from unique(strList)
+            % corresponding to the given 1-based numList index/indices
             
             try
                 % Checking that numList is a non-zero positive int or a vector of
@@ -103,8 +104,11 @@ classdef labelManager < handle
     methods (Static=true)
         
         function vec=ind2vec(ind)
+            % ind2vec encodes a vector of positive integer class indices
+            % ind as a one-hot matrix (one row per element, one column
+            % per unique class value)
             try
-                
+
                 % Checking that numList is a non-zero positive int or a vector of non-zero positive integers
                 msg1=' must be a integer or a vector of positive integers different from zero';
                 msg2=' must be a vector';
@@ -139,8 +143,10 @@ classdef labelManager < handle
         
         
         function ind=vec2ind(vec)
+            % vec2ind decodes a one-hot matrix vec (one row per sample,
+            % exactly one 1 per row) back into a column of class indices
             try
-                
+
                 % Input must be a matrix composed just by zeros and ones,
                 % and there can only be one 1 per row
                 msg1=' must be a vector or a matrix';

@@ -21,13 +21,13 @@ classdef polynomicFeatureMapper < handle
     %% public methods
     methods
         function this=polynomicFeatureMapper()
-            %empty constructor
+            % polynomicFeatureMapper constructs an unmapped instance
         end
-        
-        % This method maps the different Xi given in each row of X to and
-        % order p 
-        % the input data X has no bias, this is a high level function and bias is not necessary 
+
         function X_mapped=Go(this,X, p)
+            % Go maps each row of X (no bias column) to all monomials of
+            % its columns up to total degree p, storing the result in
+            % this.X_mapped/this.powers and returning X_mapped
             try
                 
                 % Order p must be greater than zero and bias must be
