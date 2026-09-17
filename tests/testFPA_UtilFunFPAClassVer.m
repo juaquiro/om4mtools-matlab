@@ -2788,6 +2788,10 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
         end
 
         function test_LocateSidelobes_ComputerExample(testCase)
+            % test_LocateSidelobes_ComputerExample checks
+            % UtilFunFPA.LocateSidelobes recovers the two known
+            % synthetic spatial-frequency sidelobes from a two-carrier
+            % fringe pattern generated with known frequencies
             %run(testFPA_UtilFunFPAClassVer, 'test_LocateSidelobes_ComputerExample')
             import OM4MClassLib.Util.*;
             fprintf('\n%s: ',Logging.WhoCalledMe());
@@ -2820,6 +2824,10 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
         end
 
         function test_FFTDemod_ReferenciaRotlex(testCase)
+            % test_FFTDemod_ReferenciaRotlex visually checks
+            % UtilFunFPA.FFTDemod demodulates both fringe directions of
+            % a real Rotlex reference fixture image, using sidelobes
+            % located via UtilFunFPA.LocateSidelobes
             %run(testFPA_UtilFunFPAClassVer, 'test_FFTDemod_ReferenciaRotlex')
             import OM4MClassLib.Util.*;
             fprintf('\n%s: ',Logging.WhoCalledMe());
@@ -2850,6 +2858,10 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
         end
 
         function test_FFTDemod(testCase)
+            % test_FFTDemod checks UtilFunFPA.FFTDemod recovers two
+            % synthetic crossed carrier fringe phases (against a
+            % carrier-only reference pattern, with a band-pass radius)
+            % with near-zero bias and small standard deviation error
             %run(testFPA_UtilFunFPAClassVer, 'test_FFTDemod')
             import OM4MClassLib.Util.*;
             fprintf('\n%s: ',Logging.WhoCalledMe());
@@ -2923,6 +2935,11 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
         end
 
         function test_phaseGradientDirect(testCase)
+            % test_phaseGradientDirect checks
+            % UtilFunFPA.phaseGradientDirect's phase gradients (Dx, Dy)
+            % computed from a complex synthetic phasor match the
+            % ground-truth gradient() of the underlying peaks() phase
+            % within tolerance
             %run(testFPA_UtilFunFPAClassVer, 'test_phaseGradientDirect')
             import OM4MClassLib.Util.*;
             fprintf('\n%s: ',Logging.WhoCalledMe());
@@ -2954,6 +2971,10 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
         end
 
         function test_FFTDemod_ProgHoya1(testCase)
+            % test_FFTDemod_ProgHoya1 visually checks
+            % UtilFunFPA.FFTDemod demodulates a real progressive-lens
+            % fringe pattern fixture image against its reference image,
+            % using sidelobes located via UtilFunFPA.LocateSidelobes
             %run(testFPA_UtilFunFPAClassVer, 'test_FFTDemod_ProgHoya1')
             import OM4MClassLib.Util.*;
             fprintf('\n%s: ',Logging.WhoCalledMe());
@@ -2998,6 +3019,11 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
         end
 
         function test_FFTDemod_BlankStratemeyerBC_20_n_16(testCase)
+            % test_FFTDemod_BlankStratemeyerBC_20_n_16 visually checks
+            % UtilFunFPA.FFTDemod demodulates a real blank-lens fringe
+            % pattern fixture image against a separate reference
+            % fixture image, using sidelobes located via
+            % UtilFunFPA.LocateSidelobes
             %run(testFPA_UtilFunFPAClassVer, 'test_FFTDemod_BlankStratemeyerBC_20_n_16')
             import OM4MClassLib.Util.*;
             fprintf('\n%s: ',Logging.WhoCalledMe());
@@ -3037,6 +3063,10 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
         end
 
         function test_wRes_Pro(testCase)
+            % test_wRes_Pro visually checks UtilFunFPA.VicleFilter
+            % separates a synthetic low-frequency phase trend from an
+            % added low-frequency sinusoidal disturbance plus noise,
+            % within a weighted circular ROI
             %run(testFPA_UtilFunFPAClassVer, 'test_wRes_Pro')
             import OM4MClassLib.Util.*;
             fprintf('\n%s: ',Logging.WhoCalledMe());
@@ -3065,6 +3095,13 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
         end
 
         function test_StressDisk(testCase)
+            % test_StressDisk checks UtilFunFPA.StressDisk's synthetic
+            % photoelasticity disk retardation values are non-negative
+            % and within range, visually checks isochromatic/isoclinic
+            % maps via UtilFunFPA.DrawAlpha, and checks
+            % UtilFunFPA.LBFPattern produces identical intensity
+            % patterns from the equivalent w2alpha and w4alpha stress
+            % angle representations
             %run(testFPA_UtilFunFPAClassVer, 'test_StressDisk')
             import OM4MClassLib.Util.*;
             fprintf('\n%s: ',Logging.WhoCalledMe());
@@ -3132,6 +3169,11 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
         end
 
         function test_CalcIsoclinPS(testCase)
+            % test_CalcIsoclinPS checks a TimePSA DemodulatorFactory
+            % 4-step phase-shifting measurement of
+            % UtilFunFPA.StressDisk's synthetic isoclinic pattern,
+            % after unwrapping via UtilFunFPA.Calc2Alpha, matches the
+            % theoretical stress angle within tolerance
             %run(testFPA_UtilFunFPAClassVer, 'test_CalcIsoclinPS')
             import OM4MClassLib.Util.*;
             fprintf('\n%s: ',Logging.WhoCalledMe());
@@ -3184,6 +3226,11 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
         end
 
         function test_CalcRetarFormCircPolPS8(testCase)
+            % test_CalcRetarFormCircPolPS8 checks
+            % UtilFunFPA.CircPol's 8-step classical circular-polariscope
+            % intensities on UtilFunFPA.StressDisk's synthetic pattern
+            % match their closed-form expressions, and that combining
+            % them recovers the theoretical retardation delta
             %run(testFPA_UtilFunFPAClassVer, 'test_CalcRetarFormCircPolPS8')
             import OM4MClassLib.Util.*;
             fprintf('\n%s: ',Logging.WhoCalledMe());
@@ -3240,6 +3287,11 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
         end
 
         function test_Temp1DFFTDemod(testCase)
+            % test_Temp1DFFTDemod checks UtilFunFPA.Temp1DFFTDemod
+            % recovers a synthetic 1D temporal linear phase ramp (with
+            % a low-frequency background) within tolerance, both with
+            % default settings and with explicit center-frequency/sigma
+            % filter parameters
             %run(testFPA_UtilFunFPAClassVer, 'test_Temp1DFFTDemod')
             import OM4MClassLib.Util.*;
             fprintf('\n%s: ',Logging.WhoCalledMe());
@@ -3280,6 +3332,11 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
         end
 
         function test_DerOpsFreeBoundary1D(testCase)
+            % test_DerOpsFreeBoundary1D checks
+            % UtilFunFPA.DerOpsFreeBoundary1D's first/second/third-order
+            % free-boundary finite-difference matrices (Dx, Dxx, Dxxx)
+            % have the expected sizes and exact expected sparse-matrix
+            % contents for N=10
             %run(testFPA_UtilFunFPAClassVer, 'test_DerOpsFreeBoundary1D')
             import OM4MClassLib.Util.*;
             fprintf('\n%s: ',Logging.WhoCalledMe());
@@ -3332,6 +3389,10 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
         end
 
         function testunwrapRLS1DPeaks(testCase)
+            % testunwrapRLS1DPeaks visually checks
+            % UtilFunFPA.unwrapRLS1D unwraps a 1D slice of a synthetic
+            % peaks()-based phasor across its 'Dxxx', 'thinplate' and
+            % 'membrane' regularization modes
             %run(testFPA_UtilFunFPAClassVer, 'testunwrapRLS1DPeaks')
             close all;
 
@@ -3375,6 +3436,12 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
         end
 
         function testPCADemodPeaks(testCase)
+            % testPCADemodPeaks visually checks UtilFunFPA.PCADemod
+            % recovers a synthetic peaks()-based phase and its
+            % (initially increasing, arbitrary-order) phase-shift
+            % deltas from unordered igrams, checking phase error
+            % histograms and comparing recovered vs. ground-truth
+            % deltas
             %run(testFPA_UtilFunFPAClassVer, 'testPCADemodPeaks')
             close all;
 
@@ -3421,6 +3488,10 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
         end
 
         function testPCADemodPeaksMonotonicDeltas(testCase)
+            % testPCADemodPeaksMonotonicDeltas repeats testPCADemodPeaks
+            % using arbitrary but monotonically increasing (sorted
+            % random) phase-shift deltas, visually comparing recovered
+            % vs. ground-truth phase and deltas
             %run(testFPA_UtilFunFPAClassVer, 'testPCADemodPeaksMonotonicDeltas')
             close all;
 
@@ -3468,6 +3539,11 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
         end
 
         function testPCADemodSaturation(testCase)
+            % testPCADemodSaturation visually checks the effect of
+            % clipping (saturating) igram gray values before feeding
+            % them to UtilFunFPA.PCADemod on the recovered phase map,
+            % its gradients (via UtilFunFPA.phaseGradientDirect), and
+            % the resulting phase/gradient error
             %run(testFPA_UtilFunFPAClassVer, 'testPCADemodSaturation')
             close all;
 
@@ -3523,6 +3599,12 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
         end
 
         function testAIADemodPeaks(testCase)
+            % testAIADemodPeaks visually checks UtilFunFPA.AIADemod
+            % (Advanced Iterative Algorithm) recovers a synthetic
+            % peaks()-based phase and its arbitrary, monotonically
+            % increasing phase-shift deltas, checking phase error
+            % histograms and comparing recovered vs. ground-truth
+            % deltas
             %run(testFPA_UtilFunFPAClassVer, 'testAIADemodPeaks')
             close all;
 
@@ -3569,6 +3651,12 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
         end
 
         function testAIADemodSaturation(testCase)
+            % testAIADemodSaturation visually checks the effect of
+            % binarizing (thresholding) igrams before feeding them,
+            % with a known deltas seed, to UtilFunFPA.AIADemod on the
+            % recovered phase map, its gradients (via
+            % UtilFunFPA.phaseGradientDirect), and the resulting
+            % phase/gradient error
             %run(testFPA_UtilFunFPAClassVer, 'testAIADemodSaturation')
             close all;
 
