@@ -1,4 +1,6 @@
 classdef testFPADemodulatorFTTempAnalysis < matlab.unittest.TestCase
+    % testFPADemodulatorFTTempAnalysis tests DemodulatorFTTempAnalysis
+    % (spatio-temporal FT-based demodulation across a stack of igrams)
     %run(testFPADemodulatorFTTempAnalysis)
     
     methods(TestMethodSetup)
@@ -18,6 +20,9 @@ classdef testFPADemodulatorFTTempAnalysis < matlab.unittest.TestCase
     
     methods (Test)
         function testAllDemodulatorsConstructors(testCase)
+            % testAllDemodulatorsConstructors builds every DemodulatorTypes
+            % variant via the factory and checks every DemodulatorProps
+            % Get() call succeeds
             %run(testFPADemodulatorFTTempAnalysis, 'testAllDemodulatorsConstructors')
             import OM4MClassLib.Util.*;
             fprintf('\ntest %s...\n ',Logging.WhoCalledMe());
@@ -40,6 +45,8 @@ classdef testFPADemodulatorFTTempAnalysis < matlab.unittest.TestCase
         
         
         function testConstructor(testCase)
+            % testConstructor checks the factory returns a
+            % DemodulatorFTTempAnalysis instance for DemodulatorTypes.FTTempAnalysis
             %run(testFPADemodulatorFTTempAnalysis, 'testConstructor')
             import OM4MClassLib.Util.*;
             fprintf('\ntest %s...\n ',Logging.WhoCalledMe());
@@ -52,6 +59,11 @@ classdef testFPADemodulatorFTTempAnalysis < matlab.unittest.TestCase
         end
         
         function testDemodRetarSimulImages(testCase)
+            % testDemodRetarSimulImages demodulates a simulated 50-frame
+            % circular-polariscope loading ramp on a teoretical loaded
+            % disk, visually inspecting a single frame's retardation/
+            % modulation maps and one pixel's temporal phase evolution
+            % against the theoretical ramp
             %run(testFPADemodulatorFTTempAnalysis, 'testDemodRetarSimulImages')
             import OM4MClassLib.Util.*;
             fprintf('\ntest %s...\n ',Logging.WhoCalledMe());
@@ -103,6 +115,8 @@ classdef testFPADemodulatorFTTempAnalysis < matlab.unittest.TestCase
         end
         
         function testGenSteps(testCase)
+            % testGenSteps checks GetStepValues() returns N evenly-spaced
+            % steps over [0, TempRange), matching the manual computation
             %run(testFPADemodulatorFTTempAnalysis,'testGenSteps')
             import OM4MClassLib.Util.*;
             fprintf('\ntest %s...\n ',Logging.WhoCalledMe());
@@ -123,6 +137,9 @@ classdef testFPADemodulatorFTTempAnalysis < matlab.unittest.TestCase
         end
         
         function testGenFPsAndProcess(testCase)
+            % testGenFPsAndProcess generates and processes fringe
+            % patterns for both scan directions, checking the phase
+            % gradient is ~0 along the constant-phase direction of each
             %run(testFPADemodulatorFTTempAnalysis,'testGenFPsAndProcess')
             import OM4MClassLib.Util.*;
             fprintf('\ntest %s...\n ',Logging.WhoCalledMe());
@@ -198,6 +215,9 @@ classdef testFPADemodulatorFTTempAnalysis < matlab.unittest.TestCase
         end
         
         function testGenFPsAndProcessWithProjector(testCase)
+            % testGenFPsAndProcessWithProjector repeats
+            % testGenFPsAndProcess but displays each pattern on a real
+            % DisplayProjector before resampling and processing
             %run(testFPADemodulatorFTTempAnalysis,'testGenFPsAndProcessWithProjector')
             import OM4MClassLib.Util.*;
             fprintf('\ntest %s...\n ',Logging.WhoCalledMe());
