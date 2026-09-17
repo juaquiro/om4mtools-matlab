@@ -1732,21 +1732,16 @@ classdef testFPA_UtilFunMapperMeasureClassVer < matlab.unittest.TestCase
         end
 
 
-        % ======================================================================
-        %> @brief testMejoraCaluloDPMUsingLMMClass_APR20_GeomCal test for checking the LensMapperMeasurement class
-        %> @details here we test the method implemented in testMejoraCaluloDPM_APR20 but using the LensMapperMeasurement class
-        %> Here we are using the geometrical calibraction calculated with
-        %> run(testFPA_UtilFunFPAClassVer,'testCameraCalibrationCVTbx_5MAY20');
-        %> and run(testFPA_UtilFunFPAClassVer, 'testUndistortImagesCVTbx_5MAY20');
-        %> also here we test the effect of the distortion in the power
-        %> calculation
-        %> @see testMejoraCaluloDPM_APR20 onenote->Mejoras calculo DPM APR20 for experimental
-        %> @details the measurement was obtained usin the
-        %> TransDeflAppInterface class of the repo https://bitbucket.org/iot_development_es/perseus/src/master/src/Deflectometer/FFVAppInt/
-        %> @author AQ 14APR20
-        %>
-        % ======================================================================
         function testMejoraCaluloDPMUsingLMMClass_APR20_GeomCal(testCase)
+            % testMejoraCaluloDPMUsingLMMClass_APR20_GeomCal repeats
+            % testMejoraCaluloDPM_APR20_LowLevel_GeomCal's demodulation
+            % and DPM calculation but via the high-level
+            % LensMapperMeasurement API (calculateROIFromPhasor,
+            % CalculateLensPower) instead of the manual low-level steps,
+            % optionally undistorting the loaded igrams first (via
+            % testFPA_UtilFunMapperMeasureClassVer.undistortLMMImages
+            % and a camera calibration JSON) to compare distorted vs
+            % undistorted power maps
             %run(testFPA_UtilFunMapperMeasureClassVer, 'testMejoraCaluloDPMUsingLMMClass_APR20_GeomCal')
             import OM4MClassLib.Util.*;
             fprintf('\ntest %s...\n ',Logging.WhoCalledMe());
@@ -1989,22 +1984,13 @@ classdef testFPA_UtilFunMapperMeasureClassVer < matlab.unittest.TestCase
 
 
 
-        % ======================================================================
-        %> @brief testCaluloDPMUsingLMMClass_15DIC20 test for checking the LensMapperMeasurement class
-        %> @details here we test the DPM calculation using the LensMapperMeasurement class
-        %> Here we are using the geometrical calibraction calculated with
-        %> run(testFPA_UtilFunFPAClassVer,'testCameraCalibrationCVTbx_15DIC20');
-        %> and run(testFPA_UtilFunFPAClassVer, 'testUndistortImagesCVTbx_15DIC20');
-        %> also here we test the effect of the distortion in the power
-        %> calculation
-        %> @see onenote->calibracion 15DIC20
-        %> @details the measurement was obtained usin the
-        %> TransDeflAppInterface class of the repo https://bitbucket.org/iot_development_es/perseus/src/master/src/Deflectometer/FFVAppInt/
-        %> @author AQ 15DIC20
-        %>
-        % ======================================================================
-
         function testCaluloDPMUsingLMMClass_15DIC20(testCase)
+            % testCaluloDPMUsingLMMClass_15DIC20 repeats
+            % testMejoraCaluloDPMUsingLMMClass_APR20_GeomCal's
+            % LensMapperMeasurement-based DPM calculation on a real
+            % +5D lens fixture from a later calibration session
+            % (Calibracion_15DIC20, its own camera calibration JSON and
+            % lens-plane pixel size), with UNDISTORT disabled here
             %run(testFPA_UtilFunMapperMeasureClassVer, 'testCaluloDPMUsingLMMClass_15DIC20')
             import OM4MClassLib.Util.*;
             fprintf('\ntest %s...\n ',Logging.WhoCalledMe());
@@ -2215,17 +2201,14 @@ classdef testFPA_UtilFunMapperMeasureClassVer < matlab.unittest.TestCase
 
         end
 
-        % ======================================================================
-        %> @brief testDPMPowerRangeCalc test for validating the DPM calculation using LensMapperMeasurement class
-        %> @details here we check the Power measurement ranges of the DPM calculation using LensMapperMeasurement in particular the +10D and -10D cases
-        %> the measurement was obtained usin the TransDeflAppInterface class of
-        %> the repo https://bitbucket.org/iot_development_es/perseus/src/master/src/Deflectometer/FFVAppInt/
-        %> @details also in this test we check for non-linearities in the X
-        %> patterns and its influence on tne final DPM
-        %> @see testMejoraCaluloDPM_APR20 onenote->Mejoras calculo DPM APR20 for experimental
-        %> @author AQ 14AUG20
-        % ======================================================================
         function testDPMPowerRangeCalc(testCase)
+            % testDPMPowerRangeCalc validates the DPM/power calculation
+            % at the high end of the measurement range (a real +10D
+            % monofocal lens fixture), also visually inspecting each
+            % demodulation stage's spectrum and directional derivative
+            % maps (DISPLAY_SPEC) to check for non-linearity/harmonics
+            % in the X patterns before computing the final S/C/Seq maps
+            % via CalculateLensPower's 'highPowerLens' option
             %run(testFPA_UtilFunMapperMeasureClassVer, 'testDPMPowerRangeCalc')
             import OM4MClassLib.Util.*;
             fprintf('\ntest %s...\n ',Logging.WhoCalledMe());
