@@ -1,20 +1,9 @@
-%> @file testFPA_UtilFunFPAClassVer.m
-%> @brief File containint the ubnit tests for UtilFunFPA using the MATLAB class unit testing
-%> @details con  R>R2016 el framework de pruebas mtest ya no funciona no podemos pasar las pruebas de testFPA_UtilFunFPA()
-%> este fichero implementa pruebas unitarias de UtilFunFPA usando el test framework de
-%> MATLAB basado en clases y compatible copn vers >= R2015
-%> @see testFPA_UtilFunFPA.m, UtilFunFPA.m
-%> @copyright 2016 IOT
-%> @author AQ
-
-
-% ======================================================================
-%> @brief this is the class with the unit tests for UtilFunFPA
-%> @details the problem is that the mtest unit testing framework does not run on R>2016a
-%> @see UtilFunFPA
-%> @author AQ 14APR19
-% ======================================================================
 classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
+    % testFPA_UtilFunFPAClassVer tests UtilFunFPA's static fringe
+    % pattern analysis functions (Gray-code, demodulation, phase
+    % gradients, camera calibration, deflectometry, DPM calculation).
+    % Converted from the legacy mtest-framework tests (dropped after
+    % R2016a) to matlab.unittest - see UtilFunFPA.m.
     %run(testFPA_UtilFunFPAClassVer)
 
     methods(TestMethodSetup)
@@ -40,6 +29,10 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
 
     methods (Test)
         function testBin2Grey(testCase)
+            % testBin2Grey checks UtilFunFPA.bin2gray/gray2bin against a
+            % precomputed ground-truth table (Dec2Grey_15) for all 4-bit
+            % values, both directions, and cross-checks the two directions
+            % against each other
             %run(testFPA_UtilFunFPAClassVer, 'testBin2Grey')
             %test of the bin2grey and grey2bin functions
             %load a file previously calculated from \Dropbox
@@ -101,6 +94,9 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
         end
 
         function testGenerateGC(testCase)
+            % testGenerateGC checks UtilFunFPA.generateGC's LUTs (against
+            % the Dec2Grey_4Bits ground-truth table) and pattern
+            % count/sizes, for both X and Y directions
             %run(testFPA_UtilFunFPAClassVer, 'testGenerateGC')
             %load a file previously calculated from \Dropbox
             %(IOT)\AQ_SYNC\AQ11\Programs\Matlab\GreyCodes\GreyCodeAQ and compare
@@ -146,6 +142,9 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
         end
 
         function testDecodeGC(testCase)
+            % testDecodeGC checks UtilFunFPA.decodeGC correctly recovers
+            % the fringe order from UtilFunFPA.generateGC's patterns,
+            % for both X and Y directions
             %aqui comprobamos que el demodeGC trabaja OK con el generaGC
             %run(testFPA_UtilFunFPAClassVer, 'testDecodeGC')
 
@@ -188,6 +187,11 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
         end
 
         function testDecodeGC_PSA(testCase)
+            % testDecodeGC_PSA checks a Gray-code fringe order combined
+            % with an LSPSA-demodulated phase (absolute phase =
+            % GC-order*2*pi + wrapped phase) has a near-zero gradient
+            % along the constant direction, for every period 3:60 px,
+            % in both X and Y
             %run(testFPA_UtilFunFPAClassVer, 'testDecodeGC_PSA')
             %genera un GC + PSA para diferentes periodos y verifica que
             %todos casan
@@ -278,6 +282,11 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
         end
 
         function testDecodeGC_PSA_ParicularCase1(testCase)
+            % testDecodeGC_PSA_ParicularCase1 repeats testDecodeGC_PSA's
+            % absolute-phase gradient check for a single period (T=20px)
+            % with NIgrams=0.5*T (rather than =T), using
+            % DemodulatorLSPSA - a stricter case for DemodulatorGCPSA's
+            % own tests
             %run(testFPA_UtilFunFPAClassVer, 'testDecodeGC_PSA_ParicularCase1')
             %genera un GC + PSA para un caso particular y verificar asi los tets de DemodulatorGCPSA
             %aqui se puede ver como los test (muy restrictivos con la
@@ -361,6 +370,9 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
         end
 
         function testDecodeGC_PSA_ParicularCase2(testCase)
+            % testDecodeGC_PSA_ParicularCase2 repeats
+            % testDecodeGC_PSA_ParicularCase1 using
+            % DemodulatorLSEquispacedPSA instead of DemodulatorLSPSA
             %run(testFPA_UtilFunFPAClassVer, 'testDecodeGC_PSA_ParicularCase2')
             %genera un GC + PSA para un caso particular y verificar asi los tets de DemodulatorGCPSA
             %aqui se puede ver como los test (muy restrictivos con la
@@ -447,6 +459,10 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
 
 
         function testLinLUTGV(testCase)
+            % testLinLUTGV visually checks UtilFunFPA.LinLUTGV's
+            % linearization LUT (T(u), H(T(u))) on a real monitor-camera
+            % radiometric response fixture (RadCal.mat), both on the
+            % full sampled response and on it trimmed at both ends
             %run(testFPA_UtilFunFPAClassVer, 'testLinLUTGV')
             S=load('RadCal.mat');
             %sampled response
@@ -484,15 +500,17 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
         end
 
 
-        % In this test we load an experimental radiometric response and
-        % linearize it. Afther, we generate a igram using the maximum and
-        % minimum GV detected from the lienar reponse, pass the igram
-        % though the radiometric response and finally correct back the
-        % igram to have a linear respose
-        % in this test "intensity" refers to continous values and "GV" to
-        % discrete values
-        % run(testFPA_UtilFunFPAClassVer, 'testLinLUTGVWithFringePattern')
         function testLinLUTGVWithFringePattern(testCase)
+            % testLinLUTGVWithFringePattern loads an experimental
+            % radiometric response and linearizes it, generates a
+            % synthetic fringe pattern spanning the linear response's
+            % [u0,u1] GV range, passes it through the (nonlinear) system
+            % response, transforms it back via T(u), and checks the
+            % linearized round-trip recovers the same [v0,v1] output
+            % range as the raw response would - for both single-channel
+            % and RGB igrams. In this test "intensity" refers to
+            % continuous values and "GV" to discrete values
+            % run(testFPA_UtilFunFPAClassVer, 'testLinLUTGVWithFringePattern')
             %load smapled Radiometric response
             S=load('RadCal.mat');
             
@@ -618,6 +636,10 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
 
 
         function testLinLUTGVWithDoubleResponse(testCase)
+            % testLinLUTGVWithDoubleResponse repeats testLinLUTGV's
+            % checks after affinely rescaling the sampled response
+            % (double precision, non-[0,255] range) to check LinLUTGV
+            % still handles it correctly
             %run(testFPA_UtilFunFPAClassVer, 'testLinLUTGVWithDoubleResponse')
             S=load('RadCal.mat');
             %sampled response
