@@ -1,4 +1,7 @@
 classdef testUtilTrainingDataLoader < matlab.unittest.TestCase
+    % testUtilTrainingDataLoader tests TrainingDataLoader (loads lens QC
+    % stats from an xlsx report into ML-ready feature/label matrices,
+    % filtered by eye/lens type, and splits them into train/CV/test sets)
     %before running the tests
     methods(TestMethodSetup)
         function SetUp(testCase)
@@ -17,9 +20,11 @@ classdef testUtilTrainingDataLoader < matlab.unittest.TestCase
     
     methods (Test)
         
-        % Both eyes, all lenses, Type as labelData, QCStatsReport2Clases.xlsx
         function testUtil_TrainingDataLoader01(testCase)
-            
+            % testUtil_TrainingDataLoader01 checks X/y/labels for both
+            % eyes, all lens types, labelData=Type (QCStatsReport2Clases.xlsx)
+            % Both eyes, all lenses, Type as labelData, QCStatsReport2Clases.xlsx
+
             import  OM4MClassLib.Util.*;
             fprintf('\n%s: ',Logging.WhoCalledMe());
             
@@ -65,9 +70,12 @@ classdef testUtilTrainingDataLoader < matlab.unittest.TestCase
             
         end
         
-        % Right eye, just progressive lenses, Type as labelData, QCStatsReport3Clases.xlsx
         function testUtil_TrainingDataLoader02(testCase)
-            
+            % testUtil_TrainingDataLoader02 checks X/y/labels filtered to
+            % the right eye and progressive lenses only, labelData=Type
+            % (QCStatsReport3Clases.xlsx)
+            % Right eye, just progressive lenses, Type as labelData, QCStatsReport3Clases.xlsx
+
             import  OM4MClassLib.Util.*;
             fprintf('\n%s: ',Logging.WhoCalledMe());
             
@@ -123,9 +131,12 @@ classdef testUtilTrainingDataLoader < matlab.unittest.TestCase
             
         end
         
-        % Left eye, just monofocal lenses, QCpath as labelData, QCStatsReport3Clases.xlsx
         function testUtil_TrainingDataLoader03(testCase)
-            
+            % testUtil_TrainingDataLoader03 checks X/y/labels filtered to
+            % the left eye and monofocal lenses only, labelData=QCpath
+            % (QCStatsReport3Clases.xlsx)
+            % Left eye, just monofocal lenses, QCpath as labelData, QCStatsReport3Clases.xlsx
+
             import  OM4MClassLib.Util.*;
             fprintf('\n%s: ',Logging.WhoCalledMe());
             
@@ -213,9 +224,12 @@ classdef testUtilTrainingDataLoader < matlab.unittest.TestCase
             
         end
         
-        % Checking the {X,y,labels} structs TTS, TRS, CVS, TES
         function testUtil_TrainingDataLoader04(testCase)
-            
+            % testUtil_TrainingDataLoader04 checks the TTS/TRS/CVS/TES
+            % struct split: TTS matches {X,y,labels}, TRS+CVS+TES row
+            % counts sum to TTS's, and no TRS row appears in CVS/TES
+            % Checking the {X,y,labels} structs TTS, TRS, CVS, TES
+
             import  OM4MClassLib.Util.*;
             fprintf('\n%s: ',Logging.WhoCalledMe());
             
@@ -275,10 +289,13 @@ classdef testUtilTrainingDataLoader < matlab.unittest.TestCase
             
         end
         
-        % Checking that 2 instances to the class TraninigDataLoader generates the
-        % same TTS, but different TRS, CVS and TES
         function testUtil_TrainingDataLoader05(testCase)
-            
+            % testUtil_TrainingDataLoader05 checks two TrainingDataLoader
+            % instances (same inputs) produce identical TTS but
+            % different (randomized) TRS/CVS/TES splits
+            % Checking that 2 instances to the class TraninigDataLoader generates the
+            % same TTS, but different TRS, CVS and TES
+
             import  OM4MClassLib.Util.*;
             fprintf('\n%s: ',Logging.WhoCalledMe());
             
@@ -310,9 +327,11 @@ classdef testUtilTrainingDataLoader < matlab.unittest.TestCase
             
         end
         
-        % Checking that all TrainigDataLoader object properties are private
         function testUtil_TrainingDataLoader06(testCase)
-            
+            % testUtil_TrainingDataLoader06 checks every TrainingDataLoader
+            % public property has SetAccess='private'
+            % Checking that all TrainigDataLoader object properties are private
+
             import  OM4MClassLib.Util.*;
             fprintf('\n%s: ',Logging.WhoCalledMe());
             

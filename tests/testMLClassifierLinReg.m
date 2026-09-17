@@ -1,4 +1,5 @@
 classdef testMLClassifierLinReg < matlab.unittest.TestCase
+    % testMLClassifierLinReg tests ClassifierLinReg
     %before running the tests
     methods(TestMethodSetup)
         function SetUp(testCase)
@@ -18,13 +19,16 @@ classdef testMLClassifierLinReg < matlab.unittest.TestCase
     methods (Test)
         
         function testConstructor(testCase)
-            
+            % testConstructor checks ClassifierLinReg's flags
+            % (supervised, regression), default props (lambda, p,
+            % featureType) and featureType validation on Set
+
             import OM4MClassLib.Util.*;
-            
+
             fprintf('\n%s: ',Logging.WhoCalledMe());
-            
+
             c=ClassifierFactory.Create(ClassifierTypes.LinReg);
-            
+
             %this is a supervised classfier
             testCase.assertTrue(c.isSupervised);
             
@@ -73,8 +77,11 @@ classdef testMLClassifierLinReg < matlab.unittest.TestCase
         
         
         function testTrain(testCase)
+            % testTrain trains on the Coursera ex1data2 (house price)
+            % dataset, checks a known prediction against a reference
+            % value, and checks the feature-count mismatch error on Predict
             % ex1_multitaken from the ML course
-            
+
             import OM4MClassLib.Util.*;
             
             fprintf('\n%s: ',Logging.WhoCalledMe());
@@ -118,6 +125,9 @@ classdef testMLClassifierLinReg < matlab.unittest.TestCase
         
         
         function testLearningCurve(testCase)
+            % testLearningCurve plots UtilFunML.learningCurve's train/CV
+            % error vs sample count on the Coursera ex5data1 dataset,
+            % both raw and after degree-8 polynomial feature expansion
             %ejemplo cojido del ex5_multi del curso de ML
             
             import OM4MClassLib.Util.*;
@@ -156,6 +166,9 @@ classdef testMLClassifierLinReg < matlab.unittest.TestCase
         
         
         function testValidationCurve(testCase)
+            % testValidationCurve plots UtilFunML.validationCurve's
+            % train/CV error vs lambda on the degree-8 polynomial
+            % expansion of the Coursera ex5data1 dataset
             %ejemplo cojido del ex5_multi del curso de ML
             
             import OM4MClassLib.Util.*;
@@ -186,11 +199,15 @@ classdef testMLClassifierLinReg < matlab.unittest.TestCase
         end
         
         
-        % Create and train a ClassifierLR, then save it to a .mat file, load this
-        % file and obtain and make a prediction
         function testSaveAndLoadClassifier(testCase)
+            % testSaveAndLoadClassifier trains on the Coursera ex1data2
+            % dataset, saves the classifier, loads it back (via a
+            % differently-typed fresh classifier instance) and checks
+            % predictions are unchanged
+            % Create and train a ClassifierLR, then save it to a .mat file, load this
+            % file and obtain and make a prediction
             % ex1_multitaken from the ML course
-            
+
             import OM4MClassLib.Util.*;
             
             fprintf('\n%s: ',Logging.WhoCalledMe());
@@ -236,11 +253,15 @@ classdef testMLClassifierLinReg < matlab.unittest.TestCase
             delete('classifierLinReg_test.mat') % Delete the created .mat file for the test
         end
         
-        %this test check the capability for a quadratic fit for XYZ data and then
-        %find the minimum of the quadratic form by means of fminsearch
         function testQuadraticFitAndMin(testCase)
+            % testQuadraticFitAndMin fits a regularized quadratic
+            % (p=2) ClassifierLinReg to noisy synthetic 3-feature data,
+            % finds its minimum via fminsearch and checks it matches the
+            % known DC level, then plots a learning curve
+            %this test check the capability for a quadratic fit for XYZ data and then
+            %find the minimum of the quadratic form by means of fminsearch
             %mtest testML_ClassifierLinReg:testQuadraticFitAndMin
-            
+
             import OM4MClassLib.Util.*;
             fprintf('\n%s: ',Logging.WhoCalledMe());
             c=ClassifierFactory.Create(ClassifierTypes.LinReg);
