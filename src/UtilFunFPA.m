@@ -1185,39 +1185,20 @@ classdef UtilFunFPA
         end
         
         function [zPCA, deltaListPCA] = PCADemod(FPList, Mask, varargin)
-            %PCADEMOD This function obtains the wrapped phase from a sequence of
-            %phase-shifted interferograms using the Principal Component Analysis
-            %algorithm (PCA). This function is inspired in the work of A. Leonardis,
-            %D. Skocaj that is available from CMP Vision Algorithms
-            %http://vicos.fri.uni-lj.si/danijels/downloads
-            %http://visionbook.felk.cvut.cz
+            % PCADemod recovers the wrapped phase from a sequence of
+            % phase-shifted interferograms FPList (within Mask) via
+            % Principal Component Analysis (SVD of the cross-covariance
+            % of the stacked, mean-centered fringe patterns), returning
+            % the demodulated phasor zPCA=m*exp(1i*phi) and the phase
+            % shifts deltaListPCA, both direct results of the PCA.
             %
-            % PCA is a linear integral transformation that simplifies
-            % a multidimensional dataset to a lower dimension.
-            % The implementation of the function pca
-            % uses the efficient implementation of singular
-            % value decomposition (svd).
+            % Optional args: monotonicDelta (true) assumes phase shifts
+            % are increasing with delta(1)=0, flipping sign if needed.
             %
-            % Usage: [zPCA,deltaListPCA] = pcaDemod(FPList,Mask) [NRows x NCols]
-            % Inputs:
-            %   FPList  1xNFP list of fringe patterns of [NRows x NCols]
-            %   Mask is the processing mask [NRows x NCols]
-            %   monotonicDelta flag indicating of the deltas are monotonic
-            %   default true and optional
-            % Outputs:
-            %   zPCA   [NRows x NCols]  demodulated phasor z=m*exp(1i*phi) direct result from the PCA.
-            %   deltaListPCA [NPx1] array of calculated phase shifts, direct result from the PCA.
-            %   zLS  [NRows x NCols]
-            
-            %   Javier Vargas,
-            %   25/11/10
-            %   AQ
-            %   29/3/2017
-            %   Copyright 2017
-            %   IOT
-            %   $ Revision: 2.0.0.0 $
-            %   $ Date: 23/03/2017 $
-            
+            % Inspired by A. Leonardis & D. Skocaj's work, available from
+            % CMP Vision Algorithms:
+            % http://vicos.fri.uni-lj.si/danijels/downloads
+            % http://visionbook.felk.cvut.cz
             import OM4MClassLib.Util.*
             callFunc=Logging.WhoCalledMe();
             
@@ -1312,31 +1293,19 @@ classdef UtilFunFPA
         end
         
         function [zAIA, deltaListAIA] = AIADemod(FPList, Mask, varargin)
-            
-            % Matlab implementation of the demodulation method shown in [1]
+            % AIADemod recovers the wrapped phase from randomly
+            % phase-shifted interferograms FPList (within Mask) via the
+            % Advanced Iterative Algorithm, returning the demodulated
+            % phasor zAIA=m*exp(1i*phi) and the phase shifts
+            % deltaListAIA, both direct results of the AIA.
             %
-            % INPUT:
-            %   FPList  1xNFP list of fringe patterns of [NRows x NCols]
-            %   Mask is the processing mask [NRows x NCols]
-            %   deltaList Initial guess for the phase shifts optional
-            %   MaxIter maximum number of iterations;
-            %   epsilon error tolerance;
-            % Outputs:
-            %   zAIA   [NRows x NCols]  demodulated phasor z=m*exp(1i*phi) direct result from the AIA.
-            %   deltaListAIA [NPx1] array of calculated phase shifts, direct result from the AIA.
+            % Optional args: deltaList (default equispaced over
+            % [0, 2*pi)) initial guess for the phase shifts; MaxIter (15)
+            % max iterations; epsilon (1e-5) error tolerance.
             %
-            %REFERENCES
-            %
-            %[1] Z. Wang, B. Han, �Advanced iterative algorithm for phase extraction
-            %     of randomly phase-shifted interferograms�,Opt. Lett. 29(14), 1671-1673
-            %     (2004)
-            %
-            %   Javier Vargas, 19/10/10
-            %   AQ 10/4/2017
-            %   Copyright 2010 IOT
-            %   $ Revision: 2.0.0.0 $
-            %   $ Date: 10/4/17 $
-            
+            % Ref: Wang & Han, "Advanced iterative algorithm for phase
+            % extraction of randomly phase-shifted interferograms," Opt.
+            % Lett. 29(14), 1671-1673 (2004)
             import OM4MClassLib.Util.*
             callFunc=Logging.WhoCalledMe();
             %AQ forzar delltaList columna y ver tema varargin
