@@ -1,11 +1,12 @@
 function [ coeff ] = PolyEquivalent( order )
-%POLYEQUIVALENT Builds the matrix of coefficients of the bi-dimensional
-%polynomial equivalent to the given order Zernike term.
-%   The formula used to define the zernike polynomials in terms of
-%   cartesian polynomials is extracted from:
-%   http://www.visualopticslab.com/OPTI515L/Background/Zernike%20Notes%2017Feb2011.pdf
-%   But beware that there are errate there. The m in the convinatorial
-%   values for m<0 should be |m|.
+    % PolyEquivalent builds the matrix of coefficients of the
+    % bi-dimensional polynomial equivalent to the given order Zernike
+    % term(s) (order may be a vector, giving one page of coeff per term).
+    % The formula used to define the zernike polynomials in terms of
+    % cartesian polynomials is extracted from:
+    % http://www.visualopticslab.com/OPTI515L/Background/Zernike%20Notes%2017Feb2011.pdf
+    % But beware that there are errata there. The m in the combinatorial
+    % values for m<0 should be |m|.
     
     %Determine final matrix dimensions
     N=max(ceil((-3 + sqrt(9+8*order))/2))+1;

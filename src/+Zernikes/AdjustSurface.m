@@ -1,7 +1,12 @@
 function [ Zcoef, CMatrix, J, Jcv] = AdjustSurface( X,Y,Z, Zorder, CVRatio, classif)
-%ADJUSTSURFACE Use a least square fit to find the coefficients that
-%describe the Zernike polynomial that best adjust the given cloud of points
-%   Detailed explanation goes here
+    % AdjustSurface least-squares fits Zernike coefficients Zcoef (up to
+    % Zorder) to the point cloud (X,Y,Z), normalizing by the point-cloud
+    % radius; also returns CMatrix (the equivalent XY-polynomial
+    % coefficients, denormalized via Zernikes.GetScaling), the training
+    % fit error J and the cross-validation error Jcv (using the last
+    % CVRatio fraction of points, after a random permutation).
+    % classif is accepted but currently unused (see the commented-out
+    % classif.Train/GetTheta alternative to RegresionByNormalEqn below)
 
     import Zernikes.*;
     % Check input parameters 
