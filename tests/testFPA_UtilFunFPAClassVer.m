@@ -4564,6 +4564,10 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
         end
 
         function testDemIQTShadowMoire(testCase)
+            % testDemIQTShadowMoire repeats
+            % testDemIQTSignalTapaWithDirection's visual check of
+            % UtilFunFPA.DemIQT (default settings) on a real
+            % shadow-moire defect fixture image with an all-ones mask
             %run(testFPA_UtilFunFPAClassVer, 'testDemIQTShadowMoire')
             close all
             iptsetpref('ImshowBorder','tight');
@@ -4660,6 +4664,12 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
         end
 
         function testDemPSAsync5TunOrientedShadowMoire(testCase)
+            % testDemPSAsync5TunOrientedShadowMoire visually checks
+            % UtilFunFPA.DemPSAsync5TunOriented demodulates a real
+            % shadow-moire defect fixture image in both the horizontal
+            % and vertical directions, then combines them into an XY
+            % phase using both UtilFunFPA.OrMinDer's orientation and
+            % UtilFunFPA.calcDirection's resolved direction
             %run(testFPA_UtilFunFPAClassVer, 'testDemPSAsync5TunOrientedShadowMoire')
             g=double((imread('shadowMoireDefect_01.tif')));
             gm=ones(size(g));
@@ -4708,6 +4718,10 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
         end
 
         function testDemAsync5TunOriented1DSignal(testCase)
+            % testDemAsync5TunOriented1DSignal checks
+            % UtilFunFPA.DemPSAsync5TunOriented recovers a synthetic 1D
+            % row-vector phase ramp within tolerance, and errors with
+            % the expected message when given a column-vector signal
             %run(testFPA_UtilFunFPAClassVer, 'testDemAsync5TunOriented1DSignal')
             import OM4MClassLib.Util.*;
             fprintf('\n%s: ',Logging.WhoCalledMe());
@@ -4740,6 +4754,11 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
         end
 
         function testDemAsync5TunShadowMoire(testCase)
+            % testDemAsync5TunShadowMoire visually checks
+            % UtilFunFPA.DemAsinc5Tun (spatially-tuned demodulation) on
+            % a real shadow-moire defect fixture image, including its
+            % phase/modulation/decimation-level maps and unwrapping via
+            % UnwrapperFactory(FlynMd)
             %run(testFPA_UtilFunFPAClassVer, 'testDemAsync5TunShadowMoire')
             import OM4MClassLib.Util.*;
             fprintf('\n%s: ',Logging.WhoCalledMe());
@@ -4774,6 +4793,12 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
         end
 
         function testDemPSAsync5TunOrientedMiract(testCase)
+            % testDemPSAsync5TunOrientedMiract repeats
+            % testDemPSAsync5TunOrientedShadowMoire's visual check of
+            % UtilFunFPA.DemPSAsync5TunOriented (horizontal/vertical,
+            % combined via orientation and direction) on a real Miract
+            % fixture image, additionally unwrapping the
+            % direction-combined phase via UnwrapperFactory(FlynMd)
             %run(testFPA_UtilFunFPAClassVer, 'testDemPSAsync5TunOrientedMiract')
             import OM4MClassLib.Util.*;
             fprintf('\n%s: ',Logging.WhoCalledMe());
@@ -4839,6 +4864,10 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
         end
 
         function testDemAsync5TunMiract(testCase)
+            % testDemAsync5TunMiract repeats
+            % testDemAsync5TunShadowMoire's visual check of
+            % UtilFunFPA.DemAsinc5Tun on a real Miract fixture image
+            % with its fixture mask
             %run(testFPA_UtilFunFPAClassVer, 'testDemAsync5TunMiract')
             import OM4MClassLib.Util.*;
             fprintf('\n%s: ',Logging.WhoCalledMe());
@@ -4873,6 +4902,10 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
         end
 
         function testDemAsync5TunDisk(testCase)
+            % testDemAsync5TunDisk repeats testDemAsync5TunShadowMoire's
+            % visual check of UtilFunFPA.DemAsinc5Tun on a real
+            % "Delta7DisNa" fixture image (red channel) with its
+            % fixture mask
             %run(testFPA_UtilFunFPAClassVer, 'testDemAsync5TunDisk')
             import OM4MClassLib.Util.*;
             fprintf('\n%s: ',Logging.WhoCalledMe());
@@ -4907,6 +4940,12 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
         end
 
         function testHomography_solve(testCase)
+            % testHomography_solve checks UtilFunFPA.homography_solve
+            % and UtilFunFPA.homography_transform recover the identity,
+            % an exact affine, and (approximately) a non-linear
+            % point-to-point mapping, including inverse-homography
+            % round trips, visually plotting original vs. transformed
+            % points for each case
             %run(testFPA_UtilFunFPAClassVer, 'testHomography_solve')
             % here we show how the function homography solve workd
             % the funcion was downloaded from
@@ -5024,6 +5063,11 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
         % moved to the Hardware methods block below.
 
         function testLimitsGV4LinearResponse(testCase)
+            % testLimitsGV4LinearResponse visually checks
+            % UtilFunFPA.LinLUTGV's response curve, using a real
+            % camera-vs-monitor gray-value response fixture recorded by
+            % the Hardware-tagged testCalculateResponseFromImages, with
+            % no camera needed at test time
             %run(testFPA_UtilFunFPAClassVer, 'testLimitsGV4LinearResponse')
 
             %Este test verifica la respuesta lineal sin necesidad de emplear la
@@ -5076,6 +5120,10 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
         end
 
         function testArgumentsLinLUTGV(testCase)
+            % testArgumentsLinLUTGV checks UtilFunFPA.LinLUTGV echoes
+            % back its 'D' name-value argument and errors with
+            % MATLAB:validators:mustBeNumeric for a non-numeric 'D'
+            % value or a non-numeric uvs input
             %run(testFPA_UtilFunFPAClassVer, 'testArgumentsLinLUTGV')
 
             dropboxFolder=fixturesRoot();
@@ -5093,6 +5141,10 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
         end
 
         function testFigLimitsGV4LinearResponse(testCase)
+            % testFigLimitsGV4LinearResponse repeats
+            % testLimitsGV4LinearResponse's UtilFunFPA.LinLUTGV
+            % calculation on the same fixture, plotting its response
+            % curves via figurasLin's TFM-report figure helpers instead
             %run(testFPA_UtilFunFPAClassVer, 'testFigLimitsGV4LinearResponse')
             %Test que emplea los datos ImgGV_5_bad1 para D = 2 para crear graficas de
             %la respuesta lineal para emplearlas en el TFM de VdH. Usa figurasLin
@@ -5133,6 +5185,11 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
         % all drive a real camera (imaqCam) and/or a real projector display.
 
         function testImages(testCase)
+            % testImages runs testLimitsGV4LinearResponse,
+            % testFigLimitsGV4LinearResponse, testFigFFTLinGV and
+            % testCalculatePowerWithCorrectionFromLMMfile in sequence,
+            % pausing for a keypress between each, to generate all the
+            % VdH TFM report figures in one pass
             %run(testFPA_UtilFunFPAClassVer, 'testImages')
             %test para ejecutar todos los test que generan imagenes para el
             %TFM de VdH
