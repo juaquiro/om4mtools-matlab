@@ -1,4 +1,6 @@
 classdef testFPADemodulatorGCPSA < matlab.unittest.TestCase
+    % testFPADemodulatorGCPSA tests DemodulatorGCPSA (Gray-code +
+    % phase-shifting hybrid absolute-phase demodulation)
     %run(testFPADemodulatorGCPSA)
     
     methods(TestMethodSetup)
@@ -18,6 +20,9 @@ classdef testFPADemodulatorGCPSA < matlab.unittest.TestCase
     
     methods (Test)
         function testAllDemodulatorsConstructors(testCase)
+            % testAllDemodulatorsConstructors builds every DemodulatorTypes
+            % variant via the factory and checks every DemodulatorProps
+            % Get() call succeeds
             %run(testFPADemodulatorGCPSA, 'testAllDemodulatorsConstructors')
             import OM4MClassLib.Util.*;
             fprintf('\ntest %s...\n ',Logging.WhoCalledMe());
@@ -40,6 +45,10 @@ classdef testFPADemodulatorGCPSA < matlab.unittest.TestCase
         
         
         function testConstructor(testCase)
+            % testConstructor checks DemodulatorGCPSA's default inner
+            % demodulators (PSADemodulator/GCDemodulator), how
+            % AbsolutePhasePSADemType swaps the inner PSA demodulator
+            % class, and its default properties
             %run(testFPADemodulatorGCPSA, 'testConstructor')
             import OM4MClassLib.Util.*;
             fprintf('\ntest %s...\n ',Logging.WhoCalledMe());
@@ -91,6 +100,10 @@ classdef testFPADemodulatorGCPSA < matlab.unittest.TestCase
         
         
         function testGenFPsAndProcess(testCase)
+            % testGenFPsAndProcess generates GCPSA patterns for both scan
+            % directions, processes them (optionally simulating a noisy
+            % capture) and checks the phasor/phase/order/visibility
+            % outputs have the expected real/complex types
             %run(testFPADemodulatorGCPSA,'testGenFPsAndProcess')
             %se incluye posible binarizacion
             import OM4MClassLib.Util.*;
@@ -181,6 +194,10 @@ classdef testFPADemodulatorGCPSA < matlab.unittest.TestCase
         
         
         function testGenFPsAndProcessWithMatlabProjector(testCase)
+            % testGenFPsAndProcessWithMatlabProjector repeats
+            % testGenFPsAndProcess but displays each GCPSA pattern on a
+            % real Matlab-figure "projector" (DisplayFactory) before
+            % processing
             %run(testFPADemodulatorGCPSA,'testGenFPsAndProcessWithMatlabProjector')
             %show the FP generation and the use of a proyector
             import OM4MClassLib.Util.*;
@@ -253,6 +270,11 @@ classdef testFPADemodulatorGCPSA < matlab.unittest.TestCase
         
         
         function testGenFPsAndProcessWithProjectorDLLC(testCase)
+            % testGenFPsAndProcessWithProjectorDLLC is the same as
+            % testGenFPsAndProcessWithMatlabProjector (larger Tx/Ty).
+            %  Note: despite its name, the DisplayTypes.CDLL (DLL-backed)
+            % projector line is commented out - it currently uses
+            % DisplayTypes.Matlab like the other projector test.
             %run(testFPADemodulatorGCPSA,'testGenFPsAndProcessWithProjectorDLLC')
             %show the FP generation and the use of a proyector
             import OM4MClassLib.Util.*;

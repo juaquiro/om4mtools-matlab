@@ -1,4 +1,6 @@
 classdef testFFVCalibration < matlab.unittest.TestCase
+    % testFFVCalibration tests LensMapperMeasurement's Full Field
+    % Videokeratoscopy calibration (CalculateLensPower/Calibrate)
     %run(testFFVCalibration)
     
     methods(TestMethodSetup)
@@ -18,6 +20,10 @@ classdef testFFVCalibration < matlab.unittest.TestCase
     
     methods (Test)
         function testCalibrateFromLMMs(testCase)
+            % testCalibrateFromLMMs demodulates 5 real Moire
+            % LensMapperMeasurement fixtures (FT demodulator) and derives
+            % a scalar K calibration factor per lens from its known
+            % nominal power, for visual inspection
             %run(testFFVCalibration, 'testCalibrateFromLMMs')
             import OM4MClassLib.Util.*;
             fprintf('\ntest %s...\n ',Logging.WhoCalledMe());
@@ -137,6 +143,10 @@ classdef testFFVCalibration < matlab.unittest.TestCase
         end
         
         function testPolinomicalCalibrationFromLMMs(testCase)
+            % testPolinomicalCalibrationFromLMMs calibrates a set of 6
+            % real LensMapperMeasurement fixtures (2/5/10/-2/-5/-10D) via
+            % LMM.Calibrate and checks the recalibrated measured power
+            % matches each lens' nominal power within tolerance
             %run(testFFVCalibration, 'testPolinomicalCalibrationFromLMMs')
             import OM4MClassLib.Util.*;
             fprintf('\ntest %s...\n ',Logging.WhoCalledMe());
@@ -204,6 +214,10 @@ classdef testFFVCalibration < matlab.unittest.TestCase
         end
         
         function testPolinomicalCalibrationFromLMMsV2(testCase)
+            % testPolinomicalCalibrationFromLMMsV2 repeats
+            % testPolinomicalCalibrationFromLMMs but recalibrates twice
+            % (applying the first K before computing a second K, Pm,
+            % Pnom) and checks the same power-vs-nominal tolerance
             %run(testFFVCalibration, 'testPolinomicalCalibrationFromLMMsV2')
             import OM4MClassLib.Util.*;
             fprintf('\ntest %s...\n ',Logging.WhoCalledMe());
@@ -263,6 +277,9 @@ classdef testFFVCalibration < matlab.unittest.TestCase
         end
         
         function testCalibration2TimesAndRecal(testCase)
+            % testCalibration2TimesAndRecal checks that recalibrating
+            % with an already-applied K1 yields a second calibration K2
+            % whose last two (linear) coefficients are ~[1 1]
             %run(testFFVCalibration, 'testCalibration2TimesAndRecal')
             import OM4MClassLib.Util.*;
             fprintf('\ntest %s...\n ',Logging.WhoCalledMe());
@@ -317,6 +334,8 @@ classdef testFFVCalibration < matlab.unittest.TestCase
         
         
         function testCalibration2Times(testCase)
+            % testCalibration2Times checks LMM.Calibrate is deterministic:
+            % calling it twice on the same LMMList gives identical K
             %run(testFFVCalibration, 'testCalibration2Times')
             import OM4MClassLib.Util.*;
             fprintf('\ntest %s...\n ',Logging.WhoCalledMe());
