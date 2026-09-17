@@ -1,4 +1,5 @@
 classdef testMLClassifierSVM < matlab.unittest.TestCase
+    % testMLClassifierSVM tests ClassifierSVM
     %before running the tests
     methods(TestMethodSetup)
         function SetUp(testCase)
@@ -18,14 +19,17 @@ classdef testMLClassifierSVM < matlab.unittest.TestCase
     methods (Test)
         
         function testConstructor(testCase)
-            
+            % testConstructor checks ClassifierSVM's flags (supervised,
+            % non-regression), default props (lambda, KFp, featureType)
+            % and featureType validation on Set
+
             import OM4MClassLib.Util.*;
-            
+
             fprintf('\n%s: ',Logging.WhoCalledMe());
-            
-            
+
+
             c=ClassifierFactory.Create(ClassifierTypes.SVM);
-            
+
             %this is a supervised classfier
             testCase.assertTrue(c.isSupervised);
             
@@ -73,6 +77,10 @@ classdef testMLClassifierSVM < matlab.unittest.TestCase
         
         
         function testTrainDigits(testCase)
+            % testTrainDigits trains ClassifierSVM on the Coursera
+            % ex3data1 (digits) dataset, checks cost/F1/precision/
+            % recall/accuracy against reference values, and checks the
+            % feature-count mismatch error on Predict
             %example form ex3.m of the ML course
             
             import OM4MClassLib.Util.*;
@@ -136,6 +144,9 @@ classdef testMLClassifierSVM < matlab.unittest.TestCase
         
         
         function testLearningCurve(testCase)
+            % testLearningCurve plots UtilFunML.learningCurve's train/CV
+            % error and per-class F1 vs sample count on a decimated
+            % Coursera ex3data1 dataset
             %example form ex3.m of the ML course
             
             import OM4MClassLib.Util.*;
@@ -193,6 +204,9 @@ classdef testMLClassifierSVM < matlab.unittest.TestCase
         
         
         function testLearningCurve2(testCase)
+            % testLearningCurve2 plots UtilFunML.learningCurve's train/CV
+            % error and per-class F1/precision/recall vs sample count on
+            % the raw Coursera ex2data2 (microchip QA) dataset
             %example form ex2.m of the ML course
             
             import OM4MClassLib.Util.*;
@@ -251,12 +265,18 @@ classdef testMLClassifierSVM < matlab.unittest.TestCase
         
         
         function testValidationCurve2(testCase)
+            % testValidationCurve2 plots UtilFunML.validationCurve's
+            % train/CV error vs C (the lambda prop) on the raw Coursera
+            % ex2data2 dataset.
+            %  Note: despite testing ClassifierSVM elsewhere in this
+            % file, this method builds a ClassifierTypes.LogR classifier
+            % instead.
             %example form ex2.m of the ML course
-            
+
             import OM4MClassLib.Util.*;
-            
+
             fprintf('\n%s: ',Logging.WhoCalledMe());
-            
+
             c=ClassifierFactory.Create(ClassifierTypes.LogR);
             
             data = load(fullfile(fixturesRoot(), 'CourseraMLData', 'ex2data2.txt'));
@@ -288,6 +308,9 @@ classdef testMLClassifierSVM < matlab.unittest.TestCase
         
         
         function testTrainChips(testCase)
+            % testTrainChips trains ClassifierSVM on the raw Coursera
+            % ex2data2 (microchip QA) dataset (showplot enabled) and
+            % checks cost/F1/precision/recall against reference values
             %example form ex2.m of the ML course
             
             import OM4MClassLib.Util.*;
@@ -327,6 +350,11 @@ classdef testMLClassifierSVM < matlab.unittest.TestCase
         
         
         function testLearningCurveLensesIOT(testCase)
+            % testLearningCurveLensesIOT plots UtilFunML.learningCurve's
+            % train/CV error and per-class F1/precision/recall vs sample
+            % count on real lens QC features (DPMMeStd feature set,
+            % loaded via TrainingDataLoader); the commented-out tail
+            % would train and save a classifier for use in extGnG
             %AQAQDEBUG este test preparar un clasificador SVM para provar en el extGnG
             %mtest testML_ClassifierSVM:testLearningCurveLensesIOT
             
@@ -406,6 +434,12 @@ classdef testMLClassifierSVM < matlab.unittest.TestCase
         
         
         function testTrainingEx6data2Normalization(testCase)
+            % testTrainingEx6data2Normalization visually trains
+            % ClassifierSVM on ex6data2 (with one feature column scaled
+            % down by 1e-6) twice, both times with normalize=true.
+            %  Note: the comments say "first with normalization" /
+            % "second without normalization", but both calls actually
+            % set ClassifierProps.normalize to true.
             import OM4MClassLib.Util.*;
             
             fprintf('\n%s: ',Logging.WhoCalledMe());
@@ -436,6 +470,9 @@ classdef testMLClassifierSVM < matlab.unittest.TestCase
         
         
         function testTrainingEx6data2PostProb(testCase)
+            % testTrainingEx6data2PostProb trains ClassifierSVM on the
+            % raw ex6data2 dataset and visually inspects the predicted
+            % class and posterior probability over a grid
             import OM4MClassLib.Util.*;
             
             fprintf('\n%s: ',Logging.WhoCalledMe());
@@ -472,17 +509,20 @@ classdef testMLClassifierSVM < matlab.unittest.TestCase
         
         
         function testTrainingex2data2PostProb(testCase)
+            % testTrainingex2data2PostProb trains ClassifierSVM on the
+            % raw Coursera ex2data2 dataset and visually inspects the
+            % predicted class and posterior probability over a grid
             import OM4MClassLib.Util.*;
-            
+
             fprintf('\n%s: ',Logging.WhoCalledMe());
-            
+
             c=ClassifierFactory.Create(ClassifierTypes.SVM);
-            
+
             data = load(fullfile(fixturesRoot(), 'CourseraMLData', 'ex2data2.txt'));
             X = data(:, [1, 2]); y = data(:, 3);
-            
+
             y=y+1;
-            
+
             C = 1;
             sigma=1;
             c.Set(char(ClassifierProps.lambda), C);
@@ -503,9 +543,15 @@ classdef testMLClassifierSVM < matlab.unittest.TestCase
         end
         
         
-        % Create and train a ClassifierSVN, then save it to a .mat file, load this
-        % file and obtain and make a prediction
         function testSaveAndLoad(testCase)
+            % testSaveAndLoad trains ClassifierSVM on the raw Coursera
+            % ex2data2 dataset, saves it via the static Classifier.load
+            % (base-class) API and checks predictions are unchanged.
+            %  Note: saves to 'ClassifierSVM_test.mat' but loads from
+            % 'classifierSVM_test' (different case) - only works on a
+            % case-insensitive filesystem (e.g. Windows).
+            % Create and train a ClassifierSVN, then save it to a .mat file, load this
+            % file and obtain and make a prediction
             %mtest testML_ClassifierSVM:testSaveAndLoad
             %example form ex3.m of the ML course
             
