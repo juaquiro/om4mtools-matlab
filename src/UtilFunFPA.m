@@ -1428,23 +1428,19 @@ classdef UtilFunFPA
         
         
         
-        % ======================================================================
-        %> @brief LSDemod least squares demodulation using N delta steps with known values
-        %> @details @see FPA book and Z. Wang, B. Han, �Advanced iterative algorithm for phase extraction of randomly phase-shifted interferograms�,Opt. Lett. 29(14), 1671-1673
-        %> @copyright 2010 IOT
-        %> @author JV, 19/10/10
-        %> @author AQ 10/4/2017
-        %> @param FPList  1xNFP list of fringe patterns of [NRows x NCols]
-        %> @param Mask is the processing mask [NRows x NCols] the phasor z is only calculated at M==true,
-        %> it is used mainly for accelerate the calculation process. If mask is M==[] then
-        %> M=ones() is used and all points are procesed
-        %> @param deltaList phase shift values
-        %> @param varargin optional params onlyModFlag (false) flag for
-        %> computing only the modulation and no phase
-        %> @retval zLS   [NRows x NCols]  demodulated phasor z=m*exp(1i*phi)
-        % ======================================================================
         function [zLS] = LSDemod(FPList, Mask, deltaList, varargin)
-            
+            % LSDemod least-squares demodulation of FPList using N known
+            % phase-shift steps (deltaList, a column vector), returning
+            % phasor zLS=m*exp(1i*phi). Mask restricts (and speeds up)
+            % the calculation to M==true points; use Mask=[] to process
+            % all points.
+            %
+            % Optional args: onlyModFlag (false) compute only the
+            % modulation, skipping the phase.
+            %
+            % See the FPA book, and Wang & Han, "Advanced iterative
+            % algorithm for phase extraction of randomly phase-shifted
+            % interferograms," Opt. Lett. 29(14), 1671-1673 (2004)
             import OM4MClassLib.Util.*
             callFunc=Logging.WhoCalledMe();
             
@@ -1547,28 +1543,17 @@ classdef UtilFunFPA
         
         
         function [z] = LSDemodEquispaced(FPList, Mask, deltaList4check, varargin)
-            
-            % Matlab implementation of the LS demodulation with equispaced [0 2pi] steps shown the
-            % FPA book eq 2.41
+            % LSDemodEquispaced least-squares demodulation of FPList for
+            % N equispaced phase-shift steps over [0, 2*pi) (FPA book eq.
+            % 2.41), via the sum-of-sin/cos closed form (normalized by
+            % 2/N so modulation doesn't depend on the number of steps -
+            % see Deflectometry.docx). deltaList4check is only used to
+            % verify the steps are actually equispaced as expected
+            % (errors otherwise); Mask restricts the calculation to
+            % M==true points, or all points if Mask=[].
             %
-            % INPUT:
-            %   FPList  1xNFP list of fringe patterns of [NRows x NCols]
-            %   Mask is the processing mask [NRows x NCols]
-            %   deltaList equispaced phase shifts in [0 2*pi(1-1/N)] for
-            %   checking purpouses
-            %   onlyModFlag this is logical that indicates the we only
-            %   calculate the modulation, this returning in z only the
-            %   modulation
-            % Outputs:
-            %   zLS   [NRows x NCols]  demodulated phasor z=m*exp(1i*phi) direct result from the AIA.
-            %
-            %REFERENCES
-            %
-            %   AQ 18/1/2018
-            %   Copyright 2010 IOT
-            %   $ Revision: 1.0.0.0 $
-            %   $ Date: 18/1/18 $
-            
+            % Optional args: onlyModFlag (false) compute only the
+            % modulation, skipping the phase.
             import OM4MClassLib.Util.*
             callFunc=Logging.WhoCalledMe();
             
@@ -1656,25 +1641,17 @@ classdef UtilFunFPA
         
         
         function [z] = PSA6MultiplexedXY(FPList, Mask, deltaList4check, varargin)
-            % Implementation of the 6 step XY multiplexed PSA.
+            % PSA6MultiplexedXY demodulates the 6-step XY-multiplexed PSA
+            % igrams FPList into a 1x2 cell z of X/Y phasors
+            % (z{1}=m*exp(1i*phiX), z{2}=m*exp(1i*phiY)), via fixed
+            % pairwise differences (FPList{1}-FPList{2} etc.) matching
+            % the required X/Y phase-step pattern. Mask restricts the
+            % calculation to M==true points, or all points if Mask=[].
+            % deltaList4check.X/.Y are only used to verify the steps
+            % match the required fixed pattern (errors otherwise).
             %
-            % INPUT:
-            %   FPList  1x6 list of fringe patterns of [NRows x NCols]
-            %   Mask is the processing mask [NRows x NCols]
-            %   deltaList structuire with two fields X, Y cell with 6 steps
-            %   each for checkong purpouses
-            %   onlyModFlag this is logical that indicates the we only
-            %   calculate the modulation, this returning in z only the
-            %   modulation
-            % Outputs:
-            %   z   1x2 cell with 2 [NRows x NCols] demodulated phasors z{1}=m*exp(1i*phiX) z{2}=m*exp(1i*phiY)
-            %
-            %
-            %   AQ 18/2/2019
-            %   Copyright 2010 IOT
-            %   $ Revision: 1.0.0.0 $
-            %   $ Date: 18/2/19 $
-            
+            % Optional args: onlyModFlag (false) compute only the
+            % modulation, skipping the phase.
             import OM4MClassLib.Util.*
             callFunc=Logging.WhoCalledMe();
             
