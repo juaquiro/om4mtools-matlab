@@ -1,4 +1,6 @@
 classdef testPolyval2 < matlab.unittest.TestCase
+    % testPolyval2 tests ProcessMeasure.Polyval2 against a brute-force
+    % sum-of-monomials reference implementation
     %run(testPolyval2)
     %
     % Polyval2 used to be a free-standing function; it now only survives
@@ -21,6 +23,8 @@ classdef testPolyval2 < matlab.unittest.TestCase
     methods(Test)
 
         function testSinglePoint(testCase) %#ok<*DEFNU>
+            % testSinglePoint checks Polyval2 at one random (X,Y) point
+            % against a brute-force double sum of C(i,j)*X^(i-1)*Y^(j-1)
             import Zernikes.*;
 
             X=rand();
@@ -40,6 +44,8 @@ classdef testPolyval2 < matlab.unittest.TestCase
         end
         
         function testVector(testCase)
+            % testVector checks Polyval2 on a vector of (X,Y) points
+            % against the same brute-force reference, point by point
 
             import Zernikes.*;
 

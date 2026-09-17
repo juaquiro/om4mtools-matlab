@@ -1,4 +1,6 @@
 classdef testPolyEquivalent < matlab.unittest.TestCase
+    % testPolyEquivalent tests Zernikes.PolyEquivalent against hardcoded
+    % expected coefficient matrices for orders 0:5
     %run(testPolyEquivalent)
 
     methods(TestMethodSetup)
@@ -15,6 +17,8 @@ classdef testPolyEquivalent < matlab.unittest.TestCase
 
     methods(Test)
         function testSingleOrder(testCase) %#ok<*DEFNU>
+            % testSingleOrder checks PolyEquivalent(order) for each
+            % order 0:5 called individually
             import Zernikes.*;
 
             expectedCoeffs={1,[0 1; 0 0],[0 0; 1 0], [0 0 0; 0 2 0; 0 0 0],...
@@ -40,6 +44,8 @@ classdef testPolyEquivalent < matlab.unittest.TestCase
         end
         
         function testVector(testCase)
+            % testVector checks PolyEquivalent(orderList) called once
+            % with the vector 0:5 matches the same expected coefficients
             import Zernikes.*;
 
             expectedCoeffs={1,[0 1; 0 0],[0 0; 1 0], [0 0 0; 0 2 0; 0 0 0],...

@@ -1,5 +1,5 @@
 classdef testJsonlabRoundTrip < matlab.unittest.TestCase
-    %TESTJSONLABROUNDTRIP round-trip regression tests for loadjson/savejson
+    % testJsonlabRoundTrip round-trip regression tests for loadjson/savejson
     %and loadubjson/saveubjson against real-world JSON samples.
     %
     %Adapted from jsonlab's own examples/jsonlab_selftest.m (which only
@@ -23,6 +23,9 @@ classdef testJsonlabRoundTrip < matlab.unittest.TestCase
 
     methods (Test)
         function testJsonRoundTrip(testCase, exampleFile)
+            % testJsonRoundTrip checks savejson(loadjson(exampleFile))
+            % round-trips back to the same value (example4.json is
+            % expected to fail, see the assumeFail below)
             original = loadjson(fullfile(fixturesRoot(), exampleFile));
 
             if strcmp(exampleFile, 'example4.json')
@@ -54,6 +57,10 @@ classdef testJsonlabRoundTrip < matlab.unittest.TestCase
         end
 
         function testUbjsonRoundTrip(testCase, exampleFile)
+            % testUbjsonRoundTrip checks
+            % saveubjson(loadjson(exampleFile)) round-trips back to the
+            % same value (after normalizing UBJSON's compact integer
+            % types back to double)
             original = loadjson(fullfile(fixturesRoot(), exampleFile));
 
             ubj = saveubjson('', original);
@@ -69,6 +76,8 @@ classdef testJsonlabRoundTrip < matlab.unittest.TestCase
 
     methods (Static, Access = private)
         function out = normalizeNumericClasses(value)
+            % normalizeNumericClasses recursively casts every non-double
+            % numeric value inside value (struct/cell/array) to double
             if isstruct(value)
                 out = value;
                 fn = fieldnames(value);
