@@ -1,4 +1,6 @@
 classdef testFPADemodulatorGC < matlab.unittest.TestCase
+    % testFPADemodulatorGC tests DemodulatorGC (Gray-code fringe order
+    % demodulation)
     %run(testFPADemodulatorGC)
     
     methods(TestMethodSetup)
@@ -18,6 +20,9 @@ classdef testFPADemodulatorGC < matlab.unittest.TestCase
     
     methods (Test)
         function testAllDemodulatorsConstructors(testCase)
+            % testAllDemodulatorsConstructors builds every DemodulatorTypes
+            % variant via the factory and checks every DemodulatorProps
+            % Get() call succeeds
             %run(testFPADemodulatorGC, 'testAllDemodulatorsConstructors')
             import OM4MClassLib.Util.*;
             fprintf('\ntest %s...\n ',Logging.WhoCalledMe());
@@ -40,6 +45,8 @@ classdef testFPADemodulatorGC < matlab.unittest.TestCase
         
         
         function testConstructor(testCase)
+            % testConstructor checks DemodulatorGC's default properties
+            % (Tx, Ty, NIgrams, deltaList, biasFP, modFP)
             %run(testFPADemodulatorGC, 'testConstructor')
             import OM4MClassLib.Util.*;
             fprintf('\ntest %s...\n ',Logging.WhoCalledMe());
@@ -70,6 +77,10 @@ classdef testFPADemodulatorGC < matlab.unittest.TestCase
         
         
         function testGenFPsAndProcess(testCase)
+            % testGenFPsAndProcess generates Gray-code patterns for both
+            % scan directions, simulates a noisy capture (modulation,
+            % bias, non-linearity) and visually inspects the demodulated
+            % fringe order and visibility maps
             %run(testFPADemodulatorGC,'testGenFPsAndProcess')
             import OM4MClassLib.Util.*;
             fprintf('\ntest %s...\n ',Logging.WhoCalledMe());
@@ -140,6 +151,10 @@ classdef testFPADemodulatorGC < matlab.unittest.TestCase
         end
         
         function testGenFPsAndProcessWithProyector(testCase)
+            % testGenFPsAndProcessWithProyector repeats
+            % testGenFPsAndProcess but displays each Gray-code pattern
+            % on a real Matlab-figure "projector" (DisplayFactory) before
+            % simulating its noisy capture and demodulating
             %run(testFPADemodulatorGC,'testGenFPsAndProcessWithProyector')
             import OM4MClassLib.Util.*;
             fprintf('\ntest %s...\n ',Logging.WhoCalledMe());

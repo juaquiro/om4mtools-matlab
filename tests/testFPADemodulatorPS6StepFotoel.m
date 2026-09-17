@@ -1,4 +1,7 @@
 classdef testFPADemodulatorPS6StepFotoel < matlab.unittest.TestCase
+    % testFPADemodulatorPS6StepFotoel tests the photoelastic
+    % isoclinic-angle + retardation measurement chain (DemodulatorTypes.
+    % TimePSA + DemodulatorTypes.RetarPSA6Step)
     %run(testFPADemodulatorPS6StepFotoel)
     
     methods(TestMethodSetup)
@@ -18,6 +21,9 @@ classdef testFPADemodulatorPS6StepFotoel < matlab.unittest.TestCase
     
     methods (Test)
         function testAllDemodulatorsConstructors(testCase)
+            % testAllDemodulatorsConstructors builds every DemodulatorTypes
+            % variant via the factory and checks every DemodulatorProps
+            % Get() call succeeds
             %run(testFPADemodulatorPS6StepFotoel, 'testAllDemodulatorsConstructors')
             import OM4MClassLib.Util.*;
             fprintf('\ntest %s...\n ',Logging.WhoCalledMe());
@@ -39,6 +45,11 @@ classdef testFPADemodulatorPS6StepFotoel < matlab.unittest.TestCase
         end
         
         function testDemodRetarSimulImages(testCase)
+            % testDemodRetarSimulImages runs the full isoclinic angle +
+            % retardation chain on synthetic fringe patterns for a
+            % teoretical loaded-disk stress distribution
+            % (UtilFunFPA.StressDisk), unwrapping 2*alpha and delta and
+            % comparing the measured maps against the theoretical ones
             %run(testFPADemodulatorPS6StepFotoel, 'testDemodRetarSimulImages')
             import OM4MClassLib.Util.*;
             fprintf('\ntest %s...\n ',Logging.WhoCalledMe());
@@ -138,6 +149,10 @@ classdef testFPADemodulatorPS6StepFotoel < matlab.unittest.TestCase
         end
         
         function testDemodRetarDisk(testCase)
+            % testDemodRetarDisk runs the isoclinic angle + retardation
+            % chain on real acquired fringe patterns of a loaded disk
+            % (DiscoPolariscopio fixtures) and unwraps the measured
+            % retardation
             %run(testFPADemodulatorPS6StepFotoel, 'testDemodRetarDisk')
             import OM4MClassLib.Util.*;
             fprintf('\ntest %s...\n ',Logging.WhoCalledMe());
@@ -249,6 +264,9 @@ classdef testFPADemodulatorPS6StepFotoel < matlab.unittest.TestCase
         
         
         function testDemodRetarRing(testCase)
+            % testDemodRetarRing repeats testDemodRetarDisk's isoclinic
+            % angle + retardation chain on real acquired fringe patterns
+            % of a loaded ring (AnilloPolariscopio fixtures)
             %run(testFPADemodulatorPS6StepFotoel, 'testDemodRetarRing')
             import OM4MClassLib.Util.*;
             fprintf('\ntest %s...\n ',Logging.WhoCalledMe());
