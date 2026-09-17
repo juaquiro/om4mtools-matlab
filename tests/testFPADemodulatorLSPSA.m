@@ -1,4 +1,6 @@
 classdef testFPADemodulatorLSPSA < matlab.unittest.TestCase
+    % testFPADemodulatorLSPSA tests DemodulatorLSPSA (least-squares
+    % arbitrary-step phase-shifting demodulation)
     %run(testFPADemodulatorLSPSA)
     
     methods(TestMethodSetup)
@@ -18,6 +20,9 @@ classdef testFPADemodulatorLSPSA < matlab.unittest.TestCase
     
     methods (Test)
         function testAllDemodulatorsConstructors(testCase)
+            % testAllDemodulatorsConstructors builds every DemodulatorTypes
+            % variant via the factory and checks every DemodulatorProps
+            % Get() call succeeds
             %run(testFPADemodulatorLSPSA, 'testAllDemodulatorsConstructors')
             import OM4MClassLib.Util.*;
             fprintf('\ntest %s...\n ',Logging.WhoCalledMe());
@@ -40,6 +45,9 @@ classdef testFPADemodulatorLSPSA < matlab.unittest.TestCase
         
         
         function testConstructor(testCase)
+            % testConstructor checks DemodulatorLSPSA's default Tx/
+            % NIgrams/deltaList, and that changing NIgrams recomputes
+            % deltaList as equispaced steps
             %run(testFPADemodulatorLSPSA, 'testConstructor')
             import OM4MClassLib.Util.*;
             fprintf('\ntest %s...\n ',Logging.WhoCalledMe());
@@ -70,6 +78,9 @@ classdef testFPADemodulatorLSPSA < matlab.unittest.TestCase
         
         
         function testGenFPsWithBiasAndMod(testCase)
+            % testGenFPsWithBiasAndMod checks GenerateFPs' output GV
+            % range follows biasFP/modFP (default, reduced modFP, shifted
+            % biasFP, and a modFP large enough to clip against [0,255])
             %run(testFPADemodulatorLSPSA,'testGenFPsWithBiasAndMod')
             import OM4MClassLib.Util.*;
             fprintf('\ntest %s...\n ',Logging.WhoCalledMe());
@@ -125,6 +136,9 @@ classdef testFPADemodulatorLSPSA < matlab.unittest.TestCase
         
         
         function testGenShape(testCase)
+            % testGenShape checks d.shape=1 makes GenerateFPs produce a
+            % square wave (constant +/-127.5 offset from bias) instead
+            % of the default sine wave
             %run(testFPADemodulatorLSPSA,'testGenShape')
             import OM4MClassLib.Util.*;
             fprintf('\ntest %s...\n ',Logging.WhoCalledMe());
@@ -155,6 +169,8 @@ classdef testFPADemodulatorLSPSA < matlab.unittest.TestCase
         
         
         function testGenSteps(testCase)
+            % testGenSteps checks GetStepValues() matches deltaList
+            % rescaled by StepsTwoPwiRange
             %run(testFPADemodulatorLSPSA,'testGenSteps')
             import OM4MClassLib.Util.*;
             fprintf('\ntest %s...\n ',Logging.WhoCalledMe());
@@ -175,6 +191,8 @@ classdef testFPADemodulatorLSPSA < matlab.unittest.TestCase
         
         
         function testSetNSteps(testCase)
+            % testSetNSteps checks setting an arbitrary deltaList
+            % directly round-trips through Get unchanged
             %run(testFPADemodulatorLSPSA,'testSetNSteps')
             import OM4MClassLib.Util.*;
             fprintf('\ntest %s...\n ',Logging.WhoCalledMe());
@@ -195,6 +213,12 @@ classdef testFPADemodulatorLSPSA < matlab.unittest.TestCase
         
         
         function testGenFPsAndProcess(testCase)
+            % testGenFPsAndProcess generates and processes 6-step
+            % patterns for both scan directions, checking the phase
+            % gradient is ~0 along the constant-phase direction and
+            % visually comparing the recovered directional derivative
+            % (phaseGradientDirect) histogram against the known ground
+            % truth spatial frequency
             %run(testFPADemodulatorLSPSA,'testGenFPsAndProcess')
             %se incluye posible binarizacion
             import OM4MClassLib.Util.*;
@@ -303,6 +327,9 @@ classdef testFPADemodulatorLSPSA < matlab.unittest.TestCase
         
         
         function testGenFPsAndProcessOnlyModulation(testCase)
+            % testGenFPsAndProcessOnlyModulation repeats
+            % testGenFPsAndProcess with onlyModFlag=true, checking the
+            % output is real (modulation only, no phase)
             %run(testFPADemodulatorLSPSA,'testGenFPsAndProcessOnlyModulation')
             %se incluye posible binarizacion
             %aqui solo se calcula la modulacion
@@ -380,6 +407,11 @@ classdef testFPADemodulatorLSPSA < matlab.unittest.TestCase
         end
         
         function testGenFPsAndProcessWithProjector(testCase)
+            % testGenFPsAndProcessWithProjector generates 4-5-step
+            % patterns (explicit deltaList) for both scan directions,
+            % displays them on a real DisplayProjector, and checks the
+            % recovered phase gradient is ~0 along each constant-phase
+            % direction
             %run(testFPADemodulatorLSPSA,'testGenFPsAndProcessWithProjector')
             import OM4MClassLib.Util.*;
             fprintf('\ntest %s...\n ',Logging.WhoCalledMe());
