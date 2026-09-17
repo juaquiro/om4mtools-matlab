@@ -1,4 +1,7 @@
 classdef testFPADemodulatorSpatialFT < matlab.unittest.TestCase
+    % testFPADemodulatorSpatialFT tests DemodulatorFT (spatial Fourier
+    % Transform demodulation, sidelobe filtering) and its use for FFV
+    % Moire deflectometry (feeding LensMapperMeasurement)
     %run(testFPADemodulatorSpatialFT)
     
     methods(TestMethodSetup)
@@ -18,6 +21,9 @@ classdef testFPADemodulatorSpatialFT < matlab.unittest.TestCase
     
     methods (Test)
         function testAllDemodulatorsConstructors(testCase)
+            % testAllDemodulatorsConstructors builds every DemodulatorTypes
+            % variant via the factory and checks every DemodulatorProps
+            % Get() call succeeds
             %run(testFPADemodulatorSpatialFT, 'testAllDemodulatorsConstructors')
             import OM4MClassLib.Util.*;
             fprintf('\ntest %s...\n ',Logging.WhoCalledMe());
@@ -41,6 +47,10 @@ classdef testFPADemodulatorSpatialFT < matlab.unittest.TestCase
                                 
         
         function testDemodulatorFTGenFPs(testCase)
+            % testDemodulatorFTGenFPs generates FT test patterns (crossed
+            % grid, then vertical- and horizontal-only) and checks
+            % DemodulatorFT recovers each pattern's phase(s) by
+            % reconstructing and comparing it against the original image
             %run(testFPADemodulatorSpatialFT, 'testDemodulatorFTGenFPs')
             import OM4MClassLib.Util.*;
             fprintf('\ntest %s...\n ',Logging.WhoCalledMe());
@@ -128,6 +138,9 @@ classdef testFPADemodulatorSpatialFT < matlab.unittest.TestCase
         
 
         function testDemodulatorFT(testCase)
+            % testDemodulatorFT checks DemodulatorFT's default property
+            % values (NL, StepsTwoPwiRange, Tx/Ty, FFCut, NFilt,
+            % ROINormTH, AbsolutePhasePSADemType; everything else empty)
             %run(testFPADemodulatorSpatialFT, 'testDemodulatorFT')
             import OM4MClassLib.Util.*;
             fprintf('\ntest %s...\n ',Logging.WhoCalledMe());
@@ -165,6 +178,11 @@ classdef testFPADemodulatorSpatialFT < matlab.unittest.TestCase
         end
         
         function testDemodulatorFTProcess(testCase)
+            % testDemodulatorFTProcess demodulates a real reference and
+            % lens FFV Moire deflectometry image pair (default lobe
+            % positions), computes the deflection phasors and feeds them
+            % into LensMapperMeasurement.CalculateLensPower, visually
+            % inspecting the resulting power maps
             %run(testFPADemodulatorSpatialFT, 'testDemodulatorFTProcess')
             import OM4MClassLib.Util.*;
             fprintf('\ntest %s...\n ',Logging.WhoCalledMe());
@@ -249,6 +267,11 @@ classdef testFPADemodulatorSpatialFT < matlab.unittest.TestCase
         end
         
         function testDemodulatorFTProcessExtendedMinusRange(testCase)
+            % testDemodulatorFTProcessExtendedMinusRange repeats
+            % testDemodulatorFTProcess for a strongly negative-power lens
+            % (KPC076) whose sidelobes have rotated far enough that
+            % different lobe indices (1,4 instead of the default 4,3)
+            % must be selected
             %run(testFPADemodulatorSpatialFT, 'testDemodulatorFTProcessExtendedMinusRange')
             %see testFPA_UtilFunMapperMeasure:test_GetPower_CalibrationLensKPC076;
             import OM4MClassLib.Util.*;
@@ -347,6 +370,10 @@ classdef testFPADemodulatorSpatialFT < matlab.unittest.TestCase
         
         
         function testDemodulatorFTProcessRedLineal(testCase)
+            % testDemodulatorFTProcessRedLineal demodulates a real
+            % single-direction (2-lobe) reference/signal image pair
+            % ('tapa' fixtures), visually inspecting the resulting
+            % deflection phase
             %run(testFPADemodulatorSpatialFT, 'testDemodulatorFTProcessRedLineal')
             import OM4MClassLib.Util.*;
             fprintf('\ntest %s...\n ',Logging.WhoCalledMe());
