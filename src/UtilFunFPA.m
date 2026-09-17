@@ -1837,9 +1837,10 @@ classdef UtilFunFPA
         %         end
         
         
-        % this function returns the 2*NV+1x2*NV+1 Neighbourhood of image I
-        % with total size NRxNC
         function NI=LocalNeighbourhood(I, NV, Row, Col, NR, NC)
+            % LocalNeighbourhood returns the (up to) 2*NV+1 x 2*NV+1
+            % neighborhood of image I (size NRxNC) centered at
+            % (Row, Col), clipped at the image borders
             StartRow=Row-NV;
             EndRow=Row+NV;
             StartCol=Col-NV;
@@ -1864,20 +1865,16 @@ classdef UtilFunFPA
             NI=I(StartRow:EndRow, StartCol:EndCol);
         end
         
-        %IgramNorm interferogram normalization
-        % [cn, m]=IgramNorm(c, R) computes the normalized version of interferogram
-        % c=b+m*cos(phi), cn=cos(phi) and an estimation of the modulation m.
-        % R is the radius in fringes/filed of a DC filter to elliminate the DC
-        % signal b from the igram c
-        
-        % Ref: Juan Antonio Quiroga, Manuel Servin, "Isotropic n-dimensional fringe
-        % pattern normalization", Optics Communications, 224, Pages 221-227 (2003)
-        
-        %   AQ, 03/02/11
-        %   Copyright 2009 OM4M
-        %   $ Revision: 1.0.0.0 $
-        %   $ Date: 03-02-2011 $
         function [cn, m]=IgramNorm(c, R)
+            % IgramNorm normalizes interferogram c=b+m*cos(phi) into
+            % cn=cos(phi) and an estimated modulation m. R is the radius
+            % (in fringes/field) of the Gaussian DC filter used to
+            % remove the background b from c. (Same algorithm as the
+            % standalone IgramNorm.m.)
+            %
+            % Ref: Quiroga & Servin, "Isotropic n-dimensional fringe
+            % pattern normalization", Optics Communications, 224,
+            % 221-227 (2003)
             %filter DC with a gaussian
             [NR, NC]=size(c);
             [u,v]=meshgrid(1:NC, 1:NR);
@@ -1906,17 +1903,15 @@ classdef UtilFunFPA
         end
         
         function sd=SPHT(c)
-            %SPHT spiral phase transform
-            % sd=SPHT(c) computes the quadrture term of c still affected by the
-            % direction phase factor. Therefore for a real c=b*cos(phi)
-            % sd=SPHT(c)=i*exp(i*dir)*b*sin(phi)
-            % Ref: Kieran G. Larkin, Donald J. Bone, and Michael A. Oldfield, "Natural
-            % demodulation of two-dimensional fringe patterns. I. General background of the spiral phase quadrature transform," J. Opt. Soc. Am. A 18, 1862-1870 (2001)
-            
-            %   AQ, 19/8/09
-            %   Copyright 2009 OM4M
-            %   $ Revision: 1.0.0.0 $
-            %   $ Date: 19-08-2009 $
+            % SPHT spiral phase transform: computes the quadrature term
+            % of c, still affected by the direction phase factor, so for
+            % a real c=b*cos(phi), sd=SPHT(c)=i*exp(i*dir)*b*sin(phi).
+            % (Same algorithm as the standalone SPHT.m.)
+            %
+            % Ref: Larkin, Bone & Oldfield, "Natural demodulation of
+            % two-dimensional fringe patterns. I. General background of
+            % the spiral phase quadrature transform," J. Opt. Soc. Am. A
+            % 18, 1862-1870 (2001)
             TH=max(abs(c(:)));
             if mean(real(c(:)))>0.01*TH
                 warning('OM4M:SPHT:OutOfRange', ...
