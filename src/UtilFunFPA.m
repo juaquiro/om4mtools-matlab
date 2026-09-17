@@ -546,13 +546,15 @@ classdef UtilFunFPA
         
         
         
-        % z = FFTDemod(g, w, varargin) Computes a cell array with the output phasors z from the carrier igram g
-        % using all the carriers specified in the cell w
-        % z = FFTDemod(g, w, topFlat, R) Computes a cell array with the output phasors z from the carrier igram g
-        % using all the carriers specified in the cell w, topFlat is a flag that specifies if the passband filter is "hard" or gaussian
-        % and R is the radious in FF of the passband filters
-        %default for R is 0.3*norm(w{1}-w{2}) and default for topFlat is true
         function z = FFTDemod(g, w, varargin)
+            % FFTDemod demodulates igram g into a cell array of phasors
+            % z, one per carrier lobe position in cell w, by bandpass
+            % filtering (radius R in FF, default 0.3*norm(w{1}-w{2}))
+            % around each lobe (after a fixed 3-FF DC low-pass) and
+            % inverse-FFT'ing.
+            %
+            % Optional args: flatTopFlag (true) hard-disk passband filter
+            % vs. a Gaussian one; R (see above) passband filter radius
             import OM4MClassLib.Util.*
             callFunc=Logging.WhoCalledMe();
             
@@ -633,13 +635,12 @@ classdef UtilFunFPA
             end
         end
         
-        %weighted restriction operator used in multigrid schemas and filtering
-        %processes toguether with the propologngation operator
-        %this restriction makes a gauss relaxation for the function uh
-        %for this to work NR and NC must be even
-        %to work properly with Pro.m uh dims should be even or powers of
-        %two.
         function uH=wRes(uh, w)
+            % wRes weighted restriction operator (multigrid schemes/
+            % filtering, paired with Pro): downsamples uh by 2 via a
+            % Gaussian-weighted relaxation, using w as the pixel weights
+            % (handles S==0 divisions specially). uh's dimensions must be
+            % even (ideally a power of two, to also work with Pro).
             [NR, NC]=size(uh);
             
             uh=[uh(1,1) uh(1,:); uh(:,1) uh];
@@ -682,9 +683,9 @@ classdef UtilFunFPA
             end
         end
         
-        %Prolongation operator used multigrid schemas and filtering
-        %processes toguether with the restriction operator
         function uh=Pro(uH)
+            % Pro prolongation operator (multigrid schemes/filtering,
+            % paired with wRes): upsamples uH by 2
             [NR, NC]=size(uH);
             
             Col=1:NC;
@@ -701,9 +702,9 @@ classdef UtilFunFPA
             uh(2*Row+1-1,2*Col+1-1)=0.25*(uH(Row, Col) +uH(Row, Col+1)+uH(Row+1, Col)+uH(Row+1, Col+1));
         end
         
-        %this function uses a VCycle filter with a gaussian restriction and
-        %gaussian ppropongation for the moment it has 4 levels
         function uf=VicleFilter(u, w)
+            % VicleFilter smooths u (weighted by w) via a 4-level
+            % V-cycle multigrid filter (wRes down, Pro back up)
             %for using wRes and Pro dims must be power of two
             [NRows, NCols]=size(u);
             
@@ -738,9 +739,8 @@ classdef UtilFunFPA
             uf=imresize(u, [NRows, NCols]);
         end
         
-        %this function uses a VCycle filter with a gaussian restriction and
-        %gaussian ppropongation for the moment it has 4 levels
         function uf=VicleFilter2(u, w)
+            % VicleFilter2 is VicleFilter with a shallower 3-level V-cycle
             %for using wRes and Pro dims must be power of two
             [NRows, NCols]=size(u);
             
@@ -780,17 +780,16 @@ classdef UtilFunFPA
         
         
         
-        % FUNCION DE ESTIMADOR REGULARIZADO PARA
-        % EL CALCULO DE LA FASE ASOCIADA A LAS ISOCLINAS
-        % EN FOTOELASTICIDAD
-        % w2Alpha = envoltura de dos veces la fase de isoclinas
-        % M = ROI de los puntos procesados para calcular w2Alpha
-        % w4alfa = envoltura de cuatro veces la fase de isoclinas
-        % q = Mapa de calidad para la estimacion
-        % m = mascara
-        % Tama�o de la region para el estimador (t*2+1)
-        % mu = Parametro de regularizacion
         function [w2Alpha, M]=Calc2Alpha(w4Alpha,q,m,t,mu)
+            % Calc2Alpha is a regularized estimator for the isoclinic
+            % phase in photoelasticity: derives the wrapped 2*alpha
+            % phase w2Alpha from the wrapped 4*alpha phase w4Alpha.
+            %
+            % Inputs: w4Alpha wrapped 4*alpha phase; q quality map; m
+            % mask; t region size for the estimator (2*t+1); mu
+            % regularization parameter.
+            % Outputs: w2Alpha wrapped 2*alpha phase; M ROI of points
+            % actually processed.
             import OM4MClassLib.Util.*
             callFunc=Logging.WhoCalledMe();
             
