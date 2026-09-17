@@ -1,4 +1,6 @@
 classdef testCellArrayList < matlab.unittest.TestCase
+    % testCellArrayList tests OM4MClassLib.DataStructs.CellArrayList
+    % (third-party, Bobby Nedelkovski/The MathWorks Australia 2009-2010)
     %run(testCellArrayList)
     %
     % Converted from an interactive cell-mode demo script (MathWorks,
