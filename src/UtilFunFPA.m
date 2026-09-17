@@ -2217,44 +2217,21 @@ classdef UtilFunFPA
         
         
         function [z, Delta] = DemPSAsync5TunOriented(g,varargin)
-            
-            % DemPSAsync5TunOriented Funci�n para llevar a cabo la demodulaci�n de un patron
-            % de franjas usando un metodo asincrono de 5 pasos
-            % sintonizable. La demodulacion es orientada vertical u
-            % horizontal, es decir segun el caso las franjas verticales u
-            % horizontales saldran con muy baja modulacion
+            % DemPSAsync5TunOriented demodulates fringe pattern g via a
+            % tunable asynchronous 5-step algorithm, oriented horizontally
+            % or vertically (fringes running along the demodulation
+            % direction come out with very low modulation). Returns the
+            % phasor z and the local sampling period Delta.
             %
-            % [z, Delta] = DemPSAsync5TunOriented(g,dir,Nmax) calcula el phasor z y el periodo de muestreo local Delta
-            % con un algoritmo de 5 pasos sintonizable a partir el patron de franjas.
+            % Optional args: Nmax (5) maximum sampling period; dirDemod
+            % ('horz') demodulation direction, 'horz' or 'vert'.
             %
-            % Argumentos de entrada:
-            %
-            % I Patron de franjas (obligatorio)
-            %
-            % Nmax Valor m�ximo del periodo de muestreo (opcional), valor por defecto Nmax=5
-            %
-            % dir Direccion de demoulacion (opcional):
-            %   'horz' direccion horizontal (valor por defecto)
-            %   'vert' direccion vertical
-            %
-            % Ejemplo:
-            %
-            % % Patron de franjas simulado con 50 franjas/campo
-            % N = 340;
-            %
-            % % Phase
-            % [x, y]=meshgrid(1:N, 1:N); x=x-0.5*N; y=y-0.5*N;
-            % p=6*peaks(N)+2*pi*50*(x)/N;
-            %
-            % % Fringe pattern
-            % I=128+64*cos(p);
-            %
-            % % Demodula la fase
-            % [z, Delta] = DemPSAsync5Tun(I,5,'horz');
-            %
-            % @ 2007 AOCG - UCM Infor
-            % @ 2019 IOT - AQ
-            
+            % Example:
+            %   N = 340;
+            %   [x, y]=meshgrid(1:N, 1:N); x=x-0.5*N; y=y-0.5*N;
+            %   p=6*peaks(N)+2*pi*50*(x)/N; % 50 fringes/field
+            %   I=128+64*cos(p);
+            %   [z, Delta] = UtilFunFPA.DemPSAsync5TunOriented(I,5,'horz');
             import OM4MClassLib.Util.*
             callFunc=Logging.WhoCalledMe();
             
@@ -2400,19 +2377,20 @@ classdef UtilFunFPA
         end
         
         function [z, zor, zdir, Delta]=DemAsinc5Tun(g,varargin)
-            % DemAsinc5Tun Funci�n para llevar a cabo la demodulaci�n de un patron
-            % de franjas usando un metodo asincrono de 5 pasos
-            % sintonizable. La demodulacion es 2D incluyendo el calculo de la direccion para hacer
-            % el steering del metodo DemPSAsync5TunOriented (solo horizontal o vertical)
+            % DemAsinc5Tun demodulates fringe pattern g via the tunable
+            % asynchronous 5-step method, made 2D by computing the
+            % orientation/direction to steer between the horizontal- and
+            % vertical-oriented results of DemPSAsync5TunOriented.
             %
-            % [z, zor, zdir, Delta]=DemAsinc5Tun(g,gm, NA, N, Lambda) demodula el patron g con modulacion gm, usando NA niveles
-            % de diezmado para el proceso adpativo y N vecinos para el
-            % calculo de la direccion, Lambda es el parametro de
-            % regularizacion usado en el calculo de la direccion
-            % la salida consiste en z el fasor, zor el fasor de la
-            % orientacuion, zdir el fasor de la direcion y Delta el mapa de
-            % diezmado
-            
+            % Outputs: z the demodulated phasor; zor the orientation
+            % phasor; zdir the direction phasor; Delta the (complex)
+            % decimation-level map (real part horizontal, imaginary part
+            % vertical).
+            %
+            % Optional args: gm (ones) modulation/mask; NA (6) number of
+            % decimation levels for the adaptive process; N (5 px)
+            % orientation-estimation neighborhood size; Lambda (1)
+            % direction regularization parameter.
             import OM4MClassLib.Util.*
             callFunc=Logging.WhoCalledMe();
             
@@ -2461,15 +2439,13 @@ classdef UtilFunFPA
         end
         
         function v = homography_solve(pin, pout)
-            % HOMOGRAPHY_SOLVE finds a homography from point pairs
-            %   V = HOMOGRAPHY_SOLVE(PIN, POUT) takes a 2xN matrix of input vectors and
-            %   a 2xN matrix of output vectors, and returns the homogeneous
-            %   transformation matrix that maps the inputs to the outputs, to some
-            %   approximation if there is noise.
-            %
-            %   This uses the SVD method of
-            %   http://www.robots.ox.ac.uk/%7Evgg/presentations/bmvc97/criminispaper/node3.html
-            % David Young, University of Sussex, February 2008
+            % homography_solve finds a homography from point pairs: pin
+            % and pout are 2xN matrices of input/output vectors; v is
+            % the 3x3 homogeneous transformation matrix mapping pin to
+            % pout (approximately, if there is noise), via the SVD
+            % method of
+            % http://www.robots.ox.ac.uk/%7Evgg/presentations/bmvc97/criminispaper/node3.html
+            % (David Young, University of Sussex, February 2008)
             if ~isequal(size(pin), size(pout))
                 error('Points matrices different sizes');
             end
@@ -2496,11 +2472,10 @@ classdef UtilFunFPA
         end
         
         function y = homography_transform(x, v)
-            % HOMOGRAPHY_TRANSFORM applies homographic transform to vectors
-            %   Y = HOMOGRAPHY_TRANSFORM(X, V) takes a 2xN matrix, each column of which
-            %   gives the position of a point in a plane. It returns a 2xN matrix whose
-            %   columns are the input vectors transformed according to the homography
-            %   V, represented as a 3x3 homogeneous matrix.
+            % homography_transform applies homography v (a 3x3
+            % homogeneous matrix, see homography_solve) to x, a 2xN
+            % matrix of 2D point positions, returning the transformed
+            % 2xN matrix y
             q = v * [x; ones(1, size(x,2))];
             p = q(3,:);
             y = [q(1,:)./p; q(2,:)./p];
