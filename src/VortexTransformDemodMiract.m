@@ -1,5 +1,9 @@
 function VortexTransformDemodMiract()
-
+% VortexTransformDemodMiract demo/figure-generation script: demodulates
+% the "miract" fringe pattern fixture (miract_crop.jpg) via orientation
+% (OrMinDer), direction (calcDirection) and the Vortex transform, and
+% plots the direction vectors and demodulation results. Not a reusable
+% function - requires specific fixture files in the working directory.
 close all
 %addpath('..\..\..\docs\ExportFig');
 set(0,'DefaultTextInterpreter', 'latex');

@@ -1,5 +1,9 @@
 function VortexTransformDemodDiskNa()
-
+% VortexTransformDemodDiskNa demo/figure-generation script: demodulates
+% the "DisNa" fringe pattern fixture (Delta7DisNa.tif) via orientation
+% (OrMinDer), direction (calcDirection) and the Vortex transform, and
+% plots the direction vectors and demodulation results. Not a reusable
+% function - requires specific fixture files in the working directory.
 close all
 %addpath('..\..\..\docs\ExportFig');
 set(0,'DefaultTextInterpreter', 'latex');
