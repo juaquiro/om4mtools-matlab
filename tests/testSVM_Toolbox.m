@@ -1,6 +1,8 @@
 classdef testSVM_Toolbox < matlab.unittest.TestCase
+    % testSVM_Toolbox exercises the Statistics Toolbox's fitcsvm/predict
+    % directly (testMulticlass also uses ClassifierFactory's LogR
+    % classifier to turn SVM scores into posterior probabilities)
     %run(testSVM_Toolbox)
-    %test the SVG clasiffier of the stats toolbox
     %
     % The correspondence between the model in the ML course and the SVMstruct
     % in the SVM toiolbox
@@ -33,6 +35,10 @@ classdef testSVM_Toolbox < matlab.unittest.TestCase
 
     methods (Test)
         function testLinearKernelSet1(testCase)
+            % testLinearKernelSet1 fits a linear-kernel SVM (fitcsvm) to
+            % ex6data1 at C=1 and checks accuracy/F1/precision/recall
+            % against reference values, then visually compares C=1e-2
+            % and C=1e2 boundaries
             %run(testSVM_Toolbox, 'testLinearKernelSet1')
             import OM4MClassLib.Util.*;
 
@@ -86,6 +92,10 @@ classdef testSVM_Toolbox < matlab.unittest.TestCase
 
 
         function testRBFKernelSet1(testCase)
+            % testRBFKernelSet1 fits an RBF-kernel SVM to ex6data1 at
+            % sigma=10 and checks accuracy/F1/precision/recall against
+            % reference values, then visually compares sigma=1 and
+            % sigma=1e-1 boundaries
             %run(testSVM_Toolbox, 'testRBFKernelSet1')
             import OM4MClassLib.Util.*;
 
@@ -150,6 +160,9 @@ classdef testSVM_Toolbox < matlab.unittest.TestCase
 
 
         function testRBFKernelSet2(testCase)
+            % testRBFKernelSet2 fits RBF-kernel SVMs to ex6data2 at
+            % sigma=10, 1 and 3e-1, for visual inspection only - its
+            % accuracy/F-score assertions are commented out
             %run(testSVM_Toolbox, 'testRBFKernelSet2')
             import OM4MClassLib.Util.*;
 
@@ -205,6 +218,11 @@ classdef testSVM_Toolbox < matlab.unittest.TestCase
         end
 
         function testMulticlass(testCase)
+            % testMulticlass builds a 3-class one-vs-all RBF SVM
+            % classifier (fitcsvm has no native multiclass support) over
+            % 3 synthetic Gaussian blobs, converts each SVM's scores to
+            % posterior probabilities via a LogR fit, and visually
+            % inspects the resulting classification/probabilities
             %run(testSVM_Toolbox, 'testMulticlass')
             %svm train no hace clasificacion multiple hay que hacerlo one-vs-all
             %para calcular la funcion de decision para cada muestra usamos la funcion
@@ -310,6 +328,8 @@ classdef testSVM_Toolbox < matlab.unittest.TestCase
 end
 
 function checkSVM_Toolbox()
+% checkSVM_Toolbox errors unless the Statistics Toolbox is installed
+% with version >= 8.2 (local helper, duplicates checkStats_Toolbox.m)
 tb='stats'; %toolbox
 v=ver(tb);
 if(isempty(v))

@@ -1,4 +1,5 @@
 classdef testMLClassifierKmeansCluster < matlab.unittest.TestCase
+    % testMLClassifierKmeansCluster tests ClassifierKmeansCluster
     %before running the tests
     methods(TestMethodSetup)
         function SetUp(testCase)
@@ -18,7 +19,10 @@ classdef testMLClassifierKmeansCluster < matlab.unittest.TestCase
     methods (Test)
         
         function testConstructor(testCase)
-            
+            % testConstructor checks ClassifierKmeansCluster's flags
+            % (unsupervised, non-regression), default props (svcType,
+            % featureType) and featureType validation on Set
+
             import OM4MClassLib.Util.*;
             
             fprintf('\n%s: ',Logging.WhoCalledMe());
@@ -59,6 +63,10 @@ classdef testMLClassifierKmeansCluster < matlab.unittest.TestCase
        
         
         function testTrain4Gaussians(testCase)
+            % testTrain4Gaussians clusters 4 synthetic Gaussian blobs
+            % with K=4, checks zero prediction error against the
+            % clustering itself, then retrains the inner supervised
+            % classifier as SVM and checks the feature-count mismatch error
             %unsupervised clustering of 4 gaussians
             import OM4MClassLib.Util.*;
             
@@ -135,6 +143,8 @@ classdef testMLClassifierKmeansCluster < matlab.unittest.TestCase
         
         
         function testMeanInterClusterDistance(testCase)
+            % testMeanInterClusterDistance plots UtilFunML.NICDCurve's
+            % inter-cluster distance vs K for the same 4-Gaussian dataset
             %unsupervised clustering of 4 gaussians
             import OM4MClassLib.Util.*;
             
@@ -162,6 +172,12 @@ classdef testMLClassifierKmeansCluster < matlab.unittest.TestCase
         
         
         function testTrainex6data2(testCase)
+            % testTrainex6data2 clusters a Coursera dataset with K=2,
+            % visually inspecting the resulting classes and posterior
+            % probabilities with LogR then SVM as the inner supervised
+            % classifier.
+            %  Note: despite its name, this loads ex6data1.mat, not
+            % ex6data2.mat.
             %ex6data2
             import OM4MClassLib.Util.*;
             

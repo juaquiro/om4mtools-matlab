@@ -1,6 +1,7 @@
 classdef testNN_Toolbox < matlab.unittest.TestCase
+    % testNN_Toolbox exercises the Neural Network Toolbox's patternnet
+    % on several classification datasets
     %run(testNN_Toolbox)
-    %test the NN toolbox
 
     methods(TestMethodSetup)
         function SetUp(testCase)
@@ -18,6 +19,9 @@ classdef testNN_Toolbox < matlab.unittest.TestCase
 
     methods (Test)
         function testNN_Toolbox_CrabCassification(testCase)
+            % testNN_Toolbox_CrabCassification trains a 10-neuron
+            % patternnet on the built-in crab_dataset and reports
+            % accuracy/F-score on the train and internal test splits
             %run(testNN_Toolbox, 'testNN_Toolbox_CrabCassification')
             import OM4MClassLib.Util.*;
 
@@ -61,6 +65,10 @@ classdef testNN_Toolbox < matlab.unittest.TestCase
         end
 
         function testNN_Toolbox_ChipCassification(testCase)
+            % testNN_Toolbox_ChipCassification trains a 10-neuron
+            % patternnet on the Coursera ex2data2 (microchip QA) dataset
+            % after mapFeature expansion, reporting accuracy/F-score on
+            % the train and cross-validation splits
             %run(testNN_Toolbox, 'testNN_Toolbox_ChipCassification')
             %example form ex2.m of the ML course
             import OM4MClassLib.Util.*;
@@ -109,6 +117,10 @@ classdef testNN_Toolbox < matlab.unittest.TestCase
         end
 
         function testNN_Toolbox_DigitsCassification(testCase)
+            % testNN_Toolbox_DigitsCassification trains a two-hidden-layer
+            % patternnet (with regularized MSE performance) on the
+            % Coursera ex3data1 (handwritten digits) dataset, reporting
+            % accuracy/F-score on the train and cross-validation splits
             %run(testNN_Toolbox, 'testNN_Toolbox_DigitsCassification')
             %example form ex3.m of the ML course
             import OM4MClassLib.Util.* Util.*;
@@ -165,6 +177,10 @@ classdef testNN_Toolbox < matlab.unittest.TestCase
         end
 
         function testNN_Toolbox_LensesIOTCassification(testCase)
+            % testNN_Toolbox_LensesIOTCassification trains a
+            % two-hidden-layer patternnet on lens QC features loaded via
+            % TrainingDataLoader from a QCStatsReport3Clases.xlsx
+            % fixture, reporting train-set accuracy/F-score
             %run(testNN_Toolbox, 'testNN_Toolbox_LensesIOTCassification')
             import OM4MClassLib.Util.*;
             import Util.*;
