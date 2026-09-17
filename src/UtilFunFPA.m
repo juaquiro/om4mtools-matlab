@@ -2656,30 +2656,26 @@ classdef UtilFunFPA
         
         
         function S=LinLUTGV(uv,options)
-            % LinLUTGV(uv) linearize the response of a GV
-            % transformation system H, like a proyector+camera. u is the
-            % imput GV, v the output GV, v=H(u)
-            % the (discrete) system response and is a Nx2 table (u,v)
-            % for which u=uv(:, 1) is the input GV (i.e. the GVs we sent to a proyector) and v=uv(:, 2)
-            % is the measured/transformed GVs. For example in a display/camera combination u
-            % will be the GV we sent to the display and v the GV captured
-            % by the camera from the projector
-            % for this function H must be a monotonically increasing
-            % function of u. S is the output structure.
-            % S.Tu is a 8bit 255x1 LUT so that H[T(u)] is a linear function
-            % OJO S.Tu son GV pero en double
-            % between (u0,v0) and (u1,v1), u0 for u<u0 and u1 for u>u1, so
-            % that u0=min(Tu) and u1=max(Tu)
-            % S.Hu is the interpolated respose, with v0 for v<v0 and v1 for v>v1,
-            % NOTA AQ ver seccion 23 "Linearizacion respuesta
-            % monitor-camara" del cuaderno de trabajo
+            % LinLUTGV linearizes the response of a GV transformation
+            % system H (e.g. a projector+camera), v=H(u), given its
+            % measured (discrete) response as an Nx2 table uv (uv(:,1)
+            % is the input GV sent, e.g. to a projector; uv(:,2) is the
+            % measured/transformed output GV, e.g. captured by a
+            % camera). H must be monotonically increasing in u.
+            %
+            % Output struct S: S.Tu is a 256x1 LUT (GV values, stored as
+            % double) such that H[Tu(u)] is linear between (u0,v0) and
+            % (u1,v1) - clamped to u0/u1 outside that range; S.Hu is the
+            % interpolated response H itself, clamped to v0/v1 outside
+            % [u0,u1].
+            %
+            % Optional args: options.D (1) safety margin (in samples)
+            % kept away from the max/min of the measured response uv(:,2)
+            % when picking v0/v1, to avoid interpolation artifacts near
+            % the extremes.
             arguments
                 uv (:, 2) {mustBeNumeric}
-                options.D (1,1) {mustBeNumeric} = 1 %Margen de seguridad de la posicion del vector vs para el maximo y el minimo de la respuesta H(u).
-                %Se establece como 1 para evitar problemas con la interpolaci�n
-                %de Hv. De esta forma tomamos el valor del max-1 y del
-                %min+1 y evita tomar los valores de los m�ximos (y minimos) que no deseamos.
-                
+                options.D (1,1) {mustBeNumeric} = 1
             end
             D = options.D;
             S.D = D;
@@ -2759,23 +2755,19 @@ classdef UtilFunFPA
             S.Hu=Hu; 
         end
         
-        % ======================================================================
-        %> @brief DistancePlaneCam
-        %> @details static helper function to calculate the distance from the optical centre
-        %> of a callibrated camera and the intersection of the optical axis with a plane
-        %> with intrincs K, extrinsics R and t and ppal point p0. If M is
-        %> a point in the world ref (homogeneous coordinates) and Mc in the camera system Mc=[R|t]M and
-        %> s*m=K[R|t]M
-        %> @param K camera intrisic matrix px/mm
-        %> @param R plane extrinsic rotation matrix
-        %> @param t plane extrinsic translation vector mm
-        %> @param p0 camera ppal point px
-        %> @retval d distance in mm
-        %> @retval Hmm2px homography between (undistorted) plane mm and camera px
-        %> @retval M0 position in mm of principal point
-        %> @author AQ 26/5/2020
-        % ======================================================================
         function [d, H, P0]=DistancePlaneCam(K, R, t, p0)
+            % DistancePlaneCam computes the distance d (mm) between a
+            % calibrated camera's optical center and the intersection of
+            % its optical axis with a plane (extrinsics R, t; a world
+            % point M relates to the camera point Mc via Mc=[R|t]*M and
+            % s*m=K*[R|t]*M).
+            %
+            % Inputs: K camera intrinsic matrix (px/mm); R plane
+            % extrinsic rotation matrix; t plane extrinsic translation
+            % vector (mm); p0 camera principal point (px).
+            % Outputs: d distance (mm); H homography between
+            % (undistorted) plane mm and camera px; P0 principal point's
+            % position in the plane (mm).
             %euclidean optical centre in plane reference
             O=-R'*t';
             %homography between plane and cam mm2px
@@ -2789,13 +2781,12 @@ classdef UtilFunFPA
             d=norm(O-[P0; 0]);
         end
         
-        % ======================================================================
-        %> @brief this function makes a bar plot of the Reprojection Errors
-        %> nut using the cell array of xlabels as x-ticks
-        %> @camParams cameraParameters object as obtained from estimateCameraParameters
-        %> @camParams cell array with the xlabels, one for each image
-        % ======================================================================
         function showReprojectionErrorsWithLabels(camParams,xlabels)
+            % showReprojectionErrorsWithLabels bar-plots the mean
+            % reprojection error per image from camParams (a
+            % cameraParameters object, as returned by
+            % estimateCameraParameters), using xlabels (a cell array,
+            % one label per image) as the x-axis tick labels
             rpe=camParams.ReprojectionErrors; % NCP (#control points) x 2 (XY) x NP (Number of patterns)
             abs_rpe=abs(rpe(:, 1, :)+ 1i*rpe(:, 2, :)); %NCP (#control points) x 1 (error) x NP (Number of patterns)
             m_abs_rpe=mean(abs_rpe, 1); % 1 (mean error) x 1 x NP (Number of patterns)                
@@ -2814,22 +2805,22 @@ classdef UtilFunFPA
         end
         
         
-        %> @brief this function filter spatial frec u=wx and its harmonics with a gausian filter of sigma=R px
-        %> @param g input igram or phasor
-        %> @param w0 spatial freq in FF
-        %> @param options Name-Value Arguments {"R", 0.4*wx/3} R sigma of the gaussian windows centred at n*wx {"M", ones(size(g))} input ROI        
-        %> @author AQ 18SEP20
         function [gh, Mh]=filterHarmonicsX(g, wx, options)
+            % filterHarmonicsX notch-filters out spatial frequency u=wx
+            % (in FF) and its X harmonics from igram/phasor g, using a
+            % Gaussian window of sigma=R px centered at each n*wx (and
+            % -n*wx). Also returns Mh, ROI M shrunk to exclude border
+            % pixels affected by the filter.
+            %
+            % Optional args: options.R (0.49*wx/3) Gaussian sigma - must
+            % satisfy 3*R < 0.5*wx so the notches stay isolated;
+            % options.M (ones(size(g))) input ROI.
             arguments
-                % g must be double numeric value 
                 g (:, :) double {mustBeNumeric}
-                % g must be double real scalar 
                 wx (1,1) double {mustBeReal}
-                % optional Property R must be real scalar and maximum value
-                % is 3*R<0.5*wx
                 options.R (1,1) double {mustBeReal} = 0.49*wx/3
-                options.M (:, :) double {mustBeNumeric} = ones(size(g))                
-            end                                               
+                options.M (:, :) double {mustBeNumeric} = ones(size(g))
+            end
             import OM4MClassLib.Util.*
             callFunc=Logging.WhoCalledMe();
     
