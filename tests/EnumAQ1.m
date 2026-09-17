@@ -1,9 +1,7 @@
 classdef EnumAQ1 < int32
-    %ENUMAQ1 Summary of this function goes here
-    %   Detailed explanation goes here
-    %for CellEnumList it is very convenient to use continuous index from 1
-    %to n in order to check return values simbolically with the integrer
-    %values of the enumeration
+    % EnumAQ1 is a fixture enumeration (used by testCellEnumList) with
+    % contiguous 1..n integer values, as CellEnumList requires, so
+    % return values can be checked symbolically against the enumeration
     
     enumeration
         A(1)

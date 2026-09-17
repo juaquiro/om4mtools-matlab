@@ -1,5 +1,5 @@
 function results = run_hardware_tests()
-%RUN_HARDWARE_TESTS Run only the tests tagged 'Hardware'.
+% run_hardware_tests Run only the tests tagged 'Hardware'.
 %
 % These tests require real hardware to be connected (cameras, motors,
 % power sources) and are excluded from run_all_tests.m. Run this manually

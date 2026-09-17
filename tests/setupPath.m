@@ -1,5 +1,5 @@
 function setupPath()
-%SETUPPATH Add every folder the test suite needs to the MATLAB path.
+% setupPath Add every folder the test suite needs to the MATLAB path.
 %
 % Called from every test's TestMethodSetup - so each test stays runnable
 % standalone (e.g. run(testFPADemodulator) from a fresh MATLAB session) -

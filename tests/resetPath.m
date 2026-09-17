@@ -1,5 +1,5 @@
 function p = resetPath()
-%RESETPATH  Snapshot/restore helper for the MATLAB path used by tests.
+% resetPath  Snapshot/restore helper for the MATLAB path used by tests.
 %
 % The first call in a MATLAB session captures the current path - whatever
 % the user already had on it (their own projects, toolboxes, support

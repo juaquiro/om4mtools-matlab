@@ -1,6 +1,7 @@
 classdef ClassWithProps < handle & OM4MClassLib.DataStructs.IProps
-    %CLASSWITHPROPS this class implementes the IProps interface
-    %this class inherits from handle and implements interface IProps
+    % ClassWithProps is a minimal IProps-implementing fixture class,
+    % used by testPropsEnumList to exercise Get/Set on a PropsEnumList
+    % member (props P1/P2 from EnumPropsTypes)
     
     properties (Access=private)
         props;
@@ -9,6 +10,7 @@ classdef ClassWithProps < handle & OM4MClassLib.DataStructs.IProps
     %public methods
     methods
         function this=ClassWithProps()
+            % ClassWithProps constructs the fixture with P1=1, P2=2
             import OM4MClassLib.DataStructs.*;
             this.props=PropsEnumList('EnumPropsTypes');
             this.props.Set(char(EnumPropsTypes.P1), 1);
@@ -16,6 +18,7 @@ classdef ClassWithProps < handle & OM4MClassLib.DataStructs.IProps
         end
         
         function c=Add(this, a, b)
+            % Add returns P1*a+P2*b, using the current P1/P2 props
             P1=this.props.Get(char(EnumPropsTypes.P1));
             P2=this.props.Get(char(EnumPropsTypes.P2));
             c=P1*a+P2*b;
@@ -23,11 +26,9 @@ classdef ClassWithProps < handle & OM4MClassLib.DataStructs.IProps
         
     end
     
-    %IProps interface
-    %check Get implementation¡¡
-    methods               
-        % Get interface, note the no parameter
+    methods
         function ret=Get(this, props)
+            % Get delegates to this.props.Get (IProps interface)
             if nargin==1
                 ret=this.props.Get();
             else
@@ -35,8 +36,8 @@ classdef ClassWithProps < handle & OM4MClassLib.DataStructs.IProps
             end
         end
         
-        %Set interface
         function this=Set(this, props, propvals)
+            % Set delegates to this.props.Set (IProps interface)
             this.props.Set(props, propvals);
         end
     end

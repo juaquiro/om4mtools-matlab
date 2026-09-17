@@ -1,6 +1,6 @@
 classdef EnumPropsTypes
-    %ENUMPROPSTYPES Summary of this function goes here
-    %   Detailed explanation goes here
+    % EnumPropsTypes is the fixture enumeration (P1, P2) backing
+    % ClassWithProps' PropsEnumList
     
     enumeration
         P1;
