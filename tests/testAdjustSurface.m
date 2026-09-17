@@ -1,4 +1,5 @@
 classdef testAdjustSurface < matlab.unittest.TestCase
+    % testAdjustSurface tests Zernikes.AdjustSurface
     %run(testAdjustSurface)
 
     methods(TestMethodSetup)
@@ -16,6 +17,9 @@ classdef testAdjustSurface < matlab.unittest.TestCase
 
     methods(Test)
         function testUno(testCase) %#ok<*DEFNU>
+            % testUno fits a Zernike surface to a noisy spherical cap
+            % and visually/numerically checks the residual against the
+            % ideal sphere
             import Zernikes.*;
             import ML.*;
 

@@ -1,6 +1,6 @@
 classdef test_Util_Logging < matlab.unittest.TestCase
+    % test_Util_Logging tests OM4MClassLib.Util.Logging
     %run(test_Util_Logging)
-    %test_Util_Logging test the class Logging
 
     methods(TestMethodSetup)
         function SetUp(testCase)
@@ -18,6 +18,8 @@ classdef test_Util_Logging < matlab.unittest.TestCase
 
     methods (Test)
         function testWhoCalledMe(testCase)
+            % testWhoCalledMe checks Logging.WhoCalledMe() reports this
+            % test method's own name and file as its caller
             %run(test_Util_Logging, 'testWhoCalledMe')
             %NOTE: WhoCalledMe() uses dbstack() to inspect its caller - as a
             %classdef Test method (rather than the original plain script

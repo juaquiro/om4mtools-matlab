@@ -1,4 +1,5 @@
 classdef testMLfeatureNormalizer < matlab.unittest.TestCase
+    % testMLfeatureNormalizer tests featureNormalizer
     %before running the tests
     methods(TestMethodSetup)
         function SetUp(testCase)
@@ -18,7 +19,10 @@ classdef testMLfeatureNormalizer < matlab.unittest.TestCase
     methods (Test)
         
         function testML_UtilFunML_featureNormalizer_Go(testCase)
-            
+            % testML_UtilFunML_featureNormalizer_Go checks Go() output
+            % has zero mean/unit std, both on the fitted data and on a
+            % subset of it (looser tolerance)
+
             import OM4MClassLib.Util.*;
             
             
