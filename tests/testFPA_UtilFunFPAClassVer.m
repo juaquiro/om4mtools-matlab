@@ -5207,6 +5207,12 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
         end
 
         function testCalculateResponseFromImages(testCase)
+            % testCalculateResponseFromImages projects constant gray
+            % levels on a real display, captures them with a real
+            % camera, computes the camera-vs-monitor response curve via
+            % UtilFunFPA.LinLUTGV, then re-projects/re-captures
+            % corrected levels to visually verify the linearized
+            % response
             %run(testFPA_UtilFunFPAClassVer, 'testCalculateResponseFromImages')
             %Test que proyecta us niveles de gris constantes, los recoge en la camara  y verifica la respuesta lineal
             import OM4MClassLib.Util.*;
@@ -5354,6 +5360,13 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
         end
 
         function testFFTLinGV(testCase)
+            % testFFTLinGV projects an LSEquispacedPSA fringe pattern
+            % on a real display, both uncorrected and corrected via
+            % UtilFunFPA.LinLUTGV's T(u), captures each with a real
+            % camera, and compares their FFT harmonics to check the
+            % correction suppresses higher-order harmonics (relies on
+            % figDemodulator, which is not present in this repo - see
+            % testFigFFTLinGV's comment)
             %run(testFPA_UtilFunFPAClassVer,'testFFTLinGV')
 
             %Este test proyecta un patron de franjas con
@@ -5735,6 +5748,13 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
         end
 
         function testCalculatePowerWithCorrection(testCase)
+            % testCalculatePowerWithCorrection captures a real
+            % deflectometric lens measurement (reference and signal
+            % igrams, X/Y directions) with a real camera and projector,
+            % feeds it into a LensMapperMeasurement to compute lens
+            % power (LMM.CalculateLensPower), and visually/statistically
+            % checks the resulting spherical-equivalent and cylinder
+            % power maps against a polynomial surface fit
             %run(testFPA_UtilFunFPAClassVer, 'testCalculatePowerWithCorrection')
             import OM4MClassLib.Util.*;
             fprintf('\ntest %s...\n ',Logging.WhoCalledMe());
