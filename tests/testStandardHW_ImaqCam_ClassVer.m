@@ -1,4 +1,11 @@
 classdef testStandardHW_ImaqCam_ClassVer < matlab.unittest.TestCase
+    % testStandardHW_ImaqCam_ClassVer is a Hardware-tagged, manual/visual
+    % test suite for imaqCam (real camera required; see run_hardware_tests.m).
+    %  Known gap: every test here constructs an imaqCam, whose
+    % constructor requires the camGeomCal class (this.gc) - which does
+    % not exist anywhere in this repo (see the known-gap note on
+    % src/imaqCam.m itself) - so none of these tests can currently
+    % construct their camera object, let alone run to completion.
     %run (testStandardHW_ImaqCam_ClassVer)
 
     methods(TestMethodSetup)
@@ -17,9 +24,9 @@ classdef testStandardHW_ImaqCam_ClassVer < matlab.unittest.TestCase
 
     methods (Test, TestTags = {'Hardware'}) %%Test realizados sobre la cámara DMK33UX183Bin3
         function testSaveGVconstant(testCase)
-            %Test que proyecta 50 niveles de gris constantes,
-            %los recoge en la camara y los guarda
-
+            % testSaveGVconstant projects 50 constant gray-level frames
+            % on monitor 2, captures each with the camera and saves them
+            % all to ImgGV.mat
             %run(testStandardHW_ImaqCam_ClassVer, 'testSaveGVconstant')
             import OM4MClassLib.Util.*;
             fprintf('\ntest %s...\n ',Logging.WhoCalledMe());
@@ -70,6 +77,9 @@ classdef testStandardHW_ImaqCam_ClassVer < matlab.unittest.TestCase
         end
 
         function test_getFirstImaqCamAvailable(testCase)
+            % test_getFirstImaqCamAvailable visually checks
+            % imaqCam.getFirstImaqCamAvailable returns a valid video
+            % object and can preview it
             %run(testStandardHW_ImaqCam_ClassVer, 'test_getFirstImaqCamAvailable')
             %testAAAddReferencesPathStandardHW; mtest testStandardHW_ImaqCam_ClassVer:test_getFirstImaqCamAvailable
             import OM4MClassLib.Util.*;
@@ -85,6 +95,9 @@ classdef testStandardHW_ImaqCam_ClassVer < matlab.unittest.TestCase
         end
 
         function test_GenCamData(testCase)
+            % test_GenCamData checks imaqCamData constructs, and that
+            % adding a field to it makes isCamDataStruct fail (or errors,
+            % since imaqCamData is a class, not a struct)
             %run(testStandardHW_ImaqCam_ClassVer, 'test_GenCamData')
             %testAAAddReferencesPathStandardHW; mtest testStandardHW_ImaqCam_ClassVer:test_GenCamData
             import OM4MClassLib.Util.*;
@@ -104,6 +117,8 @@ classdef testStandardHW_ImaqCam_ClassVer < matlab.unittest.TestCase
 
 
         function test_ImaqCamConstructor(testCase)
+            % test_ImaqCamConstructor checks imaqCam(fh) constructs and
+            % initializes this.Data to an imaqCamData instance
             %run(testStandardHW_ImaqCam_ClassVer, 'test_ImaqCamConstructor')
             %testAAAddReferencesPathStandardHW; mtest testStandardHW_ImaqCam_ClassVer:test_ImaqCamConstructor
             import OM4MClassLib.Util.*;
@@ -119,6 +134,8 @@ classdef testStandardHW_ImaqCam_ClassVer < matlab.unittest.TestCase
         end
 
         function test_ImaqCamStartStopPreview(testCase)
+            % test_ImaqCamStartStopPreview visually checks two
+            % StartPreview/StopPreview cycles work in a row
             %run(testStandardHW_ImaqCam_ClassVer, 'test_ImaqCamStartStopPreview')
             %testAAAddReferencesPathStandardHW; mtest testStandardHW_ImaqCam_ClassVer:test_ImaqCamStartStopPreview
             import OM4MClassLib.Util.*;
@@ -141,6 +158,8 @@ classdef testStandardHW_ImaqCam_ClassVer < matlab.unittest.TestCase
         end
 
         function test_ImaqCamStartStopPreviewALT(testCase)
+            % test_ImaqCamStartStopPreviewALT visually checks Start()
+            % followed by two StartPreview/StopPreview cycles works
             %run(testStandardHW_ImaqCam_ClassVer, 'test_ImaqCamStartStopPreviewALT')
             %testAAAddReferencesPathStandardHW; mtest testStandardHW_ImaqCam_ClassVer:test_ImaqCamStartStopPreviewALT
             import OM4MClassLib.Util.*;
@@ -171,8 +190,9 @@ classdef testStandardHW_ImaqCam_ClassVer < matlab.unittest.TestCase
 
 
 
-        % test the StartStop
         function test_StartStop(testCase)
+            % test_StartStop checks Start/Stop run without error and
+            % the camera object can be deleted cleanly afterwards
             %run(testStandardHW_ImaqCam_ClassVer, 'test_StartStop')
             %testAAAddReferencesPathStandardHW; mtest testStandardHW_ImaqCam_ClassVer:test_StartStop()
             import OM4MClassLib.Util.*;
@@ -195,8 +215,9 @@ classdef testStandardHW_ImaqCam_ClassVer < matlab.unittest.TestCase
             clear c;
         end
 
-        %test the GetSethImage()
         function test_GetSethImage(testCase)
+            % test_GetSethImage checks the hImage property returns the
+            % same handle instance that was set on it
             %run(testStandardHW_ImaqCam_ClassVer, 'test_GetSethImage')
             %testAAAddReferencesPathStandardHW; mtest testStandardHW_ImaqCam_ClassVer:test_GetSethImage
             import OM4MClassLib.Util.*;
@@ -232,8 +253,10 @@ classdef testStandardHW_ImaqCam_ClassVer < matlab.unittest.TestCase
             clear c;
         end
 
-        % test the HWCameras StartPreview StopPreview with una figura
         function test_StartPreviewStopPreviewWithFigure(testCase)
+            % test_StartPreviewStopPreviewWithFigure drives preview from
+            % a caller-supplied hImage, then captures and visually
+            % inspects a single frame
             %run(testStandardHW_ImaqCam_ClassVer, 'test_StartPreviewStopPreviewWithFigure')
             %testAAAddReferencesPathStandardHW; mtest testStandardHW_ImaqCam_ClassVer:test_StartPreviewStopPreviewWithFigure
             import OM4MClassLib.Util.*;
@@ -277,8 +300,10 @@ classdef testStandardHW_ImaqCam_ClassVer < matlab.unittest.TestCase
         end
 
 
-        % test the HWCameras StartPreview StopPreview with una figura
         function test_StartPreviewStopPreviewWithFigureFromCamFile(testCase)
+            % test_StartPreviewStopPreviewWithFigureFromCamFile repeats
+            % test_StartPreviewStopPreviewWithFigure verbatim - kept to
+            % maintain parity with the original hardware suite
             %run(testStandardHW_ImaqCam_ClassVer, 'test_StartPreviewStopPreviewWithFigureFromCamFile')
             %mtest testStandardHW_ImaqCam_ClassVer:test_StartPreviewStopPreviewWithFigureFromCamFile
             import OM4MClassLib.Util.*;
@@ -322,8 +347,9 @@ classdef testStandardHW_ImaqCam_ClassVer < matlab.unittest.TestCase
         end
 
 
-        % test Capture
         function test_Capture(testCase)
+            % test_Capture measures execution time of a single Capture
+            % call and visually inspects the captured frame
             %run(testStandardHW_ImaqCam_ClassVer, 'test_Capture')
             %mtest testStandardHW_ImaqCam_ClassVer:test_Capture
             import OM4MClassLib.Util.*;
@@ -370,6 +396,10 @@ classdef testStandardHW_ImaqCam_ClassVer < matlab.unittest.TestCase
 
 
         function test_SetUpdatePreviewCornerdetection(testCase)
+            % test_SetUpdatePreviewCornerdetection visually checks the
+            % live preview overlays detected corners via
+            % imaqCam.detectCornerPointsCallback (drawObject set to a
+            % vision.ShapeInserter)
             %run(testStandardHW_ImaqCam_ClassVer, 'test_SetUpdatePreviewCornerdetection')
             %mtest testStandardHW_ImaqCam_ClassVer:test_SetUpdatePreviewCornerdetection
             import OM4MClassLib.Util.*;
@@ -419,6 +449,8 @@ classdef testStandardHW_ImaqCam_ClassVer < matlab.unittest.TestCase
 
 
         function test_SetUpdatePreview2YCBCR(testCase)
+            % test_SetUpdatePreview2YCBCR visually checks the live
+            % preview converts frames to YCbCr via imaqCam.toYCBCRCallback
             %run(testStandardHW_ImaqCam_ClassVer, 'test_SetUpdatePreview2YCBCR')
             %testAAAddReferencesPathStandardHW; mtest testStandardHW_ImaqCam_ClassVer:test_SetUpdatePreview2YCBCR
             import OM4MClassLib.Util.*;
@@ -465,6 +497,9 @@ classdef testStandardHW_ImaqCam_ClassVer < matlab.unittest.TestCase
 
 
         function test_SetUpdatePreviewInsertLensMarks(testCase)
+            % test_SetUpdatePreviewInsertLensMarks visually checks the
+            % live preview overlays crosshair/lens marks via
+            % imaqCam.insertLensMarks, then captures a frame
             %run(testStandardHW_ImaqCam_ClassVer, 'test_SetUpdatePreviewInsertLensMarks')
             %testAAAddReferencesPathStandardHW; mtest testStandardHW_ImaqCam_ClassVer:test_SetUpdatePreviewInsertLensMarks
             import OM4MClassLib.Util.*;
@@ -521,6 +556,8 @@ classdef testStandardHW_ImaqCam_ClassVer < matlab.unittest.TestCase
         end
 
         function test_SetUpdatePreviewDetectEdge(testCase)
+            % test_SetUpdatePreviewDetectEdge visually checks the live
+            % preview shows an edge map via imaqCam.detectEdgeCallback
             %run(testStandardHW_ImaqCam_ClassVer, 'test_SetUpdatePreviewDetectEdge')
             %testAAAddReferencesPathStandardHW; mtest testStandardHW_ImaqCam_ClassVer:test_SetUpdatePreviewDetectEdge
             import OM4MClassLib.Util.*;
@@ -566,6 +603,9 @@ classdef testStandardHW_ImaqCam_ClassVer < matlab.unittest.TestCase
         end
 
         function test_SetUpdatePreviewSubtractRef(testCase)
+            % test_SetUpdatePreviewSubtractRef captures a reference
+            % frame, then visually checks the live preview subtracts it
+            % from every subsequent frame via imaqCam.subtractRefImageCallback
             %run(testStandardHW_ImaqCam_ClassVer, 'test_SetUpdatePreviewSubtractRef')
             %testAAAddReferencesPathStandardHW; mtest testStandardHW_ImaqCam_ClassVer:test_SetUpdatePreviewSubtractRef
             import OM4MClassLib.Util.*;
@@ -621,6 +661,10 @@ classdef testStandardHW_ImaqCam_ClassVer < matlab.unittest.TestCase
 
 
         function test_SetUpdatePreviewDetectEdgeFromRGBCam(testCase)
+            % test_SetUpdatePreviewDetectEdgeFromRGBCam repeats
+            % test_SetUpdatePreviewDetectEdge, intended for an RGB camera
+            % (the dedicated @RGBPCCam init handle is commented out, so
+            % it currently uses the same camera as the other tests)
             %run(testStandardHW_ImaqCam_ClassVer, 'test_SetUpdatePreviewDetectEdgeFromRGBCam')
             %mtest testStandardHW_ImaqCam_ClassVer:test_SetUpdatePreviewDetectEdgeFromRGBCam
             import OM4MClassLib.Util.*;
@@ -666,6 +710,10 @@ classdef testStandardHW_ImaqCam_ClassVer < matlab.unittest.TestCase
 
 
         function test_SetUpdatePreviewDetectEdgeFromGVCam(testCase)
+            % test_SetUpdatePreviewDetectEdgeFromGVCam repeats
+            % test_SetUpdatePreviewDetectEdge, intended for a grayscale
+            % camera (the dedicated @GVPCCam init handle is commented
+            % out, so it currently uses the same camera as the other tests)
             %run(testStandardHW_ImaqCam_ClassVer, 'test_SetUpdatePreviewDetectEdgeFromGVCam')
             %mtest testStandardHW_ImaqCam_ClassVer:test_SetUpdatePreviewDetectEdgeFromGVCam
             import OM4MClassLib.Util.*;
@@ -711,6 +759,9 @@ classdef testStandardHW_ImaqCam_ClassVer < matlab.unittest.TestCase
 
 
         function test_ImaqCamSaveLoad(testCase)
+            % test_ImaqCamSaveLoad persists an imaqCam instance to disk
+            % and restores it, then visually checks preview with an edge
+            % callback still works afterwards
             %run(testStandardHW_ImaqCam_ClassVer, 'test_ImaqCamSaveLoad')
             %mtest testStandardHW_ImaqCam_ClassVer:test_ImaqCamSaveLoad
             import OM4MClassLib.Util.*;
@@ -756,6 +807,11 @@ classdef testStandardHW_ImaqCam_ClassVer < matlab.unittest.TestCase
         end
 
         function test_getVidFromName(testCase)
+            % test_getVidFromName visually checks
+            % imaqCam.getVidFromName returns a previewable video object
+            % for a given adaptor/device name/format (does not go
+            % through the imaqCam constructor, so unaffected by its
+            % camGeomCal gap)
             %run(testStandardHW_ImaqCam_ClassVer, 'test_getVidFromName')
             %mtest testStandardHW_ImaqCam_ClassVer:test_getVidFromName
             import OM4MClassLib.Util.*;
@@ -777,6 +833,9 @@ classdef testStandardHW_ImaqCam_ClassVer < matlab.unittest.TestCase
         end
 
         function test_ImaqCamFrom_getVidFromName(testCase)
+            % test_ImaqCamFrom_getVidFromName visually checks an imaqCam
+            % built from a zero-argument getVidFromName closure can
+            % preview
             %run(testStandardHW_ImaqCam_ClassVer, 'test_ImaqCamFrom_getVidFromName')
             %mtest testStandardHW_ImaqCam_ClassVer:test_ImaqCamFrom_getVidFromName
             import OM4MClassLib.Util.*;
@@ -800,6 +859,9 @@ classdef testStandardHW_ImaqCam_ClassVer < matlab.unittest.TestCase
 
 
         function test_ImaqCamFrom_CamFile(testCase)
+            % test_ImaqCamFrom_CamFile visually checks an imaqCam built
+            % from an imaqtool-generated camera-init function handle can
+            % preview
             %run(testStandardHW_ImaqCam_ClassVer, 'test_ImaqCamFrom_CamFile')
             %mtest testStandardHW_ImaqCam_ClassVer:test_ImaqCamFrom_CamFile
             import OM4MClassLib.Util.*;
@@ -819,6 +881,9 @@ classdef testStandardHW_ImaqCam_ClassVer < matlab.unittest.TestCase
 
 
         function test_ImaqCamFrom_CamName(testCase)
+            % test_ImaqCamFrom_CamName visually checks an imaqCam can be
+            % built from a camera-init function looked up by name
+            % (str2func) for each of two cameras in turn
             %run(testStandardHW_ImaqCam_ClassVer, 'test_ImaqCamFrom_CamName')
             %mtest testStandardHW_ImaqCam_ClassVer:test_ImaqCamFrom_CamName
             import OM4MClassLib.Util.*;
@@ -842,6 +907,9 @@ classdef testStandardHW_ImaqCam_ClassVer < matlab.unittest.TestCase
         end
 
         function test_ImaqCam_setSrcProp(testCase)
+            % test_ImaqCam_setSrcProp reads a source property (Contrast),
+            % captures, changes the property via setSrcProp, captures
+            % again, and visually compares the two frames' difference
             %run(testStandardHW_ImaqCam_ClassVer, 'test_ImaqCam_setSrcProp')
             %mtest testStandardHW_ImaqCam_ClassVer:test_ImaqCam_setSrcProp
             import OM4MClassLib.Util.*;
@@ -895,6 +963,12 @@ classdef testStandardHW_ImaqCam_ClassVer < matlab.unittest.TestCase
 
 
         function test_ImaqCam_CaptureHDRSelfCalibrate(testCase)
+            % test_ImaqCam_CaptureHDRSelfCalibrate captures an HDR image
+            % twice (first forcing a fresh radiometric self-calibration,
+            % then reusing the saved one) and visually compares the
+            % resulting radiance/tone maps and their relative error.
+            %  Also affected by Capture's HDR-branch known gap (missing
+            % weight/makeImageMatrixFromIm/gsolve/hdrFromIm/reinhardGlobal).
             %run(testStandardHW_ImaqCam_ClassVer, 'test_ImaqCam_CaptureHDRSelfCalibrate')
             %mtest testStandardHW_ImaqCam_ClassVer:test_ImaqCam_CaptureHDRSelfCalibrate
             %error('commenta esta linea si quieres hacer una nueva calibracion');
@@ -967,6 +1041,11 @@ classdef testStandardHW_ImaqCam_ClassVer < matlab.unittest.TestCase
 
 
         function test_ImaqCam_CaptureHDRUsingRadCalibration(testCase)
+            % test_ImaqCam_CaptureHDRUsingRadCalibration captures an HDR
+            % image using a previously saved radiometric calibration
+            % file and visually inspects the resulting radiance/tone maps.
+            %  Also affected by Capture's HDR-branch known gap (see
+            % test_ImaqCam_CaptureHDRSelfCalibrate).
             %run(testStandardHW_ImaqCam_ClassVer, 'test_ImaqCam_CaptureHDRUsingRadCalibration')
             %testAAAddReferencesPathStandardHW; mtest testStandardHW_ImaqCam_ClassVer:test_ImaqCam_CaptureHDRUsingRadCalibration
             import OM4MClassLib.Util.*;
@@ -1015,10 +1094,16 @@ classdef testStandardHW_ImaqCam_ClassVer < matlab.unittest.TestCase
             delete(c)
         end
 
-        %aqui mostramos como hacer una captura de imagen, corregir la calibracion
-        %geometrica y como usar la homografia para calcular posiciones en px de
-        %coordenadas en mm
         function test_ImaqCam_CaptureUsingGeomCalibration(testCase)
+            % test_ImaqCam_CaptureUsingGeomCalibration captures a
+            % distorted image, then a geometrically undistorted one
+            % using a saved camGeomCal calibration file, and uses its
+            % homography to label 4 known mm positions on the image.
+            %  Uses c.gc (camGeomCal), which does not exist in this repo
+            % (see the class-level known-gap note).
+            %aqui mostramos como hacer una captura de imagen, corregir la calibracion
+            %geometrica y como usar la homografia para calcular posiciones en px de
+            %coordenadas en mm
             %run(testStandardHW_ImaqCam_ClassVer, 'test_ImaqCam_CaptureUsingGeomCalibration')
             %testAAAddReferencesPathStandardHW; mtest testStandardHW_ImaqCam_ClassVer:test_ImaqCam_CaptureUsingGeomCalibration
             import OM4MClassLib.Util.*;
@@ -1099,11 +1184,18 @@ classdef testStandardHW_ImaqCam_ClassVer < matlab.unittest.TestCase
         end
 
 
-        %aqui mostramos como hacer una captura de imagen, calcular la homografia
-        %con el plano y  como usar la homografia para calcular posiciones en px de
-        %coordenadas en mm (usamos como dsitorsion geometrica la por defecto que es
-        %kc=[0 0 0 0 0];
         function test_ImaqCam_CaptureUsingHomography(testCase)
+            % test_ImaqCam_CaptureUsingHomography computes a homography
+            % from 4 known point correspondences, stores it directly on
+            % c.gc, saves it for test_ImaqCam_CaptureUsingStoredHomography,
+            % and uses it to label the same 4 points on a captured
+            % (zero-distortion) image.
+            %  Uses c.gc (camGeomCal), which does not exist in this repo
+            % (see the class-level known-gap note).
+            %aqui mostramos como hacer una captura de imagen, calcular la homografia
+            %con el plano y  como usar la homografia para calcular posiciones en px de
+            %coordenadas en mm (usamos como dsitorsion geometrica la por defecto que es
+            %kc=[0 0 0 0 0];
             %run(testStandardHW_ImaqCam_ClassVer, 'test_ImaqCam_CaptureUsingHomography')
             %testAAAddReferencesPathStandardHW; mtest testStandardHW_ImaqCam_ClassVer:test_ImaqCam_CaptureUsingHomography
             import OM4MClassLib.Util.*;
@@ -1169,10 +1261,18 @@ classdef testStandardHW_ImaqCam_ClassVer < matlab.unittest.TestCase
         end
 
 
-        %aqui mostramos como hacer una captura de imagen, y mediante la homografia almacenada en el test anterior calcular posiciones en px de
-        %coordenadas en mm (usamos como dsitorsion geometrica la por defecto que es
-        %kc=[0 0 0 0 0];
         function test_ImaqCam_CaptureUsingStoredHomography(testCase)
+            % test_ImaqCam_CaptureUsingStoredHomography loads the
+            % homography calibration file saved by
+            % test_ImaqCam_CaptureUsingHomography and reuses it to label
+            % the same 4 known mm positions on a newly captured image.
+            %  Uses c.gc (camGeomCal), which does not exist in this repo
+            % (see the class-level known-gap note); also depends on
+            % test_ImaqCam_CaptureUsingHomography having run first to
+            % produce its calibration file.
+            %aqui mostramos como hacer una captura de imagen, y mediante la homografia almacenada en el test anterior calcular posiciones en px de
+            %coordenadas en mm (usamos como dsitorsion geometrica la por defecto que es
+            %kc=[0 0 0 0 0];
             %run(testStandardHW_ImaqCam_ClassVer, 'test_ImaqCam_CaptureUsingStoredHomography')
             %testAAAddReferencesPathStandardHW; mtest testStandardHW_ImaqCam_ClassVer:test_ImaqCam_CaptureUsingStoredHomography
             import OM4MClassLib.Util.*;
@@ -1235,6 +1335,13 @@ classdef testStandardHW_ImaqCam_ClassVer < matlab.unittest.TestCase
 
 
         function test_ImaqCam_CaptureHDRUsingGeomCalibration(testCase)
+            % test_ImaqCam_CaptureHDRUsingGeomCalibration captures an
+            % HDR image distorted and then geometrically undistorted
+            % (via a saved camGeomCal calibration file), visually
+            % inspecting the radiance/luminance maps and mm coordinate grids.
+            %  Affected both by Capture's HDR-branch known gap and by
+            % c.gc (camGeomCal) not existing in this repo (see the
+            % class-level known-gap note).
             %run(testStandardHW_ImaqCam_ClassVer, 'test_ImaqCam_CaptureHDRUsingGeomCalibration')
             %mtest testStandardHW_ImaqCam_ClassVer:test_ImaqCam_CaptureHDRUsingGeomCalibration
             import OM4MClassLib.Util.*;
