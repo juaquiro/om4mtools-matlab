@@ -1,4 +1,6 @@
 classdef testFPAUnwrapper < matlab.unittest.TestCase
+    % testFPAUnwrapper tests UnwrapperFactory and the UnwrapperVoid/
+    % UnwrapperFlynMd phase unwrappers
     %run(testFPAUnwrapper)
     
     methods(TestMethodSetup)
@@ -18,6 +20,9 @@ classdef testFPAUnwrapper < matlab.unittest.TestCase
     
     methods (Test)
         function testAllUnwrapperConstructors(testCase)
+            % testAllUnwrapperConstructors builds every UnwrapperTypes
+            % variant via the factory and checks every UnwrapperProps
+            % Get() call succeeds
             %run(testFPAUnwrapper, 'testAllUnwrapperConstructors')
             import OM4MClassLib.Util.*;
             fprintf('\ntest %s...\n ',Logging.WhoCalledMe());
@@ -40,6 +45,8 @@ classdef testFPAUnwrapper < matlab.unittest.TestCase
         
         
         function testUnwrapperVoid(testCase)
+            % testUnwrapperVoid checks the factory returns an
+            % UnwrapperVoid instance for UnwrapperTypes.Void
             %run(testFPAUnwrapper, 'testUnwrapperVoid')
             import OM4MClassLib.Util.*;
             fprintf('\ntest %s...\n ',Logging.WhoCalledMe());
@@ -53,6 +60,10 @@ classdef testFPAUnwrapper < matlab.unittest.TestCase
         
         
         function testUnwrapperVoidProcess(testCase)
+            % testUnwrapperVoidProcess checks UnwrapperVoid.Process
+            % returns the wrapped phase masked by bmask and qual>0
+            % unchanged (no actual unwrapping), and that bmask/qual are
+            % stored/normalized as expected
             %run(testFPAUnwrapper, 'testUnwrapperVoidProcess')
             import OM4MClassLib.Util.*;
             fprintf('\ntest %s...\n ',Logging.WhoCalledMe());
@@ -89,6 +100,10 @@ classdef testFPAUnwrapper < matlab.unittest.TestCase
         end
         
         function testUnwrapperFlynMdProcess(testCase)
+            % testUnwrapperFlynMdProcess unwraps a noisy synthetic wrapped
+            % phase map with UnwrapperFlynMd (Flynn's min-discontinuity
+            % method) and visually inspects the unwrapped phase and the
+            % rewrap error map/histogram
             %run(testFPAUnwrapper, 'testUnwrapperFlynMdProcess')
             import OM4MClassLib.Util.*;
             fprintf('\ntest %s...\n ',Logging.WhoCalledMe());
@@ -136,6 +151,11 @@ classdef testFPAUnwrapper < matlab.unittest.TestCase
         
         
         function testUnwrapperFlynMdWithDeflecMeas(testCase)
+            % testUnwrapperFlynMdWithDeflecMeas demodulates a real
+            % transmission-deflectometry LensMapperMeasurement fixture
+            % (TimePSA, 5-step) into a deflection phasor and unwraps its
+            % phase with UnwrapperFlynMd, visually inspecting the result
+            % and the rewrap error map/histogram
             %run(testFPAUnwrapper, 'testUnwrapperFlynMdWithDeflecMeas')
             import OM4MClassLib.Util.*;
             fprintf('\ntest %s...\n ',Logging.WhoCalledMe());

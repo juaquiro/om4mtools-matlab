@@ -1,4 +1,7 @@
 classdef testKMeansToolbox < matlab.unittest.TestCase
+    % testKMeansToolbox exercises the Statistics Toolbox's kmeans/
+    % silhouette directly, and combines them with a supervised
+    % classifier (SVM/bayesgauss+LogR) for posterior probability estimation
     %before running the tests
     methods(TestMethodSetup)
         function SetUp(testCase)
@@ -18,9 +21,11 @@ classdef testKMeansToolbox < matlab.unittest.TestCase
     methods (Test)
         
         function test1(testCase)
+            % test1 visually shows kmeans clustering ex6data1 into K=2
+            % and K=4 clusters
             % aqui se muestra la clasificacion con k-means en un caso facil con 2 y 4
             % clusters
-            
+
             import OM4MClassLib.Util.*;
             
             fprintf('\n%s: ',Logging.WhoCalledMe());
@@ -46,10 +51,14 @@ classdef testKMeansToolbox < matlab.unittest.TestCase
         
         
         function test2(testCase)
+            % test2 finds the optimum K via mean silhouette (inter-cluster
+            % distance) for ex6data1, ex7data2 and a synthetic 4-Gaussian
+            % dataset, visually plotting the score curve and the
+            % resulting best clustering for each
             %en este ejemplo se muestra como localizar el numero optimo de clusters
             %mediante la inter cluster distance calculada mediante la funcion
             %silhouette
-            
+
             import OM4MClassLib.Util.*;
             
             fprintf('\n%s: ',Logging.WhoCalledMe());
@@ -129,14 +138,17 @@ classdef testKMeansToolbox < matlab.unittest.TestCase
         
         
         function test3(testCase)
-            
+            % test3 clusters the pixels of a downsampled bird image
+            % (RGB space) via the optimum-K silhouette search, for
+            % color-quantization-style visual inspection
+
             import OM4MClassLib.Util.*;
-            
+
             fprintf('\n%s: ',Logging.WhoCalledMe());
-            
+
             %check toolbox version
             checkStats_Toolbox();
-            
+
             %  Load an image of a bird
             A = double(imresize(imread(fullfile(fixturesRoot(), 'CourseraMLData', 'bird_small.png')), [64,64]));
             %A=double(imread('peppers.png'));
@@ -174,6 +186,10 @@ classdef testKMeansToolbox < matlab.unittest.TestCase
         
         
         function test4(testCase)
+            % test4 finds the optimum-K kmeans clustering of a synthetic
+            % 4-Gaussian dataset, then trains an SVM classifier on the
+            % resulting labels to predict class/posterior probability
+            % for new points
             %here we combine a unsupervised learning method, kmeans with a supervised
             %clasifier SVM %to predict the class of a sample and its posterior prob
             import OM4MClassLib.Util.*;
@@ -234,6 +250,10 @@ classdef testKMeansToolbox < matlab.unittest.TestCase
         
         
         function test5(testCase)
+            % test5 clusters a synthetic 4-Gaussian dataset with kmeans,
+            % fits a per-cluster Gaussian (bayesgauss/covmatrix) and a
+            % LogR classifier on the Mahalanobis distances to estimate
+            % posterior class probabilities on a grid
             %here we combine a unsupervised learning method (kmeans) with a supervised
             %clasifier (bayes gauss) to predict the class of a sample
             %here use the output of the kmeans to train a bayes-gauss classifier, to
