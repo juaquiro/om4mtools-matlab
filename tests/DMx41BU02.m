@@ -1,5 +1,6 @@
 function vid = DMx41BU02
-%DMX41BU02 Code for creating a video input object.
+% DMx41BU02 creates a video input object for the 'DMx 41BU02' camera via
+% the winvideo adaptor, Y800 (1280x960).
 %   
 %   This is generated using the imaqtool and modified to recover the vid form the name istead of the
 %   

@@ -1,5 +1,7 @@
 function vid = DFGPro_tisimaq_r2013_64_PALB_Y800_720x576
-%DFGUSB2PRO Code for creating a video input object.
+% DFGPro_tisimaq_r2013_64_PALB_Y800_720x576 creates a video input object
+% for the DFG/USB2pro frame grabber via the tisimaq_r2013_64 adaptor,
+% PAL_B:Y800 (720x576).
 %
 %   This is generated using the imaqtool and modified to recover the vid form the name istead of the deviceID
 %

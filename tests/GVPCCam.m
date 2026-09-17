@@ -1,6 +1,10 @@
 function out = GVPCCam
-%GVPCCAM Code for creating a video input object.
-%   
+% GVPCCam creates a video input object via the winvideo adaptor,
+% MJPG (320x240).
+%  Note: line 34 below loads a MAT-file from a stale, pre-Git-migration
+% path (D:\...\OM4MMatlabUtils\...); that load is wrapped in try/catch
+% and only degrades ErrorFcn to a default, so it fails softly.
+%
 %   This is the machine generated representation of a video input object.
 %   This MATLAB code file, GVPCCAM.M, was generated from the OBJ2MFILE function.
 %   A MAT-file is created if the object's UserData property is not 

@@ -1,5 +1,6 @@
 function vid = DFGUSB2Pro
-%DFGUSB2PRO Code for creating a video input object.
+% DFGUSB2Pro creates a video input object for the DFG/USB2pro frame
+% grabber via the winvideo adaptor, RGB24 (768x576).
 %
 %   This is generated using the imaqtool and modified to recover the vid form the name istead of the deviceID
 %

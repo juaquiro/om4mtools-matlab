@@ -1,5 +1,6 @@
 function vid = UVCHDWebCam
-%UVCHDWEBCAM Code for creating a video input object.
+% UVCHDWebCam creates a video input object for the 'USB2.0 UVC HD
+% Webcam' device via the winvideo adaptor, MJPG (640x480).
 %   
 %   This is the machine generated representation of a video input object.
 %   This MATLAB code file, UVCHDWEBCAM.M, was generated from the OBJ2MFILE function.

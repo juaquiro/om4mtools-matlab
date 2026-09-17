@@ -1,7 +1,8 @@
 function out = DMK33UX183Bin3_1
-%DMK33UX183BIN3 DMK33UX183Bin3 Code for creating the FIRST video input object when
-%there are more that one DMK33UX183 cameras connected
-%   
+% DMK33UX183Bin3_1 creates a video input object for the FIRST of several
+% DMK 33UX183 cameras connected (device name 'DMK 33UX183'), via the
+% tisimaq_r2013_64 adaptor, Y800 (1824x1216) [Binning 3x]
+%
 %   This is the machine generated representation of a video input object.
 %   This MATLAB code file, DMK33UX183BIN3.M, was generated from the OBJ2MFILE function.
 %   A MAT-file is created if the object's UserData property is not 
