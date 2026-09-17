@@ -1,22 +1,21 @@
-% FUNCION DE ESTIMADOR REGULARIZADO PARA
-% EL CALCULO DE LA FASE ASOCIADA A LAS ISOCLINAS
-% EN FOTOELASTICIDAD
-% wtheta = mapa del angulo de orientacion (mod pi)
-% wbeta = mapa del angulo de direccion (mod 2pi) 
-% q = Mapa de calidad para la estimacion
-% m = mascara
-% t = Tamaño de la region para el estimador (t*2+1)
-% mu = Parametro de regularizacion
-% r0 pto inicial, [] lo busca automaticamente del maximo de q
-
 function [wbeta]=calcDirection(wtheta,q,m,t,mu,r0)
+% calcDirection is a regularized estimator for the isoclinic direction
+% phase in photoelasticity: derives the direction map wbeta (mod 2*pi)
+% from the orientation map wtheta (mod pi), following the quality map q
+% outward from a starting point via Strobel's algorithm (region-growing
+% with a priority histogram over quality levels). (Same algorithm as
+% UtilFunFPA.calcDirection.)
+%
+% Inputs: wtheta orientation map (mod pi); q quality map; m mask; t
+% region size for the estimator (2*t+1); mu regularization parameter;
+% r0 starting point ([] to auto-pick the max-quality point).
 %% INICIALIZA VALORES
 n=size(wtheta);
 px=ones(n);py=ones(n);q=abs(q).*m;
 s=zeros(n);wbeta=zeros(n);
 dx=cos(wtheta).*m;dy=sin(wtheta).*m;
 
-%% DEFINE EL TAMAÑO DEL ARREGLO PARA EL HISTOGRAMA DEL ALGORITMO DE STRÖBEL
+%% DEFINE EL TAMAï¿½O DEL ARREGLO PARA EL HISTOGRAMA DEL ALGORITMO DE STRï¿½BEL
 na=10;maxi=0;
 q=round(q./max(max(q))*(na-1))+1;
 for k=1:na
@@ -26,7 +25,7 @@ end
 hy=zeros(na,maxi);hx=zeros(na,maxi);
 front=zeros(1,na);final=zeros(1,na);
 
-%% ALGORITMO DE STRÖBEL PARA SEGUIR EL MAPA DE CALIDAD EN LA ESTIMACION
+%% ALGORITMO DE STRï¿½BEL PARA SEGUIR EL MAPA DE CALIDAD EN LA ESTIMACION
 cont=0;ind=1;
 
 if isempty(r0)
@@ -71,7 +70,7 @@ while ind>0
     
     
     %SACA LAS COORDENADAS DEL HISTOGRAMA
-    %PARA LA SIGUIENTE ESTIMACIÓN
+    %PARA LA SIGUIENTE ESTIMACIï¿½N
     k=na;ind=0;
     while ind==0 && k>0
         ind=front(k);
