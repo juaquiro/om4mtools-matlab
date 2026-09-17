@@ -569,11 +569,11 @@ classdef UtilFunML
         
         
         function theta = normalEqn(X, y, lambda)
-            % LS solution to min_theta[(theta*X'-y)^2 + lambda*theta^2]
-            %   the data X includes the bias as well as the parameters
-            %   theta, i.e. if n is the number of features X is mxn and
-            %   theta is (n+1)x1
-            
+            % normalEqn is the regularized least-squares (normal
+            % equation) solution theta ((n+1)x1) to
+            % min_theta[(X*theta-y)^2 + lambda*theta(2:end)^2], adding
+            % the bias column to X (mxn) itself before solving (see
+            % normalEqnWithoutBias)
             % Add bias to the X data matrix
             m = size(X, 1); % Number of samples
             Xbias = [ones(m, 1) X];
@@ -583,6 +583,10 @@ classdef UtilFunML
         end
         
         function theta= normalEqnWithoutBias(X, y, lambda)
+            % normalEqnWithoutBias is the regularized least-squares
+            % (normal equation) solution theta to
+            % min_theta[(X*theta-y)^2 + lambda*theta(2:end)^2], assuming
+            % X already includes any bias column (unlike normalEqn)
             n=size(X,2); %n features including bias
             
             b=X'*y;
@@ -593,6 +597,8 @@ classdef UtilFunML
         end
         
         function checkTrainSetLabels(y)
+            % checkTrainSetLabels errors unless y is a column vector of
+            % consecutive integer labels 1,2,...,N (N=number of classes)
             import OM4MClassLib.Util.*;
             
             callFunc=Logging.WhoCalledMe();
@@ -611,10 +617,11 @@ classdef UtilFunML
             end
         end
         
-        % this function generates the error struct for k classes
-        % J is the global accuracy, F1s, P and R have a value for each
-        % class
         function errStruct=genErrorStruct(k)
+            % genErrorStruct returns an empty error struct for k classes:
+            % J (scalar, overall error/cost, initialized to 0) and
+            % F1s/P/R (F1-score/precision/recall, each a kx1 zero vector
+            % - one value per class)
             import OM4MClassLib.Util.*;
             
             callFunc=Logging.WhoCalledMe();
@@ -641,8 +648,10 @@ classdef UtilFunML
         end
         
         function errStruct_o=checkErrorStruct(errStruct_i, k)
-            %check fields of errStruct_i and check that F1s, P and R are
-            %vectors of kx1 with k the number of clases
+            % checkErrorStruct validates errStruct_i has the required
+            % fields (J, F1s, P, R), then returns errStruct_o with F1s/P/R
+            % padded/resized to kx1 (k classes) - copying in whatever
+            % values errStruct_i already had
             try
                 import OM4MClassLib.Util.*;
                 
@@ -677,11 +686,10 @@ classdef UtilFunML
         end
         
         function [F1s, P, R]=Fscore(y,p)
-            % compute Precisin, Reacll and F1score for each of the classes
-            % in the labels y. a one-vs-all strategy is used
-            % y are the actual training classes ad p the predicted values
-            %if there are n clases F1s, P and R are column vectors with the
-            %values for each class
+            % Fscore computes precision P, recall R and F1-score F1s for
+            % each class in actual labels y vs. predicted labels p,
+            % using a one-vs-all strategy. F1s/P/R are column vectors,
+            % one value per class.
             numClasses=length(unique(y));
             
             F1s=zeros(numClasses, 1);
