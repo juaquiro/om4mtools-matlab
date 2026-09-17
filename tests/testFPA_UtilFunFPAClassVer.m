@@ -676,12 +676,11 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
 
         end
 
-        % ======================================================================
-        %> @brief testGradientConsistency
-        %> @details this function checks the gradient consistency funcion
-        %> @param testCase ref to the unit testing framework class
-        % ======================================================================
         function testGradientConsistency(testCase)
+            % testGradientConsistency checks UtilFunFPA.GradientConsistency
+            % returns ~0 for both continuous (unwrapped) and wrapped
+            % forward differences of a synthetic surface (a mathematically
+            % consistent gradient field has zero curl)
             %run(testFPA_UtilFunFPAClassVer, 'testGradientConsistency')
             import OM4MClassLib.Util.*;
             fprintf('\n%s: ',Logging.WhoCalledMe());
@@ -711,12 +710,11 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
             figure; imagesc(Q); title('wrapped differences'); colorbar; colormap flag
         end
 
-        % ======================================================================
-        %> @brief test function phaseGradient
-        %> @details this function checks the function phaseGradient
-        %> @param testCase ref to the unit testing framework class
-        % ======================================================================
         function testPhaseGradientDirect(testCase)
+            % testPhaseGradientDirect checks UtilFunFPA.phaseGradientDirect
+            % recovers a noisy synthetic phasor's true (noise-free)
+            % directional derivatives, comparing against both the exact
+            % gradient and a naive 1st-difference-of-noisy-phase baseline
             %run(testFPA_UtilFunFPAClassVer, 'testPhaseGradientDirect');
             import OM4MClassLib.Util.*;
             fprintf('\n%s: ',Logging.WhoCalledMe());
@@ -770,12 +768,10 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
         end
 
 
-        % ======================================================================
-        %> @brief test function gradientDirect
-        %> @details this function checks the function gradientDirect
-        %> @param testCase ref to the unit testing framework class
-        % ======================================================================
         function testGradientDirect(testCase)
+            % testGradientDirect repeats testPhaseGradientDirect's check
+            % for UtilFunFPA.gradientDirect, which takes a real (already
+            % unwrapped) noisy signal directly instead of a phasor
             %run(testFPA_UtilFunFPAClassVer, 'testGradientDirect');
             import OM4MClassLib.Util.*;
             fprintf('\n%s: ',Logging.WhoCalledMe());
@@ -827,12 +823,10 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
 
 
 
-        % ======================================================================
-        %> @brief test function phaseGradientPlaneFit
-        %> @details this function checks the function phaseGradientPlaneFit
-        %> @param testCase ref to the unit testing framework class
-        % ======================================================================
         function testPhaseGradientPlaneFit(testCase)
+            % testPhaseGradientPlaneFit repeats testPhaseGradientDirect's
+            % check for UtilFunFPA.phaseGradientPlaneFit (local
+            % plane-fit-based directional derivative estimation)
             %run(testFPA_UtilFunFPAClassVer, 'testPhaseGradientPlaneFit');
             import OM4MClassLib.Util.*;
             fprintf('\n%s: ',Logging.WhoCalledMe());
@@ -884,12 +878,11 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
             testCase.assertEqual(0, std(e(Mxy)), 'AbsTol', tol);
         end
 
-        % ======================================================================
-        %> @brief test function GradientPlaneFit
-        %> @details this function checks the function GradientPlaneFit
-        %> @param testCase ref to the unit testing framework class
-        % ======================================================================
         function testGradientPlaneFit(testCase)
+            % testGradientPlaneFit checks UtilFunFPA.GradientPlaneFit's
+            % directional derivatives against the exact gradient for a
+            % clean signal (tight tolerance) and visually inspects its
+            % behavior on a noisy signal (looser filtering settings)
             %run(testFPA_UtilFunFPAClassVer, 'testGradientPlaneFit');
             import OM4MClassLib.Util.*;
             fprintf('\n%s: ',Logging.WhoCalledMe());
@@ -952,14 +945,12 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
         end
 
 
-        % ======================================================================
-        %> @brief testHomographyCalcWithComputerVisionToolbox
-        %> @details this function checks the calculation of the homography between a plane and the camera using
-        %> the computer vision toolbox funcionality from MATLAB
-        %> the example here is taken from the computer vision toolbox from MATLAB
-        %> @param testCase ref to the unit testing framework class
-        % ======================================================================
         function testHomographyCalcWithComputerVisionToolbox(testCase)
+            % testHomographyCalcWithComputerVisionToolbox checks
+            % UtilFunFPA.homography_solve/homography_transform against
+            % the Computer Vision Toolbox's own checkerboard-calibration
+            % example image, transforming pixel coordinates to mm and
+            % visually comparing against the known checkerboard geometry
             %run(testFPA_UtilFunFPAClassVer, 'testHomographyCalcWithComputerVisionToolbox');
             import OM4MClassLib.Util.*;
             fprintf('\n%s: ',Logging.WhoCalledMe());
@@ -1037,15 +1028,14 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
 
         end
 
-        % ======================================================================
-        %> @brief testCameraCalibrationCVTbx_5MAY20
-        %> @details this function makes a geometrical calibration of the
-        %> camera of the delfectometer and estimates ditances to the screen with and without suporting glass plate
-        %> with the MATLAB Computer Vision Toolbox
-        %> @see oneNote-> Mejoras calculo DPM APR20 for details
-        %> @param testCase ref to the unit testing framework class
-        % ======================================================================
         function testCameraCalibrationCVTbx_5MAY20(testCase)
+            % testCameraCalibrationCVTbx_5MAY20 geometrically calibrates
+            % the deflectometer's real camera (checkerboard images from
+            % the 5MAY20 session, with supporting glass) via the
+            % Computer Vision Toolbox, then estimates the camera-lens
+            % and camera-screen distances (UtilFunFPA.DistancePlaneCam)
+            % and visually inspects reprojection errors and the lens
+            % distortion map
             %run(testFPA_UtilFunFPAClassVer, 'testCameraCalibrationCVTbx_5MAY20');
             import OM4MClassLib.Util.*;
             fprintf('\n%s: ',Logging.WhoCalledMe());
