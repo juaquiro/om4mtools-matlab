@@ -1,4 +1,6 @@
 classdef testMLUtilFunML < matlab.unittest.TestCase
+    % testMLUtilFunML tests UtilFunML's static ML helper functions
+    % (sigmoid, cost functions, accuracy/F-score metrics, error structs)
     %before running the tests
     methods(TestMethodSetup)
         function SetUp(testCase)
@@ -18,7 +20,9 @@ classdef testMLUtilFunML < matlab.unittest.TestCase
     methods (Test)
         
         function testML_UtilFunML_sigmoid(testCase)
-            
+            % testML_UtilFunML_sigmoid checks sigmoid(0)=0.5,
+            % sigmoid(-inf)=0, sigmoid(inf)=1
+
             import OM4MClassLib.Util.*;
             
             
@@ -40,6 +44,10 @@ classdef testMLUtilFunML < matlab.unittest.TestCase
         
         
         function testML_UtilFunML_CostFunctionLR(testCase)
+            % testML_UtilFunML_CostFunctionLR checks CostFunctionLR's
+            % cost against a reference value and its gradient (excluding
+            % the extra bias term CostFunctionLR itself prepends) against
+            % reference values, on the Coursera ex2data2 dataset
             %example from ex2_reg of the ML course
             
             import OM4MClassLib.Util.*;
@@ -116,6 +124,13 @@ classdef testMLUtilFunML < matlab.unittest.TestCase
         
         
         function testML_UtilFunML_fmincg(testCase)
+            % testML_UtilFunML_fmincg trains one-vs-all logistic
+            % regression (fmincg + CostFunctionLR) on the Coursera
+            % ex3data1 digits dataset.
+            %  Note: its comparison against the actual_theta.mat
+            % reference is commented out, with a warning that this test
+            % "does not work, is in DEBUG state" (dated 1-9-14) - it
+            % currently only exercises the code path without asserting
             %example from ex3_reg of the ML course
             
             import OM4MClassLib.Util.*;
@@ -163,11 +178,14 @@ classdef testMLUtilFunML < matlab.unittest.TestCase
         
         
         function testML_UtilFunML_Accuracy(testCase)
+            % testML_UtilFunML_Accuracy checks Accuracy's percentage of
+            % correct predictions when all predictions equal each of the
+            % 3 present classes in turn
             import OM4MClassLib.Util.*;
-            
-            
+
+
             fprintf('\n%s: ',Logging.WhoCalledMe());
-            
+
             n1=5; n2=7; n3=8;
             y=[ones(n1,1); 2*ones(n2, 1); 3*ones(n3, 1)];
             
@@ -188,6 +206,9 @@ classdef testMLUtilFunML < matlab.unittest.TestCase
         
         
         function testML_UtilFunML_CostFunctionLinReg(testCase)
+            % testML_UtilFunML_CostFunctionLinReg checks
+            % CostFunctionLinReg's cost and gradient at theta=[1;1]
+            % against reference values, on the Coursera ex5data1 dataset
             %ejemplo cojido del ex5 del curso de ML
             
             import OM4MClassLib.Util.*;
@@ -214,10 +235,13 @@ classdef testMLUtilFunML < matlab.unittest.TestCase
         
         
         function testML_UtilFunML_checkTrainSetLabels(testCase)
+            % testML_UtilFunML_checkTrainSetLabels checks
+            % checkTrainSetLabels accepts consecutive 1..N labels and
+            % errors (with the expected message) on a gap or a 0 label
             import OM4MClassLib.Util.*;
-            
+
             fprintf('\n%s: ',Logging.WhoCalledMe());
-            
+
             y=[ones(10,1); 2*ones(10,1); 3*ones(10,1)];
             
             UtilFunML.checkTrainSetLabels(y);
@@ -242,10 +266,14 @@ classdef testMLUtilFunML < matlab.unittest.TestCase
         
         
         function testML_UtilFunML_Fscore(testCase)
+            % testML_UtilFunML_Fscore checks Fscore's per-class F1/P/R
+            % for perfect predictions, zero true positives, a single
+            % correct class among two swapped ones, and near-chance
+            % random predictions (statistical tolerance)
             import OM4MClassLib.Util.*;
-            
+
             fprintf('\n%s: ',Logging.WhoCalledMe());
-            
+
             y=[ones(100,1); 2*ones(100,1); 3*ones(100,1)];
             p=y;
             %all results are true possitive P=R=1;
@@ -286,10 +314,14 @@ classdef testMLUtilFunML < matlab.unittest.TestCase
         
         
         function testML_UtilFunML_genErrorStruct(testCase)
+            % testML_UtilFunML_genErrorStruct checks
+            % UtilFunML.checkErrorStruct pads a 3-entry error struct
+            % array's per-class F1s/P/R vectors (each a different length)
+            % out to a common k=7 classes, filling missing classes with 0
             import OM4MClassLib.Util.*;
-            
+
             fprintf('\n%s: ',Logging.WhoCalledMe());
-            
+
             errStruct=UtilFunML.genErrorStruct(3);
             
             estra(1)=errStruct; estra(1).J=10;  estra(1).F1s=ones(3, 1); estra(1).P=2*ones(3, 1); estra(1).R=pi*ones(3, 1);
