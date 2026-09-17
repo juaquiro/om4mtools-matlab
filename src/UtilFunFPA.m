@@ -877,16 +877,18 @@ classdef UtilFunFPA
             
         end
         
-        %this function draws the retardation angle Alpha and the two
-        %principal directions associated with it. If Alpha comes form
-        %w4Alpha there is indetermination between s1 and s2 and also in the
-        %direction. If Alpha comes from w2Alpha s1 and s2 are distingible
-        %but their direction is indeterminate
-        %D is the decimation factor
-        % optional params are sameColor, stressDirections ('s1', 's2',
-        % 'both'), showArrowHead ('on' 'off') and altImg (the funcion use
-        % this image to draw the stress directions
         function h=DrawAlpha(Alpha, D, varargin)
+            % DrawAlpha draws the two principal stress directions implied
+            % by isoclinic angle Alpha, as arrows over Alpha itself (or
+            % altImage if given), decimated by D. If Alpha comes from
+            % w4Alpha, s1/s2 and their direction are both indeterminate;
+            % if from w2Alpha, s1/s2 are distinguishable but direction
+            % is still indeterminate.
+            %
+            % Optional args: sameColor (false) draw both directions in
+            % the same color; stressDirections ('both') 's1', 's2' or
+            % 'both'; showArrowHead ('on') passed to quiver; altImage
+            % ([]) background image to draw over instead of Alpha.
             import OM4MClassLib.Util.*
             callFunc=Logging.WhoCalledMe();
             
@@ -950,10 +952,14 @@ classdef UtilFunFPA
         end
         
         
-        % this function calculates the theoretical stress distribution for a diametrically loaded
-        % disk of NRxNC dimmensions. It calculates also the theoretical retardation and wrapped 2*alpha
-        %the retardation is scalled so it has a maximum of 10 fringes
         function [d, w2alpha, sx, sy, sxy, s1, s2, M]=StressDisk(NR, NC, varargin)
+            % StressDisk computes the theoretical (Brazilian/diametrical
+            % compression) stress distribution for an NRxNC disk loaded
+            % along a diameter, plus the resulting isochromatic
+            % retardation d (scaled to a max of 10 fringes) and wrapped
+            % isoclinic angle w2alpha. Also returns the stress
+            % components sx/sy/sxy, principal stresses s1/s2, and the
+            % disk mask M.
             % setup the theoretical stress distribution
             [x, y]=meshgrid(1:NC, 1:NR);
             x0=round(NC/2); y0=round(NR/2); %origin
@@ -998,10 +1004,11 @@ classdef UtilFunFPA
             
         end
         
-        %this function calculates a cell array of LBF images using the
-        %delta and alpha distributions with noise level nl and the cell
-        %array has N=length(step) images
         function IList=LBFPattern(delta, alpha, step, M, nl)
+            % LBFPattern generates length(step) linear-birefringence
+            % (LBF) igrams from retardation delta and isoclinic angle
+            % alpha, each phase-shifted by step(n), masked by M and with
+            % noise level nl added
             N=length(step);
             IList=cell(1,N);
             for n=1:N
@@ -1009,8 +1016,11 @@ classdef UtilFunFPA
             end
         end
         
-        %ouput for circular polariscope, using circular input illumination with Analizer angle psi and 2QW plate angle phi
         function gList=CircPol(delta, w2alpha, psi, phi, M)
+            % CircPol generates length(psi) circular-polariscope igrams
+            % from retardation delta and wrapped isoclinic angle
+            % w2alpha, for circular input illumination with analyzer
+            % angle psi(n) and quarter-wave-plate angle phi(n), masked by M
             %psi=A, phi=QW2
             N=length(psi);
             gList=cell(1, N);
