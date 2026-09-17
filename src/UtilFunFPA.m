@@ -1029,9 +1029,13 @@ classdef UtilFunFPA
             end
         end
         
-        %this function makes a temporal demodulation of the 1D signal g
-        %this function assumes that the temporal samples of g are uniform
         function z=Temp1DFFTDemod(g, R, varargin)
+            % Temp1DFFTDemod demodulates 1D signal g (uniformly-sampled
+            % in time) into phasor z via a 1D Hilbert-transform-style
+            % FFT filter: a Hilbert half-spectrum mask, a Gaussian
+            % high-pass (radius R, removing the DC/background), and
+            % optionally (varargin) a Gaussian bandpass around carrier
+            % w0 (default pi/2) with width sigma (default length(g)/8)
             import OM4MClassLib.Util.*
             callFunc=Logging.WhoCalledMe();
             
@@ -1093,10 +1097,15 @@ classdef UtilFunFPA
             
         end
         
-        % u=unwrapRLS1D(z, lambda, regType) unwraps the 1D phase of the phasor z, uw=angle(z) by
-        % minimizing the cost function U=w*|Dx*u- uwx|^2 + lambda*|Dx*u|^2 or
-        % lambda*|Dxx*u|^2 depending on regType
         function u=unwrapRLS1D(z, lambda, varargin)
+            % unwrapRLS1D unwraps the 1D phase uw=angle(z) via
+            % regularized least squares, minimizing
+            % U=w*|Dx*u-uwx|^2+lambda*|D*u|^2 (weighted by modulation
+            % w=|z|, D being Dx/Dxx/Dxxx per regType - see
+            % DerOpsFreeBoundary1D)
+            %
+            % Optional args: regType ('membrane') regularization
+            % operator - 'membrane' (Dx), 'thinplate' (Dxx), or 'Dxxx'
             import OM4MClassLib.Util.*
             callFunc=Logging.WhoCalledMe();
             
@@ -1152,9 +1161,11 @@ classdef UtilFunFPA
             u=A\b;
         end
         
-        % [Dx, Dxx, Dxxx]=DerOpsFreeBoundary1D(N) return the (N-1)xN (N-2)xN and (N-1)xN (N-3)xN sparse operators representing the 1D Dx and Dxx and Dxxx operations
-        % using free-bounday conditions
         function [Dx, Dxx, Dxxx]=DerOpsFreeBoundary1D(N)
+            % DerOpsFreeBoundary1D returns sparse 1D derivative operators
+            % (free-boundary conditions) for an N-element vector: Dx is
+            % (N-1)xN (1st derivative), Dxx is (N-2)xN (2nd derivative),
+            % Dxxx is (N-3)xN (3rd derivative)
             %the two diagonals for D 0 and +1
             C=[-1*ones(N-1, 1), ones(N-1, 1)];
             d=[0 1];
