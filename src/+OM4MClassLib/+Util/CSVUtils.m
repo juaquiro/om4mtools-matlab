@@ -1,14 +1,16 @@
 classdef CSVUtils
-    %CSVUtils Static Helper Class for managing csv files with semicolon (;)
-    %separators    
+    % CSVUtils is a static helper class for managing csv files with
+    % semicolon (;) separators
     
     
     %% static methods
     methods(Static)
-        % This function returns an array of structs whose fields are named
-        % after the headers in the first row of the xls file. Spaces are
-        % replaced with underscores.
         function entries=ReadFile(fileName, varargin)
+            % ReadFile returns an array of structs whose fields are
+            % named after the headers in the first row of the csv file
+            % (spaces replaced with underscores). Optional varargin{1}
+            % (sheetName) is accepted but unused, kept for signature
+            % compatibility with XLSUtils.ReadFile
             try
                 import OM4MClassLib.Util.CSVUtils;
                 
@@ -72,10 +74,10 @@ classdef CSVUtils
                         ' -When the Options dialog box appears, click on the Trust Center category in the left-hand column.\n',...
                         ' -Click on the Trust Center Settings button on the right-hand side of the Options dialog box.\n',...
                         ' -When the Trust Center dialog box opens up, click on the Protected View settings in the left-hand column.',...
-                        ' -Here you can uncheck “Enable Protected View for files originating from the Internet”, ',...
-                        ' “Enable Protected View for files located in potentially unsafe locations”, ',...
-                        ' and “Enable Protected View for Outlook attachments”.  ',...
-                        ' When you’ve made your selections, click OK, and Protected View will now be disabled.']);
+                        ' -Here you can uncheck ï¿½Enable Protected View for files originating from the Internetï¿½, ',...
+                        ' ï¿½Enable Protected View for files located in potentially unsafe locationsï¿½, ',...
+                        ' and ï¿½Enable Protected View for Outlook attachmentsï¿½.  ',...
+                        ' When youï¿½ve made your selections, click OK, and Protected View will now be disabled.']);
                     
                     error('MATLAB:OM4M:XLSRead', msg);
                 else
@@ -84,9 +86,9 @@ classdef CSVUtils
             end
             
         end
-        % This function writes an array of structs in a csv file, with semicolon separators (;), whose headers are named
-        % with the fields of the struct and 
         function WriteFile(result, filename)
+            % WriteFile writes struct array result into filename as a
+            % semicolon-separated csv, using its field names as headers
             try
                 import OM4MClassLib.Util.CSVUtils;
               
@@ -110,10 +112,9 @@ classdef CSVUtils
             end
         end
         
-        % Filter an array of entries obtained with 'ReadFile' based on one
-        % field's value. Returns a new array with the entries that pass the
-        % filter.
         function filteredEntries=FilterByValue(entries, fieldName, fieldValue)
+            % FilterByValue returns the subset of entries (as returned
+            % by ReadFile) whose fieldName equals fieldValue
             try
                 if(ischar(fieldValue))
                     filteredEntries=entries(strcmp(fieldValue,{entries(:).(fieldName)}));
@@ -125,10 +126,10 @@ classdef CSVUtils
             end
         end
         
-        % Filter an array of entries obtained with 'ReadFile' based on more
-        % than one field's value. Returns a new array with the entries that pass the
-        % filter.
         function filteredEntries=FilterByValuesAND(entries, varargin)
+            % FilterByValuesAND returns the subset of entries (as
+            % returned by ReadFile) matching all of the given
+            % fieldName/fieldValue pairs (varargin), ANDed together
             try
                 error(nargchk(2, numel(fieldnames(entries))*2, nargin, 'struct'));
                 numVarArgIn= length(varargin);
@@ -156,6 +157,11 @@ classdef CSVUtils
         % Returns a new cell array where each cell contains all the
         % entries where the fieldName has the same value.
         function result=SelectByFieldName(entries, fieldName)
+            % SelectByFieldName groups entries (as returned by ReadFile)
+            % into a cell array, one cell per distinct char value of
+            % fieldName, each holding the matching entries
+            %  Note: delegates to XLSUtils.FilterByValuesAND rather than
+            % this class's own (identical) FilterByValuesAND above
             try
                 import OM4MClassLib.Util.XLSUtils;
                 result = cell(1,1);
@@ -177,13 +183,13 @@ classdef CSVUtils
             end
         end
         
-        % CsvRead2Cell Reads semicolon (;) csv files .
-        %   [NUM,TXT,RAW]=CsvRead2Cell(File) reads data from csv file named FILE and returns
-        %   empty in NUM. Also, returns the unprocessed data (numbers and text as strings) in cell array
-        %   TXT, and the same unprocessed data (numbers and text as strings) in cell array RAW.
-        %   The only important outpuit is Raw the other are maintained for
-        %   compatibility with xlsread
         function [num,txt,raw]=CsvRead2Cell(fileName)
+            % CsvRead2Cell reads semicolon (;) csv files.
+            %   [NUM,TXT,RAW]=CsvRead2Cell(File) reads data from csv file named FILE and returns
+            %   empty in NUM. Also, returns the unprocessed data (numbers and text as strings) in cell array
+            %   TXT, and the same unprocessed data (numbers and text as strings) in cell array RAW.
+            %   The only important outpuit is Raw the other are maintained for
+            %   compatibility with xlsread
             try
                 import OM4MClassLib.Util.*;
                 callFunc=Logging.WhoCalledMe();
@@ -255,7 +261,7 @@ classdef CSVUtils
             %
             % ver http://www.mathworks.com/matlabcentral/fileexchange/4400-cell-array-to-csv-file-cell2csv-m
             
-            %% Checking für optional Variables
+            %% Checking fï¿½r optional Variables
             if ~exist('separator', 'var')
                 separator = ';';
             end
