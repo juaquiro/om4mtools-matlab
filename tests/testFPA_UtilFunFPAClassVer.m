@@ -2029,13 +2029,11 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
 
 
 
-        % ======================================================================
-        %> @brief testfilterHarmonicsX
-        %> @details testing of the testfilterHarmonicsX function. in this
-        %function we use MATLAB>2019b argument validation sintax
-        %> @param testCase ref to the unit testing framework class
-        % ======================================================================
         function testfilterHarmonicsX(testCase)
+            % testfilterHarmonicsX visually checks
+            % UtilFunFPA.filterHarmonicsX removes a synthetic spurious
+            % X-direction spatial-frequency harmonic from an image,
+            % both without a mask and with a mask (default and explicit 'R')
             %run(testFPA_UtilFunFPAClassVer, 'testfilterHarmonicsX');
             import OM4MClassLib.Util.*;
             fprintf('\n%s: ',Logging.WhoCalledMe());
@@ -2075,18 +2073,14 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
 
 
 
-        % ======================================================================
-        %> @brief testIOTMapperGeomCalibrationVsSize
-        %> @details this function makes a geometrical calibration of the
-        %> IOT Mapper including camera internals and estimates ditances to the screen with the suporting glass plate
-        %> with the MATLAB Computer Vision Toolbox. Here we compare the
-        %> results obtained using a laserjet printed 7x8 pattern with different quare sizes
-        %> 6, 8 and 10 mm, the reason is that 8 mm gives correct results
-        %> while 6 and 10 mm are incorrect.
-        %> @see oneNote->InspeccionCos/2021/Fabricaci�n Blancos de calibraci�n Visionlab en placas
-        %> @param testCase ref to the unit testing framework class
-        % ======================================================================
         function testIOTMapperGeomCalibrationVsSize(testCase)
+            % testIOTMapperGeomCalibrationVsSize repeats
+            % testCameraCalibrationCVTbx_5MAY20's calibration and
+            % camera-lens/camera-screen distance/resolution estimation
+            % using a laserjet-printed checkerboard; active fixture uses
+            % 8mm squares (the correct size found by comparing against
+            % 6mm/10mm variants, commented out here, which gave
+            % incorrect results)
             %run(testFPA_UtilFunFPAClassVer, 'testIOTMapperGeomCalibrationVsSize');
             import OM4MClassLib.Util.*;
             fprintf('\n%s: ',Logging.WhoCalledMe());
@@ -2250,16 +2244,14 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
         end
 
         % ======================================================================
-        %> @brief testLSDemodEquispacedPeaks
-        %> @details test the LSDemodEquispaced function with the peaks
-        %>  testing phase using NFPs steps with a size of NRxNC
-        %>  Also we validate the normalization factor comparing the returned
-        %>  modulation agaisnt the input modulation. Cjeck error maps for
-        %>  different NFPs
-        %> @see deflectometry.docx
-        %> @param testCase ref to the unit testing framework class
-        %> @details run(testFPA_UtilFunFPAClassVer, 'testLSDemodEquispacedPeaks');
         function testLSDemodEquispacedPeaks(testCase)
+            % testLSDemodEquispacedPeaks checks UtilFunFPA.LSDemodEquispaced
+            % recovers a synthetic peaks()-based phase/modulation from
+            % 5 equispaced-step igrams (both phase+modulation and
+            % modulation-only modes), checking the modulation error
+            % tolerance and visually inspecting phase/modulation error
+            % histograms and maps
+            % run(testFPA_UtilFunFPAClassVer, 'testLSDemodEquispacedPeaks');
             % Close all existing figures
             close all;
 
@@ -2354,13 +2346,13 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
 
         end
  
-        % ======================================================================
-        %> @brief testLSDemodEquispacedVsLSGeneralPeaks
-        %> @details aqui miramos la diferencia de tiempo en calcular la moduladion entre el LS general y el LS
-        %> equiespaciado
-        %> @param testCase ref to the unit testing framework class
-        %> @details run(testFPA_UtilFunFPAClassVer, 'testLSDemodEquispacedVsLSGeneralPeaks');        
         function testLSDemodEquispacedVsLSGeneralPeaks(testCase)
+            % testLSDemodEquispacedVsLSGeneralPeaks times
+            % UtilFunFPA.LSDemodEquispaced against the general
+            % UtilFunFPA.LSDemod on the same equispaced-step peaks()
+            % igrams and checks their modulation outputs agree within
+            % tolerance
+            % run(testFPA_UtilFunFPAClassVer, 'testLSDemodEquispacedVsLSGeneralPeaks');
             close all;
 
             % Define the dimensions
@@ -2438,17 +2430,13 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
             title('only mod LS PSA mod map');
         end
         
-        % ======================================================================
-        %> @brief testLSDemod
-        %> @details test the LSDemod function with the peaks
-        %>  testing phase using NFPs steps with a size of NRxNC
-        %>  Also we validate the normalization factor comparing the returned
-        %>  modulation agaisnt the input modulation. Check error maps for
-        %>  different NFPs
-        %> @see deflectometry.docx
-        %> @param testCase ref to the unit testing framework class
-        %> @details run(testFPA_UtilFunFPAClassVer, 'testLSDemodPeaks');
-        function testLSDemodPeaks(testCase)                                    
+        function testLSDemodPeaks(testCase)
+            % testLSDemodPeaks repeats testLSDemodEquispacedPeaks's check
+            % using UtilFunFPA.LSDemod (general, non-equispaced) with
+            % arbitrary random phase-shift deltas, checking phase and
+            % modulation error for both onlyModFlag=false and
+            % onlyModFlag=true
+            % run(testFPA_UtilFunFPAClassVer, 'testLSDemodPeaks');
             close all;
 
             % Define the dimensions
@@ -2541,10 +2529,13 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
             
         end
         
-        % Here we calculate the LS PSA phase for a truncated igrams and
-        % check the effect on the phase and its gradients
-        % run(testFPA_UtilFunFPAClassVer, 'testLSDemodSaturation');
         function testLSDemodSaturation(testCase)
+            % testLSDemodSaturation visually checks the effect of
+            % clipping (saturating) some igram gray values before
+            % feeding them to UtilFunFPA.LSDemod on the recovered phase
+            % map, its gradients, and the phase error against ground
+            % truth
+            % run(testFPA_UtilFunFPAClassVer, 'testLSDemodSaturation');
             close all; % Close all open figures
             
             NR = 480; % Number of rows
@@ -2626,11 +2617,14 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
             
         end
         
-        % here we simulate a defelction measurement of a phase object using two
-        % fringe directions using a simple massig deflectometric setup. What we measure are the deirvatives of the output
-        % wavefront for each fringe direction
-        % run(testFPA_UtilFunFPAClassVer, 'testPSA6MultiplexedXY');
         function testPSA6MultiplexedXY(testCase)
+            % testPSA6MultiplexedXY checks UtilFunFPA.PSA6MultiplexedXY
+            % demodulates two orthogonal-grid deflectometric fringe
+            % directions multiplexed into 6 igrams, recovering both
+            % directional phasors (phase and modulation-only modes) and
+            % validating their modulation values against the synthetic
+            % input
+            % run(testFPA_UtilFunFPAClassVer, 'testPSA6MultiplexedXY');
             close all
             
             NR=512; NC=511;
@@ -2717,6 +2711,11 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
         % ==================================================================
 
         function test_LocateSidelobes_ReferenciaRotlex(testCase)
+            % test_LocateSidelobes_ReferenciaRotlex checks
+            % UtilFunFPA.LocateSidelobes finds the two expected
+            % sidelobe frequencies (within 1 px tolerance) on 6 real
+            % Rotlex/progressive-lens reference fringe pattern fixture
+            % images
             %run(testFPA_UtilFunFPAClassVer, 'test_LocateSidelobes_ReferenciaRotlex')
             import OM4MClassLib.Util.*;
             fprintf('\n%s: ',Logging.WhoCalledMe());
