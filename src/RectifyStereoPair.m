@@ -1,20 +1,12 @@
 function [Irect_right, Irect_left, KK_right_new, KK_left_new, R_new, T_new]=RectifyStereoPair(I_right, I_left, CalStereoFile)
-%RectifyStereoPair Rectify stereo pair images
-%   This a wrapper function of the CalibrationToolbox functionality.
-%   I_rigth, I_left, are the two stereo pair images and CalStereoFile is
-%   the file stroring the stereo calibration of the 3D rig, default name is
-%   Calib_Results_stereo
-%   KK_right_new, KK_left_new, R_new, T_new are the new internal parameters
-%   matrixes and the new roto-traslation between both frames (right and
-%   left)
-
-%   AQ, V0 12/5/11 
-%   Copyright 2009 OM4M
-%   $ Revision: 1.0.0.0 $
-%   $ Date: 12/5/11 $
-
-
-
+% RectifyStereoPair rectifies stereo pair images I_right/I_left using
+% the stereo calibration in CalStereoFile (default name
+% Calib_Results_stereo) - a wrapper around the Camera Calibration
+% Toolbox's rectification functionality.
+%
+% Outputs: Irect_right/Irect_left the rectified images; KK_right_new/
+% KK_left_new the new intrinsic matrices; R_new/T_new the new rotation/
+% translation between the rectified frames.
 try
     if exist(CalStereoFile, 'file')~=2,
         error('No stereo calibration data');
