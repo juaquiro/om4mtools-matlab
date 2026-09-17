@@ -198,21 +198,6 @@ classdef UtilFunFPA
         end
         
         
-        % ======================================================================
-        %> @brief direct gradient calculation
-        %> @details this function calculates the gradient [phix, phiy] using first differences. It uses the same sign convetion that MATLAB gradient().
-        %> Returns a the phase gradient and a Mask with valid differences. For this we use a median filter for outlier removal and gradient after filtering
-        %>
-        %> @param Nmed median filter size 
-        %> @param NS 2*NS+1 is the neigbouhoord size for avg filtering
-        %> @param M ROI with valid points
-        %> @param g input signal
-        %> @param LPCycles are the number of low pass cycles that we apply
-        %> to the calculated derivatives
-        %> @retval Mxy ROI with valid differences
-        %> @retval gx phase x-gradient
-        %> @retval gy phase y-gradient
-        % ======================================================================
         function [gx, gy, Mxy]=gradientDirect(g, M, NS, Nmed, LPCycles)
             % gradientDirect is phaseGradientDirect's real-valued
             % counterpart: computes the gradient [gx, gy] of real matrix
