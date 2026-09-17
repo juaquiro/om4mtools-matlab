@@ -1,19 +1,21 @@
 classdef CellEnumList
-    %CELLENUMLIST is a list base in a fix enumeration values specified in
-    %the DataTypes enumeration of the constructor
-    % the enumeration must inherit from int32 and all members must have an arbitary integer value >= 1
+    % CellEnumList is a list backed by a fixed enumeration of values
+    % specified as the DataTypes enumeration passed to the constructor.
+    % The enumeration must inherit from int32 and all members must have
+    % an arbitrary integer value >= 1
     %% privarte props
     properties (Access=private)
         Data; %cell array list of DataTypes
         %enumeration with the data types, it is very advisable to use as
-        %integer vañlues from 1 to n without gaps
+        %integer vaï¿½lues from 1 to n without gaps
         DataTypes; 
     end
     
     %% constructor
     methods
-        % DataTypes is a string with the name of the enumeration
         function this=CellEnumList(DataTypes)
+            % CellEnumList constructs an empty list with one slot per
+            % member of DataTypes (a string naming the enumeration class)
             try
                 import OM4MClassLib.DataStructs.*;
                 import OM4MClassLib.Util.*;
@@ -43,9 +45,11 @@ classdef CellEnumList
     %% public methods
     
     methods
-        %retrieves the valueType/s measurement/s
-        %valueType can be a single value or a cell array
         function value=Get(this, valueType)
+            % Get returns the stored value(s) for valueType (a single
+            % DataTypes member or a cell array of them; empty returns
+            % all members' values), erroring if valueType is not a
+            % DataTypes member
             try
                 import OM4MClassLib.Util.*;
                 callFunc=Logging.WhoCalledMe();
@@ -93,9 +97,10 @@ classdef CellEnumList
             end
         end
         
-        %sets the valueType/s measurement/s
-        %valueType and value can be a single value or a cell array
         function Set(this, valueType, value)
+            % Set stores value(s) for valueType (a single DataTypes
+            % member or a cell array of them, matched by position to a
+            % same-length cell array of value); value must not be empty
             try
                 import OM4MClassLib.Util.*;
                 callFunc=Logging.WhoCalledMe();
@@ -129,8 +134,8 @@ classdef CellEnumList
             end
         end
         
-        %Returns an enumeration of the stored valueTypes
         function list=GetTypeList(this)
+            % GetTypeList returns all members of the DataTypes enumeration
             try
                 import OM4MClassLib.Util.*;
                 callFunc=Logging.WhoCalledMe();
