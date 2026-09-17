@@ -1,4 +1,5 @@
 classdef testMLClassifierNN1 < matlab.unittest.TestCase
+    % testMLClassifierNN1 tests ClassifierNN1
     %before running the tests
     methods(TestMethodSetup)
         function SetUp(testCase)
@@ -18,7 +19,10 @@ classdef testMLClassifierNN1 < matlab.unittest.TestCase
     methods (Test)
         
         function testConstructor(testCase)
-            
+            % testConstructor checks ClassifierNN1's flags (supervised,
+            % non-regression), default props (lambda, hiddenSizes,
+            % featureType) and featureType validation on Set
+
             import OM4MClassLib.Util.*
             fprintf('\n%s: ',Logging.WhoCalledMe());
             %
@@ -72,10 +76,14 @@ classdef testMLClassifierNN1 < matlab.unittest.TestCase
         
         
         function testTrain(testCase)
-            
+            % testTrain trains ClassifierNN1 on the Coursera ex4data1
+            % (digits) dataset, checks cost/F1/precision/recall/accuracy
+            % against reference values, and checks the feature-count
+            % mismatch error on Predict
+
             import OM4MClassLib.Util.*
             fprintf('\n%s: ',Logging.WhoCalledMe());
-            
+
             load(fullfile(fixturesRoot(), 'CourseraMLData', 'ex4data1.mat'));
             c=ClassifierFactory.Create(ClassifierTypes.NN1);
             % In the exercise, lamba=3
@@ -123,10 +131,13 @@ classdef testMLClassifierNN1 < matlab.unittest.TestCase
             
         end
         
-        % Train the algorithm with the good and wrong cases and re-classify the
-        % anomalous cases
         function testTrainIOT(testCase)
-            
+            % testTrainIOT trains ClassifierNN1 on real lens QC features
+            % (good/wrong cases only, loaded via TrainingDataLoader) and
+            % checks Predict's output shapes match the input labels
+            % Train the algorithm with the good and wrong cases and re-classify the
+            % anomalous cases
+
             import OM4MClassLib.Util.*
             fprintf('\n%s: ',Logging.WhoCalledMe());
             
@@ -173,11 +184,14 @@ classdef testMLClassifierNN1 < matlab.unittest.TestCase
         
         
         function testLCurve(testCase)
-            
+            % testLCurve plots UtilFunML.learningCurve's train/CV error
+            % vs sample count on a 200-sample subset of the Coursera
+            % ex4data1 dataset
+
             import OM4MClassLib.Util.*;
-            
+
             fprintf('\n%s: ',Logging.WhoCalledMe());
-            
+
             load(fullfile(fixturesRoot(), 'CourseraMLData', 'ex4data1.mat'));
             c=ClassifierFactory.Create(ClassifierTypes.NN1);
             % In the exercise, lamba=3
@@ -207,11 +221,14 @@ classdef testMLClassifierNN1 < matlab.unittest.TestCase
         
         
         function testLCurveIOT(testCase)
-            
+            % testLCurveIOT plots UtilFunML.learningCurve's train/CV
+            % error and per-class F1/precision/recall vs sample count on
+            % a 100-sample subset of real lens QC features (3 classes)
+
             import OM4MClassLib.Util.*
-            
+
             fprintf('\n%s: ',Logging.WhoCalledMe());
-            
+
             QCStatsFile='QCStatsReport3Clases.xlsx';
             labelData=EnumLabelData.Type;
             ListFeatureNames={EnumFeatureNames.NoRegMeanTSeqErr, EnumFeatureNames.NoRegStdTSeqErr, ...
@@ -273,12 +290,15 @@ classdef testMLClassifierNN1 < matlab.unittest.TestCase
         
         
         function testValCurveIOT(testCase)
-            
+            % testValCurveIOT plots UtilFunML.validationCurve's train/CV
+            % error vs lambda on a 100-sample subset of real lens QC
+            % features (2 classes)
+
             import OM4MClassLib.Util.*
             fprintf('\n%s: ',Logging.WhoCalledMe());
-            
+
             c=ClassifierFactory.Create(ClassifierTypes.NN1);
-            
+
             QCStatsFile='QCStatsReport2Clases.xlsx';
             labelData=EnumLabelData.Type;
             ListFeatureNames={EnumFeatureNames.NoRegMeanTSeqErr, EnumFeatureNames.NoRegStdTSeqErr,...
@@ -315,11 +335,14 @@ classdef testMLClassifierNN1 < matlab.unittest.TestCase
         
         
         function testLCurveIOTPoly(testCase)
-            
+            % testLCurveIOTPoly repeats testLCurveIOT's learning-curve
+            % plot on the 2-class lens QC dataset, with polynomial
+            % feature expansion (p=4) enabled via ClassifierProps.p
+
             import OM4MClassLib.Util.*
-            
+
             fprintf('\n%s: ',Logging.WhoCalledMe());
-            
+
             QCStatsFile='QCStatsReport2Clases.xlsx';
             labelData=EnumLabelData.Type;
             ListFeatureNames={EnumFeatureNames.NoRegMeanTSeqErr, EnumFeatureNames.NoRegStdTSeqErr, ...
@@ -383,7 +406,11 @@ classdef testMLClassifierNN1 < matlab.unittest.TestCase
         
         
         function testLCurveIOT_3SetsOf100(testCase)
-            
+            % testLCurveIOT_3SetsOf100 visually plots 100 balanced
+            % samples per class (Anomalous/Good/Wrong lens QC features)
+            % in feature space, then plots UtilFunML.learningCurve's
+            % train/CV error and per-class F1/precision/recall vs sample count
+
             % Obtainig the data
             import OM4MClassLib.Util.*
             
@@ -483,9 +510,17 @@ classdef testMLClassifierNN1 < matlab.unittest.TestCase
             end
         end
         
-        % Create and train a ClassifierLR, then save it to a .mat file, load this
-        % file and obtain and make a prediction
         function testSaveAndLoad(testCase)
+            % testSaveAndLoad repeats testTrain's checks on ex4data1,
+            % then saves/loads the classifier (via a differently-typed
+            % fresh classifier instance) and checks predictions are
+            % unchanged.
+            %  Note: saves to 'ClassifierNN1_test.mat' but loads from
+            % 'classifierNN1_test' (different case, works only on a
+            % case-insensitive filesystem); its final delete() of the
+            % .mat file is also commented out, leaving the file behind.
+            % Create and train a ClassifierLR, then save it to a .mat file, load this
+            % file and obtain and make a prediction
             %mtest testML_ClassifierNN1:testSaveAndLoad
             
             import OM4MClassLib.Util.*
@@ -555,12 +590,16 @@ classdef testMLClassifierNN1 < matlab.unittest.TestCase
         end
         
         function testTrainingex2data2PostProb(testCase)
+            % testTrainingex2data2PostProb trains ClassifierNN1 on the
+            % raw (unmapped) Coursera ex2data2 dataset and visually
+            % inspects the predicted class and posterior probability
+            % over a grid
             import OM4MClassLib.Util.*;
-            
+
             fprintf('\n%s: ',Logging.WhoCalledMe());
-            
+
             c=ClassifierFactory.Create(ClassifierTypes.NN1);
-            
+
             data = load(fullfile(fixturesRoot(), 'CourseraMLData', 'ex2data2.txt'));
             X = data(:, [1, 2]); y = data(:, 3);
             y=y+1;
@@ -588,6 +627,13 @@ classdef testMLClassifierNN1 < matlab.unittest.TestCase
         end
         
         function testSaveAndLoad_ex2data2(testCase)
+            % testSaveAndLoad_ex2data2 repeats
+            % testTrainingex2data2PostProb, then saves/loads the
+            % classifier (via a differently-typed fresh classifier
+            % instance) and checks predictions are unchanged.
+            %  Note: same 'ClassifierNN1_test.mat'/'classifierNN1_test'
+            % case mismatch as testSaveAndLoad (works only on a
+            % case-insensitive filesystem).
             % mtest testML_ClassifierNN1:testSaveAndLoad_ex2data2
             import OM4MClassLib.Util.*;
             
