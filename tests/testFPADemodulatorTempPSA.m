@@ -1,4 +1,7 @@
 classdef testFPADemodulatorTempPSA < matlab.unittest.TestCase
+    % testFPADemodulatorTempPSA tests DemodulatorTimePSA (temporal
+    % phase-shifting demodulation, every PSFilterTypes filter) and its
+    % use for FFV deflectometry (feeding LensMapperMeasurement)
     %run(testFPADemodulatorTempPSA)
     
     methods(TestMethodSetup)
@@ -18,6 +21,9 @@ classdef testFPADemodulatorTempPSA < matlab.unittest.TestCase
     
     methods (Test)
         function testAllDemodulatorsConstructors(testCase)
+            % testAllDemodulatorsConstructors builds every DemodulatorTypes
+            % variant via the factory and checks every DemodulatorProps
+            % Get() call succeeds
             %run(testFPADemodulatorTempPSA, 'testAllDemodulatorsConstructors')
             import OM4MClassLib.Util.*;
             fprintf('\ntest %s...\n ',Logging.WhoCalledMe());
@@ -40,6 +46,8 @@ classdef testFPADemodulatorTempPSA < matlab.unittest.TestCase
         
         
         function testConstructor(testCase)
+            % testConstructor checks the factory returns a
+            % DemodulatorTimePSA instance for DemodulatorTypes.TimePSA
             %run(testFPADemodulatorTempPSA, 'testConstructor')
             import OM4MClassLib.Util.*;
             fprintf('\ntest %s...\n ',Logging.WhoCalledMe());
@@ -52,6 +60,9 @@ classdef testFPADemodulatorTempPSA < matlab.unittest.TestCase
         end
         
         function testGenSteps(testCase)
+            % testGenSteps checks GetStepValues() matches the manual
+            % step computation from d.h/d.w0, for every PSFilterTypes
+            % filter (PS4 tested with a 90-degree StepsTwoPwiRange)
             %run(testFPADemodulatorTempPSA,'testGenSteps')
             import OM4MClassLib.Util.*;
             fprintf('\ntest %s...\n ',Logging.WhoCalledMe());
@@ -88,6 +99,10 @@ classdef testFPADemodulatorTempPSA < matlab.unittest.TestCase
         
         
         function testGenFPsAndProcess(testCase)
+            % testGenFPsAndProcess generates and processes fringe
+            % patterns for every PSFilterTypes filter and both scan
+            % directions, checking the phase gradient is ~0 along the
+            % constant-phase direction of each
             %run(testFPADemodulatorTempPSA,'testGenFPsAndProcess')
             import OM4MClassLib.Util.*;
             fprintf('\ntest %s...\n ',Logging.WhoCalledMe());
@@ -172,6 +187,9 @@ classdef testFPADemodulatorTempPSA < matlab.unittest.TestCase
         
         
         function testGenFPsAndProcessWithProjector(testCase)
+            % testGenFPsAndProcessWithProjector repeats
+            % testGenFPsAndProcess but displays each pattern on a real
+            % DisplayProjector before processing
             %run(testFPADemodulatorTempPSA,'testGenFPsAndProcessWithProjector')
             import OM4MClassLib.Util.*;
             fprintf('\ntest %s...\n ',Logging.WhoCalledMe());
@@ -266,6 +284,11 @@ classdef testFPADemodulatorTempPSA < matlab.unittest.TestCase
         end
         
         function testTimePS_A0502_ProcessMontajeHorizontal(testCase)
+            % testTimePS_A0502_ProcessMontajeHorizontal demodulates a
+            % real transmission-deflectometry LensMapperMeasurement
+            % fixture (5-step, MontajeHorizontal setup), refines the ROI
+            % from the deflection module and feeds the result into
+            % CalculateLensPower, visually inspecting the power maps
             %run(testFPADemodulatorTempPSA,'testTimePS_A0502_ProcessMontajeHorizontal')
             import OM4MClassLib.Util.*;
             fprintf('\ntest %s...\n ',Logging.WhoCalledMe());
@@ -350,6 +373,11 @@ classdef testFPADemodulatorTempPSA < matlab.unittest.TestCase
         
         
         function testTimePS_A0502_Process_NuevoMontajeVertical(testCase)
+            % testTimePS_A0502_Process_NuevoMontajeVertical repeats
+            % testTimePS_A0502_ProcessMontajeHorizontal's demodulation +
+            % CalculateLensPower chain on a real fixture from the newer
+            % vertical deflectometer setup, using the demodulator's
+            % auto-accumulated ROI directly (no extra module-based refinement)
             %run(testFPADemodulatorTempPSA,'testTimePS_A0502_Process_NuevoMontajeVertical')
             import OM4MClassLib.Util.*;
             fprintf('\ntest %s...\n ',Logging.WhoCalledMe());

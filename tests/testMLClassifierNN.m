@@ -1,4 +1,5 @@
 classdef testMLClassifierNN < matlab.unittest.TestCase
+    % testMLClassifierNN tests ClassifierNN
     %before running the tests
     methods(TestMethodSetup)
         function SetUp(testCase)
@@ -18,14 +19,17 @@ classdef testMLClassifierNN < matlab.unittest.TestCase
     methods (Test)
 
         function testConstructor(testCase)
-            
+            % testConstructor checks ClassifierNN's flags (supervised,
+            % non-regression), default props (lambda, hiddenSizes,
+            % featureType) and featureType validation on Set
+
             import OM4MClassLib.Util.*;
-            
+
             fprintf('\n%s: ',Logging.WhoCalledMe());
-            
-            
+
+
             c=ClassifierFactory.Create(ClassifierTypes.NN);
-            
+
             %this is a supervised classfier
             testCase.assertTrue(c.isSupervised);
             
@@ -141,6 +145,9 @@ classdef testMLClassifierNN < matlab.unittest.TestCase
         
         
         function testLearningCurve(testCase)
+            % testLearningCurve plots UtilFunML.learningCurve's train/CV
+            % error and per-class F1 vs sample count on a decimated
+            % Coursera ex3data1 (digits) dataset
             %example form ex3.m of the ML course
             
             import OM4MClassLib.Util.*;
@@ -195,6 +202,9 @@ classdef testMLClassifierNN < matlab.unittest.TestCase
         
         
         function testLearningCurve2(testCase)
+            % testLearningCurve2 plots UtilFunML.learningCurve's train/CV
+            % error and per-class F1/precision/recall vs sample count on
+            % the mapFeature-expanded Coursera ex2data2 (microchip QA) dataset
             %example form ex2.m of the ML course
             
             import OM4MClassLib.Util.*;
@@ -256,6 +266,9 @@ classdef testMLClassifierNN < matlab.unittest.TestCase
         
         
         function testValidationCurve2(testCase)
+            % testValidationCurve2 plots UtilFunML.validationCurve's
+            % train/CV error vs lambda on the mapFeature-expanded
+            % Coursera ex2data2 dataset
             %example form ex2.m of the ML course
             
             import OM4MClassLib.Util.*;
@@ -345,6 +358,9 @@ classdef testMLClassifierNN < matlab.unittest.TestCase
         
         
         function testLearningCurveLensesIOT(testCase)
+            % testLearningCurveLensesIOT plots UtilFunML.learningCurve's
+            % train/CV error and per-class F1/precision/recall vs sample
+            % count on real lens QC features loaded via TrainingDataLoader
             %example form ex2.m of the ML course
             
             import OM4MClassLib.Util.*;
@@ -420,6 +436,9 @@ classdef testMLClassifierNN < matlab.unittest.TestCase
         
         
         function testValidationCurveIOTLenses(testCase)
+            % testValidationCurveIOTLenses plots UtilFunML.validationCurve's
+            % train/CV error vs lambda on real lens QC features loaded
+            % via TrainingDataLoader
             %example form ex2.m of the ML course
             
             import OM4MClassLib.Util.*;
@@ -465,6 +484,9 @@ classdef testMLClassifierNN < matlab.unittest.TestCase
         
         
         function testTrainSetChange(testCase)
+            % testTrainSetChange checks a fresh ClassifierNN can be
+            % trained on a differently-sized/shaped dataset than a prior
+            % instance (2-feature, 1-class vs 3-class synthetic data)
             %two succesive calls to train must work even in tran set changes
             %dimmensiuons
             
@@ -495,16 +517,19 @@ classdef testMLClassifierNN < matlab.unittest.TestCase
         
         
         function testTrainingex2data2PostProb(testCase)
+            % testTrainingex2data2PostProb trains ClassifierNN on the raw
+            % (unmapped) Coursera ex2data2 dataset and visually inspects
+            % the predicted class and posterior probability over a grid
             import OM4MClassLib.Util.*;
-            
+
             fprintf('\n%s: ',Logging.WhoCalledMe());
-            
+
             c=ClassifierFactory.Create(ClassifierTypes.NN);
-            
+
             data = load(fullfile(fixturesRoot(), 'CourseraMLData', 'ex2data2.txt'));
             X = data(:, [1, 2]); y = data(:, 3);
             y=y+1;
-            
+
             k1=(y==1);
             k2=(y==2);
             figure; plot(X(k1, 1), X(k1, 2), 'g+', X(k2, 1), X(k2, 2), 'ro');
@@ -528,6 +553,13 @@ classdef testMLClassifierNN < matlab.unittest.TestCase
         
         
         function testSaveAndLoad_ex2data2(testCase)
+            % testSaveAndLoad_ex2data2 trains on the raw Coursera
+            % ex2data2 dataset, saves the classifier, loads it back (via
+            % a differently-typed fresh classifier instance) and checks
+            % predictions are unchanged.
+            %  Note: saves to 'ClassifierNN_test.mat' but loads from
+            % 'classifierNN_test' (different case) - only works on a
+            % case-insensitive filesystem (e.g. Windows).
             %mtest testML_ClassifierNN:testSaveAndLoad_ex2data2
             import OM4MClassLib.Util.*;
             

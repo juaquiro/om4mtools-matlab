@@ -1,5 +1,5 @@
 classdef testStandardHW_MockCam < matlab.unittest.TestCase
-    % TESTSTANDARDHW_MOCKCAM  Unit‑tests for the *MockCam* software camera.
+    % testStandardHW_MockCam  Unit‑tests for the *MockCam* software camera.
     %
     %  This class re‑implements the original tests supplied for the real
     %  *imaqCam* hardware so they target the mock implementation instead.

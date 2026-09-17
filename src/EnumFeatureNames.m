@@ -1,5 +1,6 @@
 classdef EnumFeatureNames
-    %ENUMNAMEDATA this enum has the list of alowed name data
+    % EnumFeatureNames enumeration of allowed ML feature names (error
+    % metrics used as classifier inputs, see e.g. testMLClassifierLR)
     enumeration
         NoRegMeanTSeqErr,
         NoRegStdTSeqErr,

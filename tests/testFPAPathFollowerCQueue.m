@@ -1,21 +1,12 @@
-%> @file testFPAPathFollowerCQueue.m
-%> @brief unit tests for PathFollowerCQueue
-%> @details NA
-%> @copyright 2016 IOT
-%> @author AQ 21MAR16
-%> @author AQ 
-
-
-% ======================================================================
-%> @brief unnit tests for FPAPathFollowerCQueue
-%> @details NA
-%> @see PathFollowerTypes for avalible path follower types
-%> @see PathFollowerFactory for a static factory
-%> @see testFPAPathFollowerCQueue for unit tests
-%> @see PathFollowerModes for modes of path follower
-%> @see look for "Quality Map" in Servin, M., Quiroga, J. A., & Padilla, M. (2014). Fringe Pattern Analysis for Optical Metrology: Theory, Algorithms, and Applications. Wiley vch.
-% ======================================================================
 classdef testFPAPathFollowerCQueue < matlab.unittest.TestCase
+    % testFPAPathFollowerCQueue tests PathFollowerFactory's CQueue-based
+    % path follower (PathFollowerTypes.CQueue) across every
+    % PathFollowerModes value.
+    % See PathFollowerTypes for available path follower types,
+    % PathFollowerModes for follower modes, and "Quality Map" in Servin,
+    % M., Quiroga, J. A., & Padilla, M. (2014). Fringe Pattern Analysis
+    % for Optical Metrology: Theory, Algorithms, and Applications. Wiley
+    % vch, for the underlying algorithm.
     %run(testFPAPathFollowerCQueue)
     
     methods(TestMethodSetup)
@@ -35,6 +26,8 @@ classdef testFPAPathFollowerCQueue < matlab.unittest.TestCase
     
     methods (Test)
         function testPathFollowerConstructor(testCase)
+            % testPathFollowerConstructor checks the CQueue path follower
+            % can be constructed from a quality map and ROI mask
             %run(testFPAPathFollowerCQueue, 'testPathFollowerConstructor')
             import OM4MClassLib.Util.*;
             fprintf('\ntest %s...\n ',Logging.WhoCalledMe());
@@ -49,6 +42,9 @@ classdef testFPAPathFollowerCQueue < matlab.unittest.TestCase
         end
         
         function testPathFollowerAddGetPixelFlatQuality(testCase)
+            % testPathFollowerAddGetPixelFlatQuality checks that, with a
+            % flat quality map (1 level), AddPoint/GetNext return pixels
+            % in insertion (FIFO) order, for every PathFollowerModes value
             %run(testFPAPathFollowerCQueue, 'testPathFollowerAddGetPixelFlatQuality')
             import OM4MClassLib.Util.*;
             fprintf('\ntest %s...\n ',Logging.WhoCalledMe());
@@ -84,6 +80,9 @@ classdef testFPAPathFollowerCQueue < matlab.unittest.TestCase
         
         
         function testPathFollowerAddGetPixelPeaksQuality(testCase)
+            % testPathFollowerAddGetPixelPeaksQuality repeats
+            % testPathFollowerAddGetPixelFlatQuality with a non-flat
+            % peaks()-based quality map (6 levels) and its positive ROI
             %run(testFPAPathFollowerCQueue, 'testPathFollowerAddGetPixelPeaksQuality')
             import OM4MClassLib.Util.*;
             fprintf('\ntest %s...\n ',Logging.WhoCalledMe());
@@ -119,6 +118,10 @@ classdef testFPAPathFollowerCQueue < matlab.unittest.TestCase
         
         
         function testPathFollowerFillingUsingPeaksQuality(testCase)
+            % testPathFollowerFillingUsingPeaksQuality visually animates
+            % the follower draining its whole ROI (peaks()-based quality
+            % map, border zeroed) starting from 4 seed pixels, for every
+            % PathFollowerModes value
             %run(testFPAPathFollowerCQueue, 'testPathFollowerFillingUsingPeaksQuality')
             import OM4MClassLib.Util.*;
             fprintf('\ntest %s...\n ',Logging.WhoCalledMe());
@@ -170,6 +173,10 @@ classdef testFPAPathFollowerCQueue < matlab.unittest.TestCase
         
         
         function testFillingUsingPeaksQualityStartMax(testCase)
+            % testFillingUsingPeaksQualityStartMax repeats
+            % testPathFollowerFillingUsingPeaksQuality but seeds the
+            % follower from the ROI's maximum-quality pixel(s) instead
+            % of 4 fixed points
             %run(testFPAPathFollowerCQueue, 'testFillingUsingPeaksQualityStartMax')
             import OM4MClassLib.Util.*;
             fprintf('\ntest %s...\n ',Logging.WhoCalledMe());

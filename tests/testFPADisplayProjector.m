@@ -1,4 +1,6 @@
 classdef testFPADisplayProjector < matlab.unittest.TestCase
+    % testFPADisplayProjector tests DisplayProjector / DisplayTypes.JavaDisp
+    % (Java-frame-based full-screen projector display)
     %run(testFPADisplayProjector)
     
     methods(TestMethodSetup)
@@ -18,6 +20,8 @@ classdef testFPADisplayProjector < matlab.unittest.TestCase
     
     methods (Test)
         function testConstructorObjeto(testCase)
+            % testConstructorObjeto checks DisplayProjector can be
+            % constructed directly (no arguments)
             %run(testFPADisplayProjector, 'testConstructorObjeto')
             import OM4MClassLib.Util.*;
             fprintf('\ntest %s...\n ',Logging.WhoCalledMe());
@@ -26,6 +30,8 @@ classdef testFPADisplayProjector < matlab.unittest.TestCase
         end
         
         function testConstructor(testCase)
+            % testConstructor visually checks a crosshair pattern
+            % displays correctly via the factory (DisplayTypes.JavaDisp)
             %run(testFPADisplayProjector, 'testConstructor')
             import OM4MClassLib.Util.*;
             fprintf('\ntest %s...\n ',Logging.WhoCalledMe());
@@ -50,6 +56,8 @@ classdef testFPADisplayProjector < matlab.unittest.TestCase
         end
         
         function testDisplayList(testCase)
+            % testDisplayList visually checks a 9-frame phase-shifted
+            % fringe sequence displays in order via dp.gList/Display
             %run(testFPADisplayProjector, 'testDisplayList')
             import OM4MClassLib.Util.*;
             fprintf('\ntest %s...\n ',Logging.WhoCalledMe());
@@ -85,6 +93,8 @@ classdef testFPADisplayProjector < matlab.unittest.TestCase
         end
         
         function testRGB(testCase)
+            % testRGB visually checks DisplayRGB fills the screen with
+            % white, then red, green and blue in turn
             %run(testFPADisplayProjector, 'testRGB')
             import OM4MClassLib.Util.*;
             fprintf('\ntest %s...\n ',Logging.WhoCalledMe());
@@ -106,8 +116,8 @@ classdef testFPADisplayProjector < matlab.unittest.TestCase
         end
 
         function testGVconstant(testCase)
-        %Test que proyecta niveles de gris con DGV constantes para emplearlos
-        %luego en LinLutGv
+        % testGVconstant projects 6 constant gray-level frames (0:50:250)
+        % on monitor 2, for use as calibration inputs to LinLutGv
             %run(testFPADisplayProjectorMatlab, 'testGVconstant')
             import OM4MClassLib.Util.*;
             fprintf('\ntest %s...\n ',Logging.WhoCalledMe());

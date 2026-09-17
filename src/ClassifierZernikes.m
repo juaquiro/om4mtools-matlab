@@ -1,37 +1,38 @@
 classdef ClassifierZernikes < ClassifierLinReg
-    %ClassifierZernikes
-    %   This class describes a surface given by a cloud of points by means
-    %   of zernike polynomials
-    
+    % ClassifierZernikes fits a surface (cloud of points) as a bivariate
+    % Zernike polynomial expansion (supervised, regression)
+
     %% private props
     properties (Access=private)
-        
+
         monCoeff;       %Matrix of monomial coeficients that represent the calculated
                         %zernike polinomial
         scale;          %Scaling of the training parameters so that they fit in the unit circle
-        
+
     end
-    
+
    %% public methods
     methods
-        % constructor
         function  this=ClassifierZernikes()
-            
-            this = this@ClassifierLinReg(); 
+            % ClassifierZernikes constructs a Zernike-surface classifier
+
+            this = this@ClassifierLinReg();
             this.Init();
         end
-        
+
         function r=isSupervised(this) %#ok<MANU>
+            % isSupervised: true, needs labeled (X, y) training data
             r=true;
         end
-        
+
         function r=isRegression(this) %#ok<MANU>
+            % isRegression: true, predicts a continuous surface value
             r=true;
         end
-        
-        %Gets the matrix of the bivariate polynomial that represents the
-        %adjusted surface
+
         function coeff=GetSurfCoeff(this)
+            % GetSurfCoeff returns the fitted bivariate polynomial's
+            % monomial coefficient matrix (the adjusted surface, in XY form)
             coeff=this.monCoeff;
         end
 
@@ -40,10 +41,13 @@ classdef ClassifierZernikes < ClassifierLinReg
     %% protected abstract interface
     methods(Access=protected)
         
-        %function used to compute the parameters theta and the bi-variate
-        %polynomial equivalent matrix used to optimize prediction speed
         function CalculateTheta(this, X,y)
-            
+            % CalculateTheta fits theta over normalized Zernike terms of
+            % X (with optional curvature-smoothness virtual points), then
+            % converts it to an equivalent XY monomial matrix
+            % (this.monCoeff) so Predict doesn't need to re-evaluate
+            % Zernike terms every call
+
             import OM4MClassLib.Util.*;
             
             %Load and check classifier properties
@@ -114,16 +118,17 @@ classdef ClassifierZernikes < ClassifierLinReg
                 this.monCoeff=A;
         end
         
-        %Classfier hypothesis h_theta(X)
         function [pred,prb]=HypothesisP(this, X)
-            %Predict values for new cases
+            % HypothesisP predicts pred by evaluating the fitted XY
+            % polynomial (this.monCoeff) at X, and prb as its distance to
+            % the regression line
             pred=Poly2.Evaluate(X(:,1),X(:,2),this.monCoeff);
             prb=pred/norm(this.theta); % Distance to the regression line
-        end 
-        
+        end
+
         function errStruct=RawDataErrorFun(this, X, y)
-                                              
-                        
+            % RawDataErrorFun returns the regularized cost J (F1/P/R are
+            % N/A for a regressor, left at 0)
             J=this.CostFunction(X, y);
             
             errStruct=UtilFunML.genErrorStruct(1);
@@ -135,29 +140,31 @@ classdef ClassifierZernikes < ClassifierLinReg
         end
         
         function J=CostFunction(this, X, y)
-           
+           % CostFunction returns the regularized squared-error cost of
+           % predicting X against y
            m = size(X, 1);
            lambda=this.Get(char(ClassifierProps.lambda));
            t=this.theta(2:end);
            res=this.Predict(X)-y;
-           
+
            J=res'*res/(2*m) + lambda*(t')*t/(2*m);
         end
-        
+
         function r=isTrained(this)
+            % isTrained returns true once theta has been fitted
             if isempty(this.theta)
                 r=false;
             else
                 r=true;
-            end            
-        end   
+            end
+        end
     end
-    
-    
+
+
     %% private methods
     methods (Access=private)
-        %Initialize
         function this=Init(this)
+            % Init sets this classifier's default lambda/zOrder/zernikeRadius props
 
             %Default prop values
             this.props.Set(char(ClassifierProps.lambda), 0);

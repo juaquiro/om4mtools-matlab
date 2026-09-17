@@ -1,5 +1,5 @@
 function results = run_all_tests()
-%RUN_ALL_TESTS Run the om4mtools-matlab matlab.unittest suite (no hardware).
+% run_all_tests Run the om4mtools-matlab matlab.unittest suite (no hardware).
 %
 % Discovers every matlab.unittest.TestCase in tests/ (legacy mtest-style
 % files with no modern equivalent are silently skipped - they are not

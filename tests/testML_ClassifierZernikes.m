@@ -1,6 +1,7 @@
 classdef testML_ClassifierZernikes < matlab.unittest.TestCase
+    % testML_ClassifierZernikes tests ClassifierZernikes, mostly against
+    % real lens surface data (Youn200225202.mat)
     %run(testML_ClassifierZernikes)
-    %test the class ML.ClassifierZernikes
 
     methods(TestMethodSetup)
         function SetUp(testCase)
@@ -18,6 +19,9 @@ classdef testML_ClassifierZernikes < matlab.unittest.TestCase
 
     methods (Test)
         function testConstructor(testCase)
+            % testConstructor checks ClassifierZernikes' flags
+            % (supervised, regression), default props (lambda, zOrder,
+            % featureType) and featureType validation on Set
             %run(testML_ClassifierZernikes, 'testConstructor')
             import OM4MClassLib.Util.*;
 
@@ -75,6 +79,10 @@ classdef testML_ClassifierZernikes < matlab.unittest.TestCase
         end
 
         function testTrain(testCase)
+            % testTrain fits ClassifierZernikes to a real lens surface
+            % (Youn200225202.mat), checks the predicted sag at the
+            % center against the fixture's own center value, and checks
+            % the feature-count mismatch error on Predict
             %run(testML_ClassifierZernikes, 'testTrain')
             %'Youn200225202.mat' contains measures from a real lens
             import OM4MClassLib.Util.*;
@@ -114,6 +122,9 @@ classdef testML_ClassifierZernikes < matlab.unittest.TestCase
         end
 
         function testLearningCurve(testCase)
+            % testLearningCurve plots UtilFunML.learningCurve's train/CV
+            % error vs sample count on the real lens fixture, at two
+            % lambda values, using the default (data-driven) Zernike radius
             %run(testML_ClassifierZernikes, 'testLearningCurve')
             %'Youn200225202.mat' contains measures from a real lens
             import OM4MClassLib.Util.*;
@@ -157,6 +168,9 @@ classdef testML_ClassifierZernikes < matlab.unittest.TestCase
 
 
         function testLearningCurveFixedRadius(testCase)
+            % testLearningCurveFixedRadius repeats testLearningCurve
+            % with an explicit fixed zernikeRadius (60) instead of the
+            % default data-driven one
             %run(testML_ClassifierZernikes, 'testLearningCurveFixedRadius')
             %'Youn200225202.mat' contains measures from a real lens
             import OM4MClassLib.Util.*;
@@ -200,6 +214,9 @@ classdef testML_ClassifierZernikes < matlab.unittest.TestCase
         end
 
         function testValidationCurve(testCase)
+            % testValidationCurve plots UtilFunML.validationCurve's
+            % train/CV error vs lambda (log-spaced) on the real lens
+            % fixture at zOrder=209
             %run(testML_ClassifierZernikes, 'testValidationCurve')
             %'Youn200225202.mat' contains measures from a real lens
             import OM4MClassLib.Util.*;
@@ -231,6 +248,9 @@ classdef testML_ClassifierZernikes < matlab.unittest.TestCase
         end
 
         function testZernikeMuCurve(testCase)
+            % testZernikeMuCurve plots UtilFunML.ZernikeMuCurve's
+            % train/CV error vs the mu curvature-regularization
+            % parameter on the real lens fixture at zOrder=209, lambda=1e-6
             %run(testML_ClassifierZernikes, 'testZernikeMuCurve')
             %'Youn200225202.mat' contains measures from a real lens
             import OM4MClassLib.Util.*;
@@ -264,6 +284,8 @@ classdef testML_ClassifierZernikes < matlab.unittest.TestCase
         end
 
         function testValidationCurveFixedRadius(testCase)
+            % testValidationCurveFixedRadius repeats testValidationCurve
+            % with an explicit fixed zernikeRadius (60)
             %run(testML_ClassifierZernikes, 'testValidationCurveFixedRadius')
             %'Youn200225202.mat' contains measures from a real lens
             import OM4MClassLib.Util.*;
@@ -296,6 +318,8 @@ classdef testML_ClassifierZernikes < matlab.unittest.TestCase
         end
 
         function testZernikeMuCurveFixedRadius(testCase)
+            % testZernikeMuCurveFixedRadius repeats testZernikeMuCurve
+            % with an explicit fixed zernikeRadius (60) and lambda=3e-9
             %run(testML_ClassifierZernikes, 'testZernikeMuCurveFixedRadius')
             %'Youn200225202.mat' contains measures from a real lens
             import OM4MClassLib.Util.*;
@@ -329,10 +353,14 @@ classdef testML_ClassifierZernikes < matlab.unittest.TestCase
             legend('Train', 'Cross Validation'); xlabel('mu'); ylabel('Accuracy');
         end
 
-        % Create and train a ClassifierLR, then save it to a .mat file, load this
-        % file and obtain and make a prediction
         function testSaveAndLoadClassifier(testCase)
+            % testSaveAndLoadClassifier trains ClassifierZernikes on the
+            % real lens fixture, checks the predicted center sag, then
+            % saves/loads the classifier and checks predictions are
+            % unchanged
             %run(testML_ClassifierZernikes, 'testSaveAndLoadClassifier')
+            % Create and train a ClassifierLR, then save it to a .mat file, load this
+            % file and obtain and make a prediction
             % ex1_multitaken from the ML course
             %'Youn200225202.mat' contains measures from a real lens
             import OM4MClassLib.Util.*;

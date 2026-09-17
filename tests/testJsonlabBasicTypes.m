@@ -1,5 +1,5 @@
 classdef testJsonlabBasicTypes < matlab.unittest.TestCase
-    %TESTJSONLABBASICTYPES round-trip regression tests for the data types
+    % testJsonlabBasicTypes round-trip regression tests for the data types
     %demonstrated in jsonlab's own examples/demo_jsonlab_basic.m and
     %demo_ubjson_basic.m (which only printed output, no assertions).
     %
@@ -24,6 +24,8 @@ classdef testJsonlabBasicTypes < matlab.unittest.TestCase
 
     methods (Test)
         function testScalar(testCase, codec)
+            % testScalar round-trips a scalar double (pi) through the
+            % given codec, tolerating JSON's ~10-significant-digit precision.
             % named field (not an empty root name) - an anonymous UBJSON
             % root scalar comes back wrapped in a 1x1 cell instead of a
             % plain double, which is a real quirk of this codec/library,
@@ -41,6 +43,8 @@ classdef testJsonlabBasicTypes < matlab.unittest.TestCase
         end
 
         function testComplexNumber(testCase, codec)
+            % testComplexNumber round-trips a scalar complex number
+            % through the given codec
             [saveFcn, loadFcn] = testJsonlabBasicTypes.codecFcns(codec);
 
             data = 1 + 2i;
@@ -51,6 +55,8 @@ classdef testJsonlabBasicTypes < matlab.unittest.TestCase
         end
 
         function testComplexMatrix(testCase, codec)
+            % testComplexMatrix round-trips a complex matrix through the
+            % given codec
             [saveFcn, loadFcn] = testJsonlabBasicTypes.codecFcns(codec);
 
             m = magic(6);
@@ -62,6 +68,8 @@ classdef testJsonlabBasicTypes < matlab.unittest.TestCase
         end
 
         function testSpecialConstants(testCase, codec)
+            % testSpecialConstants round-trips NaN/Inf/-Inf through the
+            % given codec
             [saveFcn, loadFcn] = testJsonlabBasicTypes.codecFcns(codec);
 
             data = [NaN, Inf, -Inf];
@@ -73,6 +81,8 @@ classdef testJsonlabBasicTypes < matlab.unittest.TestCase
         end
 
         function testSparseReal(testCase, codec)
+            % testSparseReal round-trips a real sparse matrix through
+            % the given codec
             [saveFcn, loadFcn] = testJsonlabBasicTypes.codecFcns(codec);
 
             data = sprand(10, 10, 0.1);
@@ -84,6 +94,8 @@ classdef testJsonlabBasicTypes < matlab.unittest.TestCase
         end
 
         function testSparseComplex(testCase, codec)
+            % testSparseComplex round-trips a complex sparse matrix
+            % through the given codec
             [saveFcn, loadFcn] = testJsonlabBasicTypes.codecFcns(codec);
 
             data = sprand(10, 10, 0.1);
@@ -96,6 +108,8 @@ classdef testJsonlabBasicTypes < matlab.unittest.TestCase
         end
 
         function testAllZeroSparse(testCase, codec)
+            % testAllZeroSparse round-trips an all-zero sparse matrix
+            % through the given codec
             [saveFcn, loadFcn] = testJsonlabBasicTypes.codecFcns(codec);
 
             data = sparse(2, 3);
@@ -107,6 +121,8 @@ classdef testJsonlabBasicTypes < matlab.unittest.TestCase
         end
 
         function testEmpty0by0Real(testCase, codec)
+            % testEmpty0by0Real round-trips a 0x0 empty matrix through
+            % the given codec
             [saveFcn, loadFcn] = testJsonlabBasicTypes.codecFcns(codec);
 
             data = [];
@@ -118,6 +134,8 @@ classdef testJsonlabBasicTypes < matlab.unittest.TestCase
         end
 
         function testEmpty0by3Real(testCase, codec)
+            % testEmpty0by3Real round-trips a 0x3 empty matrix through
+            % the given codec, checking only that it stays empty.
             % UBJSON round-trips an empty matrix as empty but does not
             % reliably preserve its non-zero dimension (e.g. the "3" in
             % 0x3) - a real limitation of the binary encoding for arrays
@@ -133,6 +151,8 @@ classdef testJsonlabBasicTypes < matlab.unittest.TestCase
         end
 
         function testStruct(testCase, codec)
+            % testStruct round-trips a struct (with nested struct, matrix
+            % and NaN/Inf fields) through the given codec.
             % UBJSON is a binary format and stores integer-valued doubles
             % in the smallest integer type that fits (int8/int16/...)
             % instead of keeping them as double - real, expected codec
@@ -154,6 +174,8 @@ classdef testJsonlabBasicTypes < matlab.unittest.TestCase
         end
 
         function testStructArray(testCase, codec)
+            % testStructArray round-trips a 1D struct array through the
+            % given codec
             [saveFcn, loadFcn] = testJsonlabBasicTypes.codecFcns(codec);
 
             data = struct('name', 'Nexus Prime', 'rank', 9);
@@ -171,6 +193,8 @@ classdef testJsonlabBasicTypes < matlab.unittest.TestCase
         end
 
         function test2DStructArray(testCase, codec)
+            % test2DStructArray round-trips a 2x3 struct array through
+            % the given codec, checking only that every .idx value survives.
             % jsonlab does not preserve the original 2D shape/linear-index
             % order of a struct array on the way back (its own bundled
             % demo shows the same reshaping) - check that all idx values
@@ -191,6 +215,8 @@ classdef testJsonlabBasicTypes < matlab.unittest.TestCase
         end
 
         function testCellArray(testCase, codec)
+            % testCellArray checks encoding a nested cell array with the
+            % given codec's save function does not error.
             %jsonlab's own demo notes loadjson has issues reloading cell
             %arrays - only check that encoding a cell array does not error
             %and produces something non-empty (matches the documented
@@ -207,6 +233,8 @@ classdef testJsonlabBasicTypes < matlab.unittest.TestCase
 
     methods (Static, Access = private)
         function [saveFcn, loadFcn] = codecFcns(codec)
+            % codecFcns returns the {save,load} function handles for
+            % codec ('json' -> savejson/loadjson, else saveubjson/loadubjson)
             if strcmp(codec, 'json')
                 saveFcn = @savejson;
                 loadFcn = @loadjson;
@@ -217,6 +245,7 @@ classdef testJsonlabBasicTypes < matlab.unittest.TestCase
         end
 
         function value = onlyField(s)
+            % onlyField returns the value of struct s's single field.
             %jsonlab sanitizes wrapper field names (e.g. spaces get
             %escaped), so grab whatever the single field ended up being
             %called instead of hardcoding its name.
@@ -225,7 +254,7 @@ classdef testJsonlabBasicTypes < matlab.unittest.TestCase
         end
 
         function idxs = flattenIdx(value)
-            %recursively collect .idx fields out of an arbitrarily nested
+            % flattenIdx recursively collects .idx fields out of an arbitrarily nested
             %mix of cells and struct arrays.
             idxs = [];
             if iscell(value)

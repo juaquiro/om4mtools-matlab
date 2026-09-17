@@ -1,4 +1,6 @@
 classdef testFPADemodulatorPSA6MultiplexedXY < matlab.unittest.TestCase
+    % testFPADemodulatorPSA6MultiplexedXY tests DemodulatorPSA6MultiplexedXY
+    % (6-step X/Y-multiplexed phase-shifting demodulation)
     %run(testFPADemodulatorPSA6MultiplexedXY)
     
     methods(TestMethodSetup)
@@ -19,6 +21,9 @@ classdef testFPADemodulatorPSA6MultiplexedXY < matlab.unittest.TestCase
     
     methods (Test)
         function testAllDemodulatorsConstructors(testCase)
+            % testAllDemodulatorsConstructors builds every DemodulatorTypes
+            % variant via the factory and checks every DemodulatorProps
+            % Get() call succeeds
             %run(testFPADemodulatorPSA6MultiplexedXY, 'testAllDemodulatorsConstructors')
             import OM4MClassLib.Util.*;
             fprintf('\ntest %s...\n ',Logging.WhoCalledMe());
@@ -41,6 +46,9 @@ classdef testFPADemodulatorPSA6MultiplexedXY < matlab.unittest.TestCase
         
         
         function testConstructor(testCase)
+            % testConstructor checks DemodulatorPSA6MultiplexedXY's
+            % default properties (Tx, Ty, biasFP, modFP, NIgrams) and its
+            % 6-step X/Y phase-shift deltaList
             %run(testFPADemodulatorPSA6MultiplexedXY, 'testConstructor')
             import OM4MClassLib.Util.*;
             fprintf('\ntest %s...\n ',Logging.WhoCalledMe());
@@ -82,6 +90,10 @@ classdef testFPADemodulatorPSA6MultiplexedXY < matlab.unittest.TestCase
         %Here we show that for "perfect igrams" modulation is constant and
         %for rounded igrams appear an error in the modulation of about 1GV
         function testGenFPsRawAndProcess(testCase)
+            % testGenFPsRawAndProcess builds 6 raw synthetic multiplexed
+            % X/Y patterns by hand (perfect, then rounded/smoothed) and
+            % visually shows the demodulated modulation is constant for
+            % perfect igrams and gains ~1-2 GV noise for rounded ones
             %run(testFPADemodulatorPSA6MultiplexedXY,'testGenFPsRawAndProcess')
             
             % calculate the igrams
@@ -179,6 +191,10 @@ classdef testFPADemodulatorPSA6MultiplexedXY < matlab.unittest.TestCase
         %Here we show how the SNR of the PSA6 modulation looks a little bit
         %worst that the modulation of the equispaced
         function testLoadExpIgramsAndProcess(testCase)
+            % testLoadExpIgramsAndProcess loads real experimental PSA6
+            % multiplexed igrams and separate X/Y equispaced-PSA igrams
+            % of the same lens, demodulating both and visually comparing
+            % their modulation maps/SNR
             %run(testFPADemodulatorPSA6MultiplexedXY,'testLoadExpIgramsAndProcess')
             
             %load igrams
@@ -294,6 +310,10 @@ classdef testFPADemodulatorPSA6MultiplexedXY < matlab.unittest.TestCase
         
         
         function testGenFPsAndProcess(testCase)
+            % testGenFPsAndProcess generates sine-wave PSA6 patterns,
+            % displays them on a Java-frame projector, times full
+            % (complex phasor) vs modulation-only processing, and checks
+            % the output type (complex vs real) matches onlyModFlag
             %run(testFPADemodulatorPSA6MultiplexedXY,'testGenFPsAndProcess')
             import OM4MClassLib.Util.*;
             fprintf('\ntest %s...\n ',Logging.WhoCalledMe());
@@ -376,6 +396,8 @@ classdef testFPADemodulatorPSA6MultiplexedXY < matlab.unittest.TestCase
         end
         
          function testGenFPsAndProcessSquareWave(testCase)
+            % testGenFPsAndProcessSquareWave repeats testGenFPsAndProcess
+            % with d.shape=1 (square-wave patterns instead of sine)
             %run(testFPADemodulatorPSA6MultiplexedXY,'testGenFPsAndProcessSquareWave')
             import OM4MClassLib.Util.*;
             fprintf('\ntest %s...\n ',Logging.WhoCalledMe());

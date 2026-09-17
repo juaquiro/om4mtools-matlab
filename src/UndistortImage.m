@@ -1,13 +1,6 @@
-% UndistortImage undistort the input image I
-% Iu=UndistortImage(I,CameraCal) undistort the image I using
-% calibration data of calibration file CameraCal
-
-%   AQ, V0 18/2/10 proyecto peces
-%   AQ, V1 12/5/11
-%   Copyright 2009 OM4M
-%   $ Revision: 2.0.0.0 $
-%   $ Date: 12/5/11 $
 function Iu=UndistortImage(I,CameraCal)
+% UndistortImage undistorts image I (must be uint8) using the
+% calibration data (KK, fc, kc, cc, alpha_c) stored in CameraCal
 callFunc=OM4MClassLib.Util.Logging.WhoCalledMe();
 
 try

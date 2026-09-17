@@ -22,8 +22,9 @@ classdef MeasureList < handle
     
     %% public methods
     methods
-        % constructor
         function this=MeasureList()
+            % MeasureList constructs an empty measurement list backed by
+            % a CellArrayList
             import OM4MClassLib.DataStructs.*;
             try
                 this.MList=CellArrayList();
@@ -32,8 +33,8 @@ classdef MeasureList < handle
             end
         end     
         
-        %remove object
         function this=Remove(this, pos)
+            % Remove removes the element(s) at position(s) pos
             try
                 this.MList.remove(pos);
             catch ME
@@ -42,8 +43,8 @@ classdef MeasureList < handle
             
         end
         
-        %Get object
         function cap=Get(this, pos)
+            % Get returns the element(s) at position(s) pos
             try
                 cap=this.MList.get(pos);
             catch ME
@@ -52,6 +53,7 @@ classdef MeasureList < handle
         end
         
         function this=Save(this, fileName)
+            % Save saves this MeasureList (variable 'this') to fileName
             try
                 save(fileName, 'this');
             catch ME
@@ -60,6 +62,8 @@ classdef MeasureList < handle
         end
         
         function this=Load(this, fileName)
+            % Load loads this.MList from the 'this' variable saved by
+            % Save() into fileName
             try
                 obj=load(fileName, 'this');
                 this.MList=obj.this.MList;
@@ -72,6 +76,7 @@ classdef MeasureList < handle
     %% get-set methods
     methods
         function L=get.Length(this)
+            % get.Length returns the number of stored elements
             try
                 L=this.MList.length;
             catch ME
@@ -80,6 +85,7 @@ classdef MeasureList < handle
         end
         
         function res=get.IsEmpty(this)
+            % get.IsEmpty returns true if the list has no elements
             try
                 res=this.MList.isempty();
             catch ME

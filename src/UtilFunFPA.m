@@ -1,34 +1,19 @@
-%> @file UtilFunFPA.m Static class with util funs for the Fringe Pattern Analysis Lib
-%> @brief Static class with util funs for the Fringe Pattern Analysis Lib
-%> @details NA
-%> @copyright 2015 IOT
-%> @author AQ AQ 16/11/15
-%> @see testFPA_UtilFunFPAClassVer.m testFPA_UtilFunFPA.m
-
-% ======================================================================
-%> @brief Static class with util funs for the Fringe Pattern Analysis Lib
-% ======================================================================
 classdef UtilFunFPA
-    
+    % UtilFunFPA static utility functions for the Fringe Pattern
+    % Analysis library (see testFPA_UtilFunFPAClassVer.m,
+    % testFPA_UtilFunFPA.m for unit tests)
+
     %% public methods
     methods(Static)
-        
-        % ======================================================================
-        %> @brief GradientConsistency checks for the consistency of a pair of
-        %> 1st differences
-        %> @details   This funcion calculates the consistency of the pair of diferences
-        %> dx and dy. The integral along each 2x2 square is calculated. A
-        %> value diffrent from zero indicates inconsistencies between both
-        %> differneces. This is also good for phase maps if Q is wrapped mod
-        %> 2pi as Q=angle(exp(1i*Q))
-        %> @see https://www.wiley.com/en-es/Two+Dimensional+Phase+Unwrapping%3A+Theory%2C+Algorithms%2C+and+Software-p-9780471249351
-        %> @param dx 1st differnce in the x direction @details it can be
-        %> contounous or 2pi wrapped (like in deflectometry or shearography)
-        %> @param dy 1st differnce in the y direction @details it can be
-        %> contounous or 2pi wrapped (like in deflectometry or shearography)
-        %> @retval Q consistency map, the smaller the better
-        % ======================================================================
+
         function Q=GradientConsistency(dx, dy)
+            % GradientConsistency computes the loop-integral inconsistency
+            % Q of first-difference pair (dx, dy) around each 2x2 square
+            % (Q~=0 flags an inconsistency between the two differences);
+            % dx/dy can be continuous or 2*pi-wrapped (as in
+            % deflectometry/shearography) - Q is wrapped accordingly.
+            %
+            % Ref: https://www.wiley.com/en-es/Two+Dimensional+Phase+Unwrapping%3A+Theory%2C+Algorithms%2C+and+Software-p-9780471249351
             import OM4MClassLib.Util.*
             callFunc=Logging.WhoCalledMe();
             
@@ -64,9 +49,14 @@ classdef UtilFunFPA
             Q=angle(exp(1i*Q));
         end
         
-        %this function interpolates the matiz g using the mask M as valid
-        %points
         function [gZ]=interpInvalidPoints(g, M, varargin)
+            % interpInvalidPoints fills in matrix g outside mask M by
+            % fitting a Zernike surface (ClassifierZernikes) to the
+            % valid (M==1) points and evaluating it everywhere.
+            %
+            % Optional args (varargin): zOrder (40) Zernike order,
+            % lambda (1e-5) regularization, mu (1e-3) curvature
+            % regularization weight
             import OM4MClassLib.Util.*
             callFunc=Logging.WhoCalledMe();
             gName=inputname(1);
@@ -132,22 +122,14 @@ classdef UtilFunFPA
         
         
         
-        % ======================================================================
-        %> @brief phasor filtering and direct gradient calculation
-        %> @details this function calculates the gradient [phix, phiy] of a phasor's phase, z=b*exp(1i*phi). It uses the same sign convetion that MATLAB gradient().
-        %> Returns a the phase gradient and a Mask with valid differences. For this we use a median filter for outlier removal and gradient after phasor filtering
-        %>
-        %> @param Nmed median filter size for phase only cosine-sine filtering 
-        %> @param NS 2*NS+1 is the neigbouhoord size for phasor filtering
-        %> @param M ROI with valid points
-        %> @param z input phasor z=b*exp(1i*phi)
-        %> @param LPCycles are the number of low pass cycles that we apply
-        %> to the calculated derivatives
-        %> @retval Mxy ROI with valid differences
-        %> @retval phix phase x-gradient
-        %> @retval phiy phase y-gradient
-        % ======================================================================
         function [phix, phiy, Mxy]=phaseGradientDirect(z, M, NS, Nmed, LPCycles)
+            % phaseGradientDirect computes the phase gradient [phix,
+            % phiy] of phasor z=b*exp(1i*phi) within ROI M (MATLAB
+            % gradient() sign convention), via median filtering (Nmed,
+            % outlier removal) then low-pass filtering (LPCycles cycles)
+            % of the cosine/sine-filtered phasor differences, using a
+            % 2*NS+1 phasor-filtering neighborhood. Returns the phase
+            % gradients and Mxy, the ROI restricted to valid differences.
             import OM4MClassLib.Util.*
             callFunc=Logging.WhoCalledMe();            
             
@@ -216,25 +198,16 @@ classdef UtilFunFPA
         end
         
         
-        % ======================================================================
-        %> @brief direct gradient calculation
-        %> @details this function calculates the gradient [phix, phiy] using first differences. It uses the same sign convetion that MATLAB gradient().
-        %> Returns a the phase gradient and a Mask with valid differences. For this we use a median filter for outlier removal and gradient after filtering
-        %>
-        %> @param Nmed median filter size 
-        %> @param NS 2*NS+1 is the neigbouhoord size for avg filtering
-        %> @param M ROI with valid points
-        %> @param g input signal
-        %> @param LPCycles are the number of low pass cycles that we apply
-        %> to the calculated derivatives
-        %> @retval Mxy ROI with valid differences
-        %> @retval gx phase x-gradient
-        %> @retval gy phase y-gradient
-        % ======================================================================
         function [gx, gy, Mxy]=gradientDirect(g, M, NS, Nmed, LPCycles)
+            % gradientDirect is phaseGradientDirect's real-valued
+            % counterpart: computes the gradient [gx, gy] of real matrix
+            % g within ROI M, via median filtering (Nmed) then low-pass
+            % filtering (LPCycles cycles, 2*NS+1 neighborhood) of the raw
+            % differences. Returns the gradients and Mxy, the ROI
+            % restricted to valid differences.
             import OM4MClassLib.Util.*
             callFunc=Logging.WhoCalledMe();
-            
+
             zName=inputname(1);
             if (not(ismatrix(g)) || not(isreal(g)))
                 retMsg=[zName 'must be a real matrix'];
@@ -295,24 +268,18 @@ classdef UtilFunFPA
         
         
         
-        % ======================================================================
-        %> @brief gradient calculation of phasor's phase using plane fitting
-        %> @details NOT RECOMENDED there this function has a spatial freq
-        %> dependency, use better phaseGradientDirect
-        %> @details this function calculates the gradient [phix, phiy] of a phasor's phase, z=b*exp(1i*phi). It uses the same sign convetion that MATLAB gradient().
-        %> Returns a the phase gradient and a Mask with valid differences. For this we use a median filter for outlier removal and the the plane fitting method
-        %> @see Xia Yang, Qifeng Yu, Sihua Fu,An algorithm for estimating both fringe orientation and fringe density,
-        %> Optics Communications, Volume 274, Issue 2,2007,Pages 286-292,
-        %>
-        %> @param Nmed median filter size
-        %> @param NS 2*NS+1 is the neigbouhoord size for plane fitting
-        %> @param M ROI with valid points
-        %> @param z input phasor z=b*exp(1i*phi)
-        %> @retval Mxy ROI with valid differences
-        %> @retval phix phase x-gradient
-        %> @retval phiy phase y-gradient
-        % ======================================================================
         function [phix, phiy, Mxy]=phaseGradientPlaneFit(z, M, NS, Nmed)
+            % phaseGradientPlaneFit computes phasor z's phase gradient
+            % [phix, phiy] within ROI M by unwrapping (PUFlynMdMex) then
+            % plane-fitting the gradient (GradientPlaneFit, median filter
+            % Nmed, 2*NS+1 neighborhood).
+            %
+            % NOT RECOMMENDED: has a spatial-frequency dependency - use
+            % phaseGradientDirect instead.
+            %
+            % Ref: Yang, Yu & Fu, "An algorithm for estimating both
+            % fringe orientation and fringe density," Optics
+            % Communications 274(2), 286-292 (2007)
             import OM4MClassLib.Util.*
             callFunc=Logging.WhoCalledMe();
             
@@ -343,22 +310,15 @@ classdef UtilFunFPA
         
         
         
-        % ======================================================================
-        %> @brief gradient calculation using plane fitting
-        %> @details this function calculates the gradient of a matrix. It uses the same sign convetion that MATLAB gradient().
-        %> Returns a the gradient and a Mask with valid differences. For this we use a low pass gauss filter and the the plane fitting method
-        %> @see Xia Yang, Qifeng Yu, Sihua Fu,An algorithm for estimating both fringe orientation and fringe density,
-        %> Optics Communications, Volume 274, Issue 2,2007,Pages 286-292,
-        %>
-        %> @param Nmed median filter size
-        %> @param NS 2*NS+1 is the neigbouhoord size for plane fitting
-        %> @param M ROI with valid points
-        %> @param p input matrix
-        %> @retval Mxy ROI with valid differences
-        %> @retval px x-gradient
-        %> @retval py y-gradient
-        % ======================================================================
         function [px, py, Mxy]=GradientPlaneFit(p, M, NS, Nmed)
+            % GradientPlaneFit computes matrix p's gradient [px, py]
+            % within ROI M via local least-squares plane fitting (2*NS+1
+            % neighborhood, after median filtering p/M by Nmed) - same
+            % sign convention as MATLAB's gradient().
+            %
+            % Ref: Yang, Yu & Fu, "An algorithm for estimating both
+            % fringe orientation and fringe density," Optics
+            % Communications 274(2), 286-292 (2007)
             import OM4MClassLib.Util.*
             callFunc=Logging.WhoCalledMe();
             
@@ -398,25 +358,23 @@ classdef UtilFunFPA
         end
         
         
-        %this function locates the 4 sidelobes of a igram with two carriers
-        %it filters the DC using a fixed low pass filter with R FF passband
-        %the espected
-        % R is optional and is the radious in FF of the passband filters
-        %by default the four side lobes are located in FF in a clockwise order
-        %     2
-        %   1 X 3
-        %     4
-        % When wr is passesd as a param the closest lobe to wr{1} is
-        % located and numbered 1, the remaining lobes are numbered
-        % clockwise
-        % for a linear fringe pattern the numbering is
-        %   1 X 2
-        % or
-        %    1
-        %    X
-        %    2
-        
         function w = LocateSidelobes(g, varargin)
+            % LocateSidelobes locates the side lobes of igram g's Fourier
+            % transform (2 carriers -> 4 lobes, 1 carrier -> 2 lobes),
+            % after filtering out the DC with a fixed low-pass filter.
+            %
+            % By default the 4 side lobes are numbered clockwise:
+            %      2
+            %    1 X 3
+            %      4
+            % or, for a linear fringe pattern (1 carrier), "1 X 2" or
+            % "1 / X / 2". If wr (varargin{1}) is given, the lobe closest
+            % to wr{1} is numbered 1 instead, with the rest numbered
+            % clockwise from there.
+            %
+            % Optional args: wr reference lobe positions (see above); R
+            % radius (in fringes/field) of the DC low-pass filter; NL
+            % number of lobes (2 or 4).
             import OM4MClassLib.Util.*
             callFunc=Logging.WhoCalledMe();
             
@@ -573,13 +531,15 @@ classdef UtilFunFPA
         
         
         
-        % z = FFTDemod(g, w, varargin) Computes a cell array with the output phasors z from the carrier igram g
-        % using all the carriers specified in the cell w
-        % z = FFTDemod(g, w, topFlat, R) Computes a cell array with the output phasors z from the carrier igram g
-        % using all the carriers specified in the cell w, topFlat is a flag that specifies if the passband filter is "hard" or gaussian
-        % and R is the radious in FF of the passband filters
-        %default for R is 0.3*norm(w{1}-w{2}) and default for topFlat is true
         function z = FFTDemod(g, w, varargin)
+            % FFTDemod demodulates igram g into a cell array of phasors
+            % z, one per carrier lobe position in cell w, by bandpass
+            % filtering (radius R in FF, default 0.3*norm(w{1}-w{2}))
+            % around each lobe (after a fixed 3-FF DC low-pass) and
+            % inverse-FFT'ing.
+            %
+            % Optional args: flatTopFlag (true) hard-disk passband filter
+            % vs. a Gaussian one; R (see above) passband filter radius
             import OM4MClassLib.Util.*
             callFunc=Logging.WhoCalledMe();
             
@@ -660,13 +620,12 @@ classdef UtilFunFPA
             end
         end
         
-        %weighted restriction operator used in multigrid schemas and filtering
-        %processes toguether with the propologngation operator
-        %this restriction makes a gauss relaxation for the function uh
-        %for this to work NR and NC must be even
-        %to work properly with Pro.m uh dims should be even or powers of
-        %two.
         function uH=wRes(uh, w)
+            % wRes weighted restriction operator (multigrid schemes/
+            % filtering, paired with Pro): downsamples uh by 2 via a
+            % Gaussian-weighted relaxation, using w as the pixel weights
+            % (handles S==0 divisions specially). uh's dimensions must be
+            % even (ideally a power of two, to also work with Pro).
             [NR, NC]=size(uh);
             
             uh=[uh(1,1) uh(1,:); uh(:,1) uh];
@@ -709,9 +668,9 @@ classdef UtilFunFPA
             end
         end
         
-        %Prolongation operator used multigrid schemas and filtering
-        %processes toguether with the restriction operator
         function uh=Pro(uH)
+            % Pro prolongation operator (multigrid schemes/filtering,
+            % paired with wRes): upsamples uH by 2
             [NR, NC]=size(uH);
             
             Col=1:NC;
@@ -728,9 +687,9 @@ classdef UtilFunFPA
             uh(2*Row+1-1,2*Col+1-1)=0.25*(uH(Row, Col) +uH(Row, Col+1)+uH(Row+1, Col)+uH(Row+1, Col+1));
         end
         
-        %this function uses a VCycle filter with a gaussian restriction and
-        %gaussian ppropongation for the moment it has 4 levels
         function uf=VicleFilter(u, w)
+            % VicleFilter smooths u (weighted by w) via a 4-level
+            % V-cycle multigrid filter (wRes down, Pro back up)
             %for using wRes and Pro dims must be power of two
             [NRows, NCols]=size(u);
             
@@ -765,9 +724,8 @@ classdef UtilFunFPA
             uf=imresize(u, [NRows, NCols]);
         end
         
-        %this function uses a VCycle filter with a gaussian restriction and
-        %gaussian ppropongation for the moment it has 4 levels
         function uf=VicleFilter2(u, w)
+            % VicleFilter2 is VicleFilter with a shallower 3-level V-cycle
             %for using wRes and Pro dims must be power of two
             [NRows, NCols]=size(u);
             
@@ -807,17 +765,16 @@ classdef UtilFunFPA
         
         
         
-        % FUNCION DE ESTIMADOR REGULARIZADO PARA
-        % EL CALCULO DE LA FASE ASOCIADA A LAS ISOCLINAS
-        % EN FOTOELASTICIDAD
-        % w2Alpha = envoltura de dos veces la fase de isoclinas
-        % M = ROI de los puntos procesados para calcular w2Alpha
-        % w4alfa = envoltura de cuatro veces la fase de isoclinas
-        % q = Mapa de calidad para la estimacion
-        % m = mascara
-        % Tamaño de la region para el estimador (t*2+1)
-        % mu = Parametro de regularizacion
         function [w2Alpha, M]=Calc2Alpha(w4Alpha,q,m,t,mu)
+            % Calc2Alpha is a regularized estimator for the isoclinic
+            % phase in photoelasticity: derives the wrapped 2*alpha
+            % phase w2Alpha from the wrapped 4*alpha phase w4Alpha.
+            %
+            % Inputs: w4Alpha wrapped 4*alpha phase; q quality map; m
+            % mask; t region size for the estimator (2*t+1); mu
+            % regularization parameter.
+            % Outputs: w2Alpha wrapped 2*alpha phase; M ROI of points
+            % actually processed.
             import OM4MClassLib.Util.*
             callFunc=Logging.WhoCalledMe();
             
@@ -828,8 +785,8 @@ classdef UtilFunFPA
             s=zeros(n);w2Alpha=zeros(n); M=zeros(n);
             dx=cos(w4Alpha/2).*m;dy=sin(w4Alpha/2).*m;
             
-            %DEFINE EL TAMAÑO DEL ARREGLO PARA EL HISTOGRAMA
-            %DEL ALGORITMO DE STRÖBEL
+            %DEFINE EL TAMAï¿½O DEL ARREGLO PARA EL HISTOGRAMA
+            %DEL ALGORITMO DE STRï¿½BEL
             na=10;maxi=0;
             q=round(q./max(max(q))*(na-1))+1;
             for k=1:na
@@ -839,7 +796,7 @@ classdef UtilFunFPA
             hy=zeros(na,maxi);hx=zeros(na,maxi);
             front=zeros(1,na);final=zeros(1,na);
             
-            %ALGORITMO DE STRÖBEL PARA SEGUIR EL MAPA
+            %ALGORITMO DE STRï¿½BEL PARA SEGUIR EL MAPA
             %DE CALIDAD EN LA ESTIMACION
             cont=0;ind=1;
             [yy,xx]=find(q==(max(q(:))));y=yy(1);x=xx(1); % Determina las coordenadas de arranque de la estimacion
@@ -876,7 +833,7 @@ classdef UtilFunFPA
                 end
                 
                 %SACA LAS COORDENADAS DEL HISTOGRAMA
-                %PARA LA SIGUIENTE ESTIMACIÓN
+                %PARA LA SIGUIENTE ESTIMACIï¿½N
                 k=na;ind=0;
                 while ind==0 && k>0
                     ind=front(k);
@@ -905,16 +862,18 @@ classdef UtilFunFPA
             
         end
         
-        %this function draws the retardation angle Alpha and the two
-        %principal directions associated with it. If Alpha comes form
-        %w4Alpha there is indetermination between s1 and s2 and also in the
-        %direction. If Alpha comes from w2Alpha s1 and s2 are distingible
-        %but their direction is indeterminate
-        %D is the decimation factor
-        % optional params are sameColor, stressDirections ('s1', 's2',
-        % 'both'), showArrowHead ('on' 'off') and altImg (the funcion use
-        % this image to draw the stress directions
         function h=DrawAlpha(Alpha, D, varargin)
+            % DrawAlpha draws the two principal stress directions implied
+            % by isoclinic angle Alpha, as arrows over Alpha itself (or
+            % altImage if given), decimated by D. If Alpha comes from
+            % w4Alpha, s1/s2 and their direction are both indeterminate;
+            % if from w2Alpha, s1/s2 are distinguishable but direction
+            % is still indeterminate.
+            %
+            % Optional args: sameColor (false) draw both directions in
+            % the same color; stressDirections ('both') 's1', 's2' or
+            % 'both'; showArrowHead ('on') passed to quiver; altImage
+            % ([]) background image to draw over instead of Alpha.
             import OM4MClassLib.Util.*
             callFunc=Logging.WhoCalledMe();
             
@@ -978,10 +937,14 @@ classdef UtilFunFPA
         end
         
         
-        % this function calculates the theoretical stress distribution for a diametrically loaded
-        % disk of NRxNC dimmensions. It calculates also the theoretical retardation and wrapped 2*alpha
-        %the retardation is scalled so it has a maximum of 10 fringes
         function [d, w2alpha, sx, sy, sxy, s1, s2, M]=StressDisk(NR, NC, varargin)
+            % StressDisk computes the theoretical (Brazilian/diametrical
+            % compression) stress distribution for an NRxNC disk loaded
+            % along a diameter, plus the resulting isochromatic
+            % retardation d (scaled to a max of 10 fringes) and wrapped
+            % isoclinic angle w2alpha. Also returns the stress
+            % components sx/sy/sxy, principal stresses s1/s2, and the
+            % disk mask M.
             % setup the theoretical stress distribution
             [x, y]=meshgrid(1:NC, 1:NR);
             x0=round(NC/2); y0=round(NR/2); %origin
@@ -1026,10 +989,11 @@ classdef UtilFunFPA
             
         end
         
-        %this function calculates a cell array of LBF images using the
-        %delta and alpha distributions with noise level nl and the cell
-        %array has N=length(step) images
         function IList=LBFPattern(delta, alpha, step, M, nl)
+            % LBFPattern generates length(step) linear-birefringence
+            % (LBF) igrams from retardation delta and isoclinic angle
+            % alpha, each phase-shifted by step(n), masked by M and with
+            % noise level nl added
             N=length(step);
             IList=cell(1,N);
             for n=1:N
@@ -1037,8 +1001,11 @@ classdef UtilFunFPA
             end
         end
         
-        %ouput for circular polariscope, using circular input illumination with Analizer angle psi and 2QW plate angle phi
         function gList=CircPol(delta, w2alpha, psi, phi, M)
+            % CircPol generates length(psi) circular-polariscope igrams
+            % from retardation delta and wrapped isoclinic angle
+            % w2alpha, for circular input illumination with analyzer
+            % angle psi(n) and quarter-wave-plate angle phi(n), masked by M
             %psi=A, phi=QW2
             N=length(psi);
             gList=cell(1, N);
@@ -1047,9 +1014,13 @@ classdef UtilFunFPA
             end
         end
         
-        %this function makes a temporal demodulation of the 1D signal g
-        %this function assumes that the temporal samples of g are uniform
         function z=Temp1DFFTDemod(g, R, varargin)
+            % Temp1DFFTDemod demodulates 1D signal g (uniformly-sampled
+            % in time) into phasor z via a 1D Hilbert-transform-style
+            % FFT filter: a Hilbert half-spectrum mask, a Gaussian
+            % high-pass (radius R, removing the DC/background), and
+            % optionally (varargin) a Gaussian bandpass around carrier
+            % w0 (default pi/2) with width sigma (default length(g)/8)
             import OM4MClassLib.Util.*
             callFunc=Logging.WhoCalledMe();
             
@@ -1111,10 +1082,15 @@ classdef UtilFunFPA
             
         end
         
-        % u=unwrapRLS1D(z, lambda, regType) unwraps the 1D phase of the phasor z, uw=angle(z) by
-        % minimizing the cost function U=w*|Dx*u- uwx|^2 + lambda*|Dx*u|^2 or
-        % lambda*|Dxx*u|^2 depending on regType
         function u=unwrapRLS1D(z, lambda, varargin)
+            % unwrapRLS1D unwraps the 1D phase uw=angle(z) via
+            % regularized least squares, minimizing
+            % U=w*|Dx*u-uwx|^2+lambda*|D*u|^2 (weighted by modulation
+            % w=|z|, D being Dx/Dxx/Dxxx per regType - see
+            % DerOpsFreeBoundary1D)
+            %
+            % Optional args: regType ('membrane') regularization
+            % operator - 'membrane' (Dx), 'thinplate' (Dxx), or 'Dxxx'
             import OM4MClassLib.Util.*
             callFunc=Logging.WhoCalledMe();
             
@@ -1170,9 +1146,11 @@ classdef UtilFunFPA
             u=A\b;
         end
         
-        % [Dx, Dxx, Dxxx]=DerOpsFreeBoundary1D(N) return the (N-1)xN (N-2)xN and (N-1)xN (N-3)xN sparse operators representing the 1D Dx and Dxx and Dxxx operations
-        % using free-bounday conditions
         function [Dx, Dxx, Dxxx]=DerOpsFreeBoundary1D(N)
+            % DerOpsFreeBoundary1D returns sparse 1D derivative operators
+            % (free-boundary conditions) for an N-element vector: Dx is
+            % (N-1)xN (1st derivative), Dxx is (N-2)xN (2nd derivative),
+            % Dxxx is (N-3)xN (3rd derivative)
             %the two diagonals for D 0 and +1
             C=[-1*ones(N-1, 1), ones(N-1, 1)];
             d=[0 1];
@@ -1192,39 +1170,20 @@ classdef UtilFunFPA
         end
         
         function [zPCA, deltaListPCA] = PCADemod(FPList, Mask, varargin)
-            %PCADEMOD This function obtains the wrapped phase from a sequence of
-            %phase-shifted interferograms using the Principal Component Analysis
-            %algorithm (PCA). This function is inspired in the work of A. Leonardis,
-            %D. Skocaj that is available from CMP Vision Algorithms
-            %http://vicos.fri.uni-lj.si/danijels/downloads
-            %http://visionbook.felk.cvut.cz
+            % PCADemod recovers the wrapped phase from a sequence of
+            % phase-shifted interferograms FPList (within Mask) via
+            % Principal Component Analysis (SVD of the cross-covariance
+            % of the stacked, mean-centered fringe patterns), returning
+            % the demodulated phasor zPCA=m*exp(1i*phi) and the phase
+            % shifts deltaListPCA, both direct results of the PCA.
             %
-            % PCA is a linear integral transformation that simplifies
-            % a multidimensional dataset to a lower dimension.
-            % The implementation of the function pca
-            % uses the efficient implementation of singular
-            % value decomposition (svd).
+            % Optional args: monotonicDelta (true) assumes phase shifts
+            % are increasing with delta(1)=0, flipping sign if needed.
             %
-            % Usage: [zPCA,deltaListPCA] = pcaDemod(FPList,Mask) [NRows x NCols]
-            % Inputs:
-            %   FPList  1xNFP list of fringe patterns of [NRows x NCols]
-            %   Mask is the processing mask [NRows x NCols]
-            %   monotonicDelta flag indicating of the deltas are monotonic
-            %   default true and optional
-            % Outputs:
-            %   zPCA   [NRows x NCols]  demodulated phasor z=m*exp(1i*phi) direct result from the PCA.
-            %   deltaListPCA [NPx1] array of calculated phase shifts, direct result from the PCA.
-            %   zLS  [NRows x NCols]
-            
-            %   Javier Vargas,
-            %   25/11/10
-            %   AQ
-            %   29/3/2017
-            %   Copyright 2017
-            %   IOT
-            %   $ Revision: 2.0.0.0 $
-            %   $ Date: 23/03/2017 $
-            
+            % Inspired by A. Leonardis & D. Skocaj's work, available from
+            % CMP Vision Algorithms:
+            % http://vicos.fri.uni-lj.si/danijels/downloads
+            % http://visionbook.felk.cvut.cz
             import OM4MClassLib.Util.*
             callFunc=Logging.WhoCalledMe();
             
@@ -1319,31 +1278,19 @@ classdef UtilFunFPA
         end
         
         function [zAIA, deltaListAIA] = AIADemod(FPList, Mask, varargin)
-            
-            % Matlab implementation of the demodulation method shown in [1]
+            % AIADemod recovers the wrapped phase from randomly
+            % phase-shifted interferograms FPList (within Mask) via the
+            % Advanced Iterative Algorithm, returning the demodulated
+            % phasor zAIA=m*exp(1i*phi) and the phase shifts
+            % deltaListAIA, both direct results of the AIA.
             %
-            % INPUT:
-            %   FPList  1xNFP list of fringe patterns of [NRows x NCols]
-            %   Mask is the processing mask [NRows x NCols]
-            %   deltaList Initial guess for the phase shifts optional
-            %   MaxIter maximum number of iterations;
-            %   epsilon error tolerance;
-            % Outputs:
-            %   zAIA   [NRows x NCols]  demodulated phasor z=m*exp(1i*phi) direct result from the AIA.
-            %   deltaListAIA [NPx1] array of calculated phase shifts, direct result from the AIA.
+            % Optional args: deltaList (default equispaced over
+            % [0, 2*pi)) initial guess for the phase shifts; MaxIter (15)
+            % max iterations; epsilon (1e-5) error tolerance.
             %
-            %REFERENCES
-            %
-            %[1] Z. Wang, B. Han, “Advanced iterative algorithm for phase extraction
-            %     of randomly phase-shifted interferograms”,Opt. Lett. 29(14), 1671-1673
-            %     (2004)
-            %
-            %   Javier Vargas, 19/10/10
-            %   AQ 10/4/2017
-            %   Copyright 2010 IOT
-            %   $ Revision: 2.0.0.0 $
-            %   $ Date: 10/4/17 $
-            
+            % Ref: Wang & Han, "Advanced iterative algorithm for phase
+            % extraction of randomly phase-shifted interferograms," Opt.
+            % Lett. 29(14), 1671-1673 (2004)
             import OM4MClassLib.Util.*
             callFunc=Logging.WhoCalledMe();
             %AQ forzar delltaList columna y ver tema varargin
@@ -1466,23 +1413,19 @@ classdef UtilFunFPA
         
         
         
-        % ======================================================================
-        %> @brief LSDemod least squares demodulation using N delta steps with known values
-        %> @details @see FPA book and Z. Wang, B. Han, “Advanced iterative algorithm for phase extraction of randomly phase-shifted interferograms”,Opt. Lett. 29(14), 1671-1673
-        %> @copyright 2010 IOT
-        %> @author JV, 19/10/10
-        %> @author AQ 10/4/2017
-        %> @param FPList  1xNFP list of fringe patterns of [NRows x NCols]
-        %> @param Mask is the processing mask [NRows x NCols] the phasor z is only calculated at M==true,
-        %> it is used mainly for accelerate the calculation process. If mask is M==[] then
-        %> M=ones() is used and all points are procesed
-        %> @param deltaList phase shift values
-        %> @param varargin optional params onlyModFlag (false) flag for
-        %> computing only the modulation and no phase
-        %> @retval zLS   [NRows x NCols]  demodulated phasor z=m*exp(1i*phi)
-        % ======================================================================
         function [zLS] = LSDemod(FPList, Mask, deltaList, varargin)
-            
+            % LSDemod least-squares demodulation of FPList using N known
+            % phase-shift steps (deltaList, a column vector), returning
+            % phasor zLS=m*exp(1i*phi). Mask restricts (and speeds up)
+            % the calculation to M==true points; use Mask=[] to process
+            % all points.
+            %
+            % Optional args: onlyModFlag (false) compute only the
+            % modulation, skipping the phase.
+            %
+            % See the FPA book, and Wang & Han, "Advanced iterative
+            % algorithm for phase extraction of randomly phase-shifted
+            % interferograms," Opt. Lett. 29(14), 1671-1673 (2004)
             import OM4MClassLib.Util.*
             callFunc=Logging.WhoCalledMe();
             
@@ -1585,28 +1528,17 @@ classdef UtilFunFPA
         
         
         function [z] = LSDemodEquispaced(FPList, Mask, deltaList4check, varargin)
-            
-            % Matlab implementation of the LS demodulation with equispaced [0 2pi] steps shown the
-            % FPA book eq 2.41
+            % LSDemodEquispaced least-squares demodulation of FPList for
+            % N equispaced phase-shift steps over [0, 2*pi) (FPA book eq.
+            % 2.41), via the sum-of-sin/cos closed form (normalized by
+            % 2/N so modulation doesn't depend on the number of steps -
+            % see Deflectometry.docx). deltaList4check is only used to
+            % verify the steps are actually equispaced as expected
+            % (errors otherwise); Mask restricts the calculation to
+            % M==true points, or all points if Mask=[].
             %
-            % INPUT:
-            %   FPList  1xNFP list of fringe patterns of [NRows x NCols]
-            %   Mask is the processing mask [NRows x NCols]
-            %   deltaList equispaced phase shifts in [0 2*pi(1-1/N)] for
-            %   checking purpouses
-            %   onlyModFlag this is logical that indicates the we only
-            %   calculate the modulation, this returning in z only the
-            %   modulation
-            % Outputs:
-            %   zLS   [NRows x NCols]  demodulated phasor z=m*exp(1i*phi) direct result from the AIA.
-            %
-            %REFERENCES
-            %
-            %   AQ 18/1/2018
-            %   Copyright 2010 IOT
-            %   $ Revision: 1.0.0.0 $
-            %   $ Date: 18/1/18 $
-            
+            % Optional args: onlyModFlag (false) compute only the
+            % modulation, skipping the phase.
             import OM4MClassLib.Util.*
             callFunc=Logging.WhoCalledMe();
             
@@ -1694,25 +1626,17 @@ classdef UtilFunFPA
         
         
         function [z] = PSA6MultiplexedXY(FPList, Mask, deltaList4check, varargin)
-            % Implementation of the 6 step XY multiplexed PSA.
+            % PSA6MultiplexedXY demodulates the 6-step XY-multiplexed PSA
+            % igrams FPList into a 1x2 cell z of X/Y phasors
+            % (z{1}=m*exp(1i*phiX), z{2}=m*exp(1i*phiY)), via fixed
+            % pairwise differences (FPList{1}-FPList{2} etc.) matching
+            % the required X/Y phase-step pattern. Mask restricts the
+            % calculation to M==true points, or all points if Mask=[].
+            % deltaList4check.X/.Y are only used to verify the steps
+            % match the required fixed pattern (errors otherwise).
             %
-            % INPUT:
-            %   FPList  1x6 list of fringe patterns of [NRows x NCols]
-            %   Mask is the processing mask [NRows x NCols]
-            %   deltaList structuire with two fields X, Y cell with 6 steps
-            %   each for checkong purpouses
-            %   onlyModFlag this is logical that indicates the we only
-            %   calculate the modulation, this returning in z only the
-            %   modulation
-            % Outputs:
-            %   z   1x2 cell with 2 [NRows x NCols] demodulated phasors z{1}=m*exp(1i*phiX) z{2}=m*exp(1i*phiY)
-            %
-            %
-            %   AQ 18/2/2019
-            %   Copyright 2010 IOT
-            %   $ Revision: 1.0.0.0 $
-            %   $ Date: 18/2/19 $
-            
+            % Optional args: onlyModFlag (false) compute only the
+            % modulation, skipping the phase.
             import OM4MClassLib.Util.*
             callFunc=Logging.WhoCalledMe();
             
@@ -1812,8 +1736,8 @@ classdef UtilFunFPA
         %             %
         %             %REFERENCES
         %             %
-        %             %[1] Z. Wang, B. Han, “Advanced iterative algorithm for phase extraction
-        %             %     of randomly phase-shifted interferograms”,Opt. Lett. 29(14), 1671-1673
+        %             %[1] Z. Wang, B. Han, ï¿½Advanced iterative algorithm for phase extraction
+        %             %     of randomly phase-shifted interferogramsï¿½,Opt. Lett. 29(14), 1671-1673
         %             %     (2004)
         %             %
         %             %   Javier Vargas, 19/10/10
@@ -1898,9 +1822,10 @@ classdef UtilFunFPA
         %         end
         
         
-        % this function returns the 2*NV+1x2*NV+1 Neighbourhood of image I
-        % with total size NRxNC
         function NI=LocalNeighbourhood(I, NV, Row, Col, NR, NC)
+            % LocalNeighbourhood returns the (up to) 2*NV+1 x 2*NV+1
+            % neighborhood of image I (size NRxNC) centered at
+            % (Row, Col), clipped at the image borders
             StartRow=Row-NV;
             EndRow=Row+NV;
             StartCol=Col-NV;
@@ -1925,20 +1850,16 @@ classdef UtilFunFPA
             NI=I(StartRow:EndRow, StartCol:EndCol);
         end
         
-        %IgramNorm interferogram normalization
-        % [cn, m]=IgramNorm(c, R) computes the normalized version of interferogram
-        % c=b+m*cos(phi), cn=cos(phi) and an estimation of the modulation m.
-        % R is the radius in fringes/filed of a DC filter to elliminate the DC
-        % signal b from the igram c
-        
-        % Ref: Juan Antonio Quiroga, Manuel Servin, "Isotropic n-dimensional fringe
-        % pattern normalization", Optics Communications, 224, Pages 221-227 (2003)
-        
-        %   AQ, 03/02/11
-        %   Copyright 2009 OM4M
-        %   $ Revision: 1.0.0.0 $
-        %   $ Date: 03-02-2011 $
         function [cn, m]=IgramNorm(c, R)
+            % IgramNorm normalizes interferogram c=b+m*cos(phi) into
+            % cn=cos(phi) and an estimated modulation m. R is the radius
+            % (in fringes/field) of the Gaussian DC filter used to
+            % remove the background b from c. (Same algorithm as the
+            % standalone IgramNorm.m.)
+            %
+            % Ref: Quiroga & Servin, "Isotropic n-dimensional fringe
+            % pattern normalization", Optics Communications, 224,
+            % 221-227 (2003)
             %filter DC with a gaussian
             [NR, NC]=size(c);
             [u,v]=meshgrid(1:NC, 1:NR);
@@ -1967,17 +1888,15 @@ classdef UtilFunFPA
         end
         
         function sd=SPHT(c)
-            %SPHT spiral phase transform
-            % sd=SPHT(c) computes the quadrture term of c still affected by the
-            % direction phase factor. Therefore for a real c=b*cos(phi)
-            % sd=SPHT(c)=i*exp(i*dir)*b*sin(phi)
-            % Ref: Kieran G. Larkin, Donald J. Bone, and Michael A. Oldfield, "Natural
-            % demodulation of two-dimensional fringe patterns. I. General background of the spiral phase quadrature transform," J. Opt. Soc. Am. A 18, 1862-1870 (2001)
-            
-            %   AQ, 19/8/09
-            %   Copyright 2009 OM4M
-            %   $ Revision: 1.0.0.0 $
-            %   $ Date: 19-08-2009 $
+            % SPHT spiral phase transform: computes the quadrature term
+            % of c, still affected by the direction phase factor, so for
+            % a real c=b*cos(phi), sd=SPHT(c)=i*exp(i*dir)*b*sin(phi).
+            % (Same algorithm as the standalone SPHT.m.)
+            %
+            % Ref: Larkin, Bone & Oldfield, "Natural demodulation of
+            % two-dimensional fringe patterns. I. General background of
+            % the spiral phase quadrature transform," J. Opt. Soc. Am. A
+            % 18, 1862-1870 (2001)
             TH=max(abs(c(:)));
             if mean(real(c(:)))>0.01*TH
                 warning('OM4M:SPHT:OutOfRange', ...
@@ -2008,25 +1927,25 @@ classdef UtilFunFPA
             sd=conj(ifft2(CH));
         end
         
-        % FUNCION DE ESTIMADOR REGULARIZADO PARA
-        % EL CALCULO DE LA FASE ASOCIADA A LAS ISOCLINAS
-        % EN FOTOELASTICIDAD
-        % wtheta = mapa del angulo de orientacion (mod pi)
-        % wbeta = mapa del angulo de direccion (mod 2pi)
-        % q = Mapa de calidad para la estimacion
-        % m = mascara
-        % t = Tamaño de la region para el estimador (t*2+1)
-        % mu = Parametro de regularizacion
-        % r0 pto inicial, [] lo busca automaticamente del maximo de q
-        
         function [wbeta]=calcDirection(wtheta,q,m,t,mu,r0)
+            % calcDirection is a regularized estimator for the isoclinic
+            % direction phase in photoelasticity: derives the direction
+            % map wbeta (mod 2*pi) from the orientation map wtheta
+            % (mod pi), following the quality map q outward from a
+            % starting point via Strobel's algorithm (region-growing
+            % with a priority histogram over quality levels).
+            %
+            % Inputs: wtheta orientation map (mod pi); q quality map; m
+            % mask; t region size for the estimator (2*t+1); mu
+            % regularization parameter; r0 starting point ([] to auto-pick
+            % the max-quality point).
             %% INICIALIZA VALORES
             n=size(wtheta);
             px=ones(n);py=ones(n);q=abs(q).*m;
             s=zeros(n);wbeta=zeros(n);
             dx=cos(wtheta).*m;dy=sin(wtheta).*m;
             
-            %% DEFINE EL TAMAÑO DEL ARREGLO PARA EL HISTOGRAMA DEL ALGORITMO DE STRÖBEL
+            %% DEFINE EL TAMAï¿½O DEL ARREGLO PARA EL HISTOGRAMA DEL ALGORITMO DE STRï¿½BEL
             na=10;maxi=0;
             q=round(q./max(max(q))*(na-1))+1;
             for k=1:na
@@ -2036,7 +1955,7 @@ classdef UtilFunFPA
             hy=zeros(na,maxi);hx=zeros(na,maxi);
             front=zeros(1,na);final=zeros(1,na);
             
-            %% ALGORITMO DE STRÖBEL PARA SEGUIR EL MAPA DE CALIDAD EN LA ESTIMACION
+            %% ALGORITMO DE STRï¿½BEL PARA SEGUIR EL MAPA DE CALIDAD EN LA ESTIMACION
             cont=0;ind=1;
             
             if isempty(r0)
@@ -2081,7 +2000,7 @@ classdef UtilFunFPA
                 
                 
                 %SACA LAS COORDENADAS DEL HISTOGRAMA
-                %PARA LA SIGUIENTE ESTIMACIÓN
+                %PARA LA SIGUIENTE ESTIMACIï¿½N
                 k=na;ind=0;
                 while ind==0 && k>0
                     ind=front(k);
@@ -2110,20 +2029,16 @@ classdef UtilFunFPA
         
         
         function s=Vortex(c, dir)
-            %Vortex Vortex transform transform
-            % s=Vortex(c, dir) computes the quadrture term of c still corrected by
-            % the direction phase factor. Therefore for a real c=b*cos(phi)
-            % s=Vortex(c)=b*sin(phi). If we use orientation instead of direction we
-            % will obtain s=b*sin(phi).*sign(sin(dir))
-            % Ref: Kieran G. Larkin, Donald J. Bone, and Michael A. Oldfield, "Natural
-            % demodulation of two-dimensional fringe patterns. I. General background of the spiral phase quadrature transform," J. Opt. Soc. Am. A 18, 1862-1870 (2001)
-            
-            %   AQ, 19/8/09
-            %   Copyright 2009 OM4M
-            %   $ Revision: 1.0.0.0 $
-            %   $ Date: 19-08-2009 $
-            
-            
+            % Vortex vortex transform: computes the quadrature term of c
+            % corrected by the direction phase factor dir, so for a real
+            % c=b*cos(phi), s=b*sin(phi) (using orientation instead of
+            % direction instead gives s=b*sin(phi).*sign(sin(dir))).
+            % (Same algorithm as the standalone Vortex.m.)
+            %
+            % Ref: Larkin, Bone & Oldfield, "Natural demodulation of
+            % two-dimensional fringe patterns. I. General background of
+            % the spiral phase quadrature transform," J. Opt. Soc. Am. A
+            % 18, 1862-1870 (2001)
             TH=max(abs(c(:)));
             if mean(real(c(:)))>0.01*TH
                 warning('OM4M:SPHT:OutOfRange', ...
@@ -2145,17 +2060,16 @@ classdef UtilFunFPA
         
         
         function [orn, ornMod]=OrMinDer(FP, varargin)
-            %OrMinDer Orientation by minmum diference fit
-            % [orn, ornMod]=OrMinDer(FP, N) computes the orientation using a window
-            % size N.Default values are N=5 px
-            % References
-            % [1] Yang, Xia; Yu, Qifeng, and Fu, Sihua. An algorithm for estimating both fringe orientation and fringe density. Optics Communications. 2007 Jun 15; 274(2):286-292
-            
-            %   AQ, 28/8/09
-            %   Copyright 2009 OM4M
-            %   $ Revision: 1.0.0.0 $
-            %   $ Date: 28-08-2009 $
-            
+            % OrMinDer estimates fringe orientation orn (mod pi) and its
+            % confidence ornMod from fringe pattern FP, via
+            % minimum-difference fitting over a window of size N
+            % (varargin{1}, default 5 px). (Same algorithm as the
+            % standalone OrMinDer.m.)
+            %
+            % Ref: Yang, Yu & Fu, "An algorithm for estimating both
+            % fringe orientation and fringe density," Optics
+            % Communications 274(2), 286-292 (2007)
+
             % get input parameters
             % only want 1 optional inputs at most
             numvarargs = length(varargin);
@@ -2204,15 +2118,19 @@ classdef UtilFunFPA
             
         end
         
-        %DEMIQT  Phase demodulation using the Isotropic Quadrature Transform method.
-        %   [z, zo, zd]=DemIQT(g, gm, onlyOrFlag, R, N, Lambda) returns the igram phasor z,
-        %   orientation phasor zo and direction phasor zd  associated with
-        %   the igram g. gm is the processing mask. onlyOrFlag is a logical flag that indicates if it
-        %   is necessary the Direction calculation or Orientation and
-        %   Direction should be calculated.
-        %   R the DC filter size, N the neigbourhood size for orientation and
-        %   lambda the regularization parameter.
         function [z, zor, zdir]=DemIQT(g,varargin)
+            % DemIQT demodulates igram g via the Isotropic Quadrature
+            % Transform method: DC-filters g (radius R), estimates
+            % orientation (OrMinDer, neighborhood N) and its phasor zor,
+            % then either reuses it as direction (if onlyOrFlag) or
+            % derives a direction phasor zdir (calcDirection,
+            % regularization Lambda), and demodulates via the Vortex
+            % transform using that direction, giving phasor z.
+            %
+            % Optional args: gm (ones) processing mask; onlyOrFlag
+            % (false) skip direction estimation, reuse orientation; R (2
+            % FF) DC filter radius; N (5 px) orientation neighborhood
+            % size; Lambda (1) direction regularization parameter.
             import OM4MClassLib.Util.*
             callFunc=Logging.WhoCalledMe();
             
@@ -2284,44 +2202,21 @@ classdef UtilFunFPA
         
         
         function [z, Delta] = DemPSAsync5TunOriented(g,varargin)
-            
-            % DemPSAsync5TunOriented Función para llevar a cabo la demodulación de un patron
-            % de franjas usando un metodo asincrono de 5 pasos
-            % sintonizable. La demodulacion es orientada vertical u
-            % horizontal, es decir segun el caso las franjas verticales u
-            % horizontales saldran con muy baja modulacion
+            % DemPSAsync5TunOriented demodulates fringe pattern g via a
+            % tunable asynchronous 5-step algorithm, oriented horizontally
+            % or vertically (fringes running along the demodulation
+            % direction come out with very low modulation). Returns the
+            % phasor z and the local sampling period Delta.
             %
-            % [z, Delta] = DemPSAsync5TunOriented(g,dir,Nmax) calcula el phasor z y el periodo de muestreo local Delta
-            % con un algoritmo de 5 pasos sintonizable a partir el patron de franjas.
+            % Optional args: Nmax (5) maximum sampling period; dirDemod
+            % ('horz') demodulation direction, 'horz' or 'vert'.
             %
-            % Argumentos de entrada:
-            %
-            % I Patron de franjas (obligatorio)
-            %
-            % Nmax Valor máximo del periodo de muestreo (opcional), valor por defecto Nmax=5
-            %
-            % dir Direccion de demoulacion (opcional):
-            %   'horz' direccion horizontal (valor por defecto)
-            %   'vert' direccion vertical
-            %
-            % Ejemplo:
-            %
-            % % Patron de franjas simulado con 50 franjas/campo
-            % N = 340;
-            %
-            % % Phase
-            % [x, y]=meshgrid(1:N, 1:N); x=x-0.5*N; y=y-0.5*N;
-            % p=6*peaks(N)+2*pi*50*(x)/N;
-            %
-            % % Fringe pattern
-            % I=128+64*cos(p);
-            %
-            % % Demodula la fase
-            % [z, Delta] = DemPSAsync5Tun(I,5,'horz');
-            %
-            % @ 2007 AOCG - UCM Infor
-            % @ 2019 IOT - AQ
-            
+            % Example:
+            %   N = 340;
+            %   [x, y]=meshgrid(1:N, 1:N); x=x-0.5*N; y=y-0.5*N;
+            %   p=6*peaks(N)+2*pi*50*(x)/N; % 50 fringes/field
+            %   I=128+64*cos(p);
+            %   [z, Delta] = UtilFunFPA.DemPSAsync5TunOriented(I,5,'horz');
             import OM4MClassLib.Util.*
             callFunc=Logging.WhoCalledMe();
             
@@ -2334,7 +2229,7 @@ classdef UtilFunFPA
             end
             
             % set defaults for optional inputs
-            % Nmax Valor máximo del periodo de muestreo (opcional), valor por defecto Nmax=5
+            % Nmax Valor mï¿½ximo del periodo de muestreo (opcional), valor por defecto Nmax=5
             % dirDemod Direccion de demoulacion (opcional) 'horz' direccion horizontal (valor por defecto)
             %   'vert' direccion vertical
             optargs = {5, 'horz'};
@@ -2467,19 +2362,20 @@ classdef UtilFunFPA
         end
         
         function [z, zor, zdir, Delta]=DemAsinc5Tun(g,varargin)
-            % DemAsinc5Tun Función para llevar a cabo la demodulación de un patron
-            % de franjas usando un metodo asincrono de 5 pasos
-            % sintonizable. La demodulacion es 2D incluyendo el calculo de la direccion para hacer
-            % el steering del metodo DemPSAsync5TunOriented (solo horizontal o vertical)
+            % DemAsinc5Tun demodulates fringe pattern g via the tunable
+            % asynchronous 5-step method, made 2D by computing the
+            % orientation/direction to steer between the horizontal- and
+            % vertical-oriented results of DemPSAsync5TunOriented.
             %
-            % [z, zor, zdir, Delta]=DemAsinc5Tun(g,gm, NA, N, Lambda) demodula el patron g con modulacion gm, usando NA niveles
-            % de diezmado para el proceso adpativo y N vecinos para el
-            % calculo de la direccion, Lambda es el parametro de
-            % regularizacion usado en el calculo de la direccion
-            % la salida consiste en z el fasor, zor el fasor de la
-            % orientacuion, zdir el fasor de la direcion y Delta el mapa de
-            % diezmado
-            
+            % Outputs: z the demodulated phasor; zor the orientation
+            % phasor; zdir the direction phasor; Delta the (complex)
+            % decimation-level map (real part horizontal, imaginary part
+            % vertical).
+            %
+            % Optional args: gm (ones) modulation/mask; NA (6) number of
+            % decimation levels for the adaptive process; N (5 px)
+            % orientation-estimation neighborhood size; Lambda (1)
+            % direction regularization parameter.
             import OM4MClassLib.Util.*
             callFunc=Logging.WhoCalledMe();
             
@@ -2528,15 +2424,13 @@ classdef UtilFunFPA
         end
         
         function v = homography_solve(pin, pout)
-            % HOMOGRAPHY_SOLVE finds a homography from point pairs
-            %   V = HOMOGRAPHY_SOLVE(PIN, POUT) takes a 2xN matrix of input vectors and
-            %   a 2xN matrix of output vectors, and returns the homogeneous
-            %   transformation matrix that maps the inputs to the outputs, to some
-            %   approximation if there is noise.
-            %
-            %   This uses the SVD method of
-            %   http://www.robots.ox.ac.uk/%7Evgg/presentations/bmvc97/criminispaper/node3.html
-            % David Young, University of Sussex, February 2008
+            % homography_solve finds a homography from point pairs: pin
+            % and pout are 2xN matrices of input/output vectors; v is
+            % the 3x3 homogeneous transformation matrix mapping pin to
+            % pout (approximately, if there is noise), via the SVD
+            % method of
+            % http://www.robots.ox.ac.uk/%7Evgg/presentations/bmvc97/criminispaper/node3.html
+            % (David Young, University of Sussex, February 2008)
             if ~isequal(size(pin), size(pout))
                 error('Points matrices different sizes');
             end
@@ -2563,25 +2457,22 @@ classdef UtilFunFPA
         end
         
         function y = homography_transform(x, v)
-            % HOMOGRAPHY_TRANSFORM applies homographic transform to vectors
-            %   Y = HOMOGRAPHY_TRANSFORM(X, V) takes a 2xN matrix, each column of which
-            %   gives the position of a point in a plane. It returns a 2xN matrix whose
-            %   columns are the input vectors transformed according to the homography
-            %   V, represented as a 3x3 homogeneous matrix.
+            % homography_transform applies homography v (a 3x3
+            % homogeneous matrix, see homography_solve) to x, a 2xN
+            % matrix of 2D point positions, returning the transformed
+            % 2xN matrix y
             q = v * [x; ones(1, size(x,2))];
             p = q(3,:);
             y = [q(1,:)./p; q(2,:)./p];
         end
         
         function g = bin2gray(b)
-            %bin2gray transform binary number b to grey code
-            %   from http://www.matrixlab-examples.com/gray-code.html
-            %   The input parameter to this function is a binary number (expressed in a string of 0s ans 1s),
-            %   the output is the equivalent Gray number (also expressed as
-            %   a string of 0 and 1s) with the same length that b
-            %   Typically the binary string is calculated from a decimal
-            %   number by the MATLAB function dec2bin back to decimal
-            %   by bin2dec
+            % bin2gray converts binary string b (0s/1s) to the
+            % equivalent Gray code string g of the same length -
+            % typically b comes from dec2bin and g is converted back to
+            % decimal via bin2dec
+            %
+            % Ref: http://www.matrixlab-examples.com/gray-code.html
             g(1) = b(1);
             for i = 2 : length(b)
                 x = xor(str2double(b(i-1)), str2double(b(i)));
@@ -2590,14 +2481,11 @@ classdef UtilFunFPA
         end
         
         function b = gray2bin(g)
-            %gray2bin transform gray code g to binary number b
-            %   from http://www.matrixlab-examples.com/gray-code.html
-            %   The input parameter to this function is a binary gray number (expressed in a string of 0s and 1s),
-            %   the output is the equivalent binary number (also expressed
-            %   as a string string of 0s and 1s
-            %   Typically the binary string is calculated from a decimal
-            %   number by the MATLAB function dec2bin and back to decimal
-            %   by bin2dec
+            % gray2bin converts Gray code string g (0s/1s) to the
+            % equivalent binary string b of the same length - the
+            % inverse of bin2gray
+            %
+            % Ref: http://www.matrixlab-examples.com/gray-code.html
             b(1) = g(1);
             for i = 2 : length(g)
                 x = xor(str2num(b(i-1)), str2num(g(i)));
@@ -2606,13 +2494,14 @@ classdef UtilFunFPA
         end
         
         function [PGC, LUT_GC2D, LUT_D2GC, nBits]=generateGC(T, NR, NC, GCDir)
-            %generateGC generates a list of nBits + 2 NRxNC GC patterns
-            %aligned with X GCDir=0 or Y GCDir=1 with minimum bar width T depending on GCDir
-            %The decoded GC will have "bars" of width T and value the order
-            %of the bar 0,1,2,...NOrder where NOrder=floor(NC-1)/Tx or
-            %floor(NR-1)/Ty depending on GCDir. NBits is calculated to have
-            %NOrder the maximum power of two bigger than NR or NC depending
-            %on GCDir, nBitsR=nextpow2(NOrder+1);
+            % generateGC generates nBits Gray Code bar patterns (NRxNC,
+            % aligned along X if GCDir=0 or Y if GCDir=1) with minimum
+            % bar width T, plus 2 extra all-white/all-black reference
+            % patterns (PGC has nBits+2 total). Decoded bars are numbered
+            % 0,1,2,...,NOrder (NOrder=floor((NC-1)/T) or
+            % floor((NR-1)/T) depending on GCDir); nBits is the smallest
+            % power of two >= NOrder+1. Also returns the Gray<->decimal
+            % lookup tables LUT_GC2D/LUT_D2GC.
             import OM4MClassLib.Util.*
             callFunc=Logging.WhoCalledMe();
             
@@ -2705,10 +2594,10 @@ classdef UtilFunFPA
         end
         
         function D=decodeGC(PGC, LUT_GC2D)
-            %decodeGC decode a list nBits + 2 NRxNC GC patterns generated
-            %by genetateGC. So we are assuming here that the 1st patterrn is the MSB
-            %the nBit pattern is the LSB and the last two are the W and K
-            %images for binarization
+            % decodeGC decodes the nBits+2 Gray Code patterns PGC (as
+            % generated by generateGC - 1st pattern is the MSB, last two
+            % are the all-white/all-black binarization references) into
+            % the decimal order map D, using lookup table LUT_GC2D
             import OM4MClassLib.Util.*
             callFunc=Logging.WhoCalledMe();
             
@@ -2752,30 +2641,26 @@ classdef UtilFunFPA
         
         
         function S=LinLUTGV(uv,options)
-            % LinLUTGV(uv) linearize the response of a GV
-            % transformation system H, like a proyector+camera. u is the
-            % imput GV, v the output GV, v=H(u)
-            % the (discrete) system response and is a Nx2 table (u,v)
-            % for which u=uv(:, 1) is the input GV (i.e. the GVs we sent to a proyector) and v=uv(:, 2)
-            % is the measured/transformed GVs. For example in a display/camera combination u
-            % will be the GV we sent to the display and v the GV captured
-            % by the camera from the projector
-            % for this function H must be a monotonically increasing
-            % function of u. S is the output structure.
-            % S.Tu is a 8bit 255x1 LUT so that H[T(u)] is a linear function
-            % OJO S.Tu son GV pero en double
-            % between (u0,v0) and (u1,v1), u0 for u<u0 and u1 for u>u1, so
-            % that u0=min(Tu) and u1=max(Tu)
-            % S.Hu is the interpolated respose, with v0 for v<v0 and v1 for v>v1,
-            % NOTA AQ ver seccion 23 "Linearizacion respuesta
-            % monitor-camara" del cuaderno de trabajo
+            % LinLUTGV linearizes the response of a GV transformation
+            % system H (e.g. a projector+camera), v=H(u), given its
+            % measured (discrete) response as an Nx2 table uv (uv(:,1)
+            % is the input GV sent, e.g. to a projector; uv(:,2) is the
+            % measured/transformed output GV, e.g. captured by a
+            % camera). H must be monotonically increasing in u.
+            %
+            % Output struct S: S.Tu is a 256x1 LUT (GV values, stored as
+            % double) such that H[Tu(u)] is linear between (u0,v0) and
+            % (u1,v1) - clamped to u0/u1 outside that range; S.Hu is the
+            % interpolated response H itself, clamped to v0/v1 outside
+            % [u0,u1].
+            %
+            % Optional args: options.D (1) safety margin (in samples)
+            % kept away from the max/min of the measured response uv(:,2)
+            % when picking v0/v1, to avoid interpolation artifacts near
+            % the extremes.
             arguments
                 uv (:, 2) {mustBeNumeric}
-                options.D (1,1) {mustBeNumeric} = 1 %Margen de seguridad de la posicion del vector vs para el maximo y el minimo de la respuesta H(u).
-                %Se establece como 1 para evitar problemas con la interpolación
-                %de Hv. De esta forma tomamos el valor del max-1 y del
-                %min+1 y evita tomar los valores de los máximos (y minimos) que no deseamos.
-                
+                options.D (1,1) {mustBeNumeric} = 1
             end
             D = options.D;
             S.D = D;
@@ -2810,7 +2695,7 @@ classdef UtilFunFPA
             % for the interpolation to work v0 and v1 must be "interior" to
             % vs max and min
 
-            %Hallamos la posicion del mínimo y máximo el vector de vs redondeada:
+            %Hallamos la posicion del mï¿½nimo y mï¿½ximo el vector de vs redondeada:
             vunicos=unique(round(vs)); 
             v0=min(vunicos(ONEOFFSET+D:end));
             v1=max(vunicos(ONEOFFSET:end-D));        
@@ -2855,23 +2740,19 @@ classdef UtilFunFPA
             S.Hu=Hu; 
         end
         
-        % ======================================================================
-        %> @brief DistancePlaneCam
-        %> @details static helper function to calculate the distance from the optical centre
-        %> of a callibrated camera and the intersection of the optical axis with a plane
-        %> with intrincs K, extrinsics R and t and ppal point p0. If M is
-        %> a point in the world ref (homogeneous coordinates) and Mc in the camera system Mc=[R|t]M and
-        %> s*m=K[R|t]M
-        %> @param K camera intrisic matrix px/mm
-        %> @param R plane extrinsic rotation matrix
-        %> @param t plane extrinsic translation vector mm
-        %> @param p0 camera ppal point px
-        %> @retval d distance in mm
-        %> @retval Hmm2px homography between (undistorted) plane mm and camera px
-        %> @retval M0 position in mm of principal point
-        %> @author AQ 26/5/2020
-        % ======================================================================
         function [d, H, P0]=DistancePlaneCam(K, R, t, p0)
+            % DistancePlaneCam computes the distance d (mm) between a
+            % calibrated camera's optical center and the intersection of
+            % its optical axis with a plane (extrinsics R, t; a world
+            % point M relates to the camera point Mc via Mc=[R|t]*M and
+            % s*m=K*[R|t]*M).
+            %
+            % Inputs: K camera intrinsic matrix (px/mm); R plane
+            % extrinsic rotation matrix; t plane extrinsic translation
+            % vector (mm); p0 camera principal point (px).
+            % Outputs: d distance (mm); H homography between
+            % (undistorted) plane mm and camera px; P0 principal point's
+            % position in the plane (mm).
             %euclidean optical centre in plane reference
             O=-R'*t';
             %homography between plane and cam mm2px
@@ -2885,13 +2766,12 @@ classdef UtilFunFPA
             d=norm(O-[P0; 0]);
         end
         
-        % ======================================================================
-        %> @brief this function makes a bar plot of the Reprojection Errors
-        %> nut using the cell array of xlabels as x-ticks
-        %> @camParams cameraParameters object as obtained from estimateCameraParameters
-        %> @camParams cell array with the xlabels, one for each image
-        % ======================================================================
         function showReprojectionErrorsWithLabels(camParams,xlabels)
+            % showReprojectionErrorsWithLabels bar-plots the mean
+            % reprojection error per image from camParams (a
+            % cameraParameters object, as returned by
+            % estimateCameraParameters), using xlabels (a cell array,
+            % one label per image) as the x-axis tick labels
             rpe=camParams.ReprojectionErrors; % NCP (#control points) x 2 (XY) x NP (Number of patterns)
             abs_rpe=abs(rpe(:, 1, :)+ 1i*rpe(:, 2, :)); %NCP (#control points) x 1 (error) x NP (Number of patterns)
             m_abs_rpe=mean(abs_rpe, 1); % 1 (mean error) x 1 x NP (Number of patterns)                
@@ -2910,22 +2790,22 @@ classdef UtilFunFPA
         end
         
         
-        %> @brief this function filter spatial frec u=wx and its harmonics with a gausian filter of sigma=R px
-        %> @param g input igram or phasor
-        %> @param w0 spatial freq in FF
-        %> @param options Name-Value Arguments {"R", 0.4*wx/3} R sigma of the gaussian windows centred at n*wx {"M", ones(size(g))} input ROI        
-        %> @author AQ 18SEP20
         function [gh, Mh]=filterHarmonicsX(g, wx, options)
+            % filterHarmonicsX notch-filters out spatial frequency u=wx
+            % (in FF) and its X harmonics from igram/phasor g, using a
+            % Gaussian window of sigma=R px centered at each n*wx (and
+            % -n*wx). Also returns Mh, ROI M shrunk to exclude border
+            % pixels affected by the filter.
+            %
+            % Optional args: options.R (0.49*wx/3) Gaussian sigma - must
+            % satisfy 3*R < 0.5*wx so the notches stay isolated;
+            % options.M (ones(size(g))) input ROI.
             arguments
-                % g must be double numeric value 
                 g (:, :) double {mustBeNumeric}
-                % g must be double real scalar 
                 wx (1,1) double {mustBeReal}
-                % optional Property R must be real scalar and maximum value
-                % is 3*R<0.5*wx
                 options.R (1,1) double {mustBeReal} = 0.49*wx/3
-                options.M (:, :) double {mustBeNumeric} = ones(size(g))                
-            end                                               
+                options.M (:, :) double {mustBeNumeric} = ones(size(g))
+            end
             import OM4MClassLib.Util.*
             callFunc=Logging.WhoCalledMe();
     

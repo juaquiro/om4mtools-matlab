@@ -1,4 +1,6 @@
 function checkStats_Toolbox()
+    % checkStats_Toolbox errors unless the Statistics Toolbox is
+    % installed with version >= 8.2
 
 tb='stats'; %toolbox
 v=ver(tb);

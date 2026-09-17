@@ -1,4 +1,7 @@
 classdef testFPADemodulatorPSFotoel < matlab.unittest.TestCase
+    % testFPADemodulatorPSFotoel tests the photoelastic isoclinic-angle
+    % + retardation measurement chain (DemodulatorTypes.TimePSA +
+    % DemodulatorTypes.RetarPSA)
     %run(testFPADemodulatorPSFotoel)
     
     methods(TestMethodSetup)
@@ -18,6 +21,9 @@ classdef testFPADemodulatorPSFotoel < matlab.unittest.TestCase
     
     methods (Test)
         function testAllDemodulatorsConstructors(testCase)
+            % testAllDemodulatorsConstructors builds every DemodulatorTypes
+            % variant via the factory and checks every DemodulatorProps
+            % Get() call succeeds
             %run(testFPADemodulator, 'testAllDemodulatorsConstructors')
             import OM4MClassLib.Util.*;
             fprintf('\ntest %s...\n ',Logging.WhoCalledMe());
@@ -39,6 +45,10 @@ classdef testFPADemodulatorPSFotoel < matlab.unittest.TestCase
         end
         
         function testDemodRetarSimulImages(testCase)
+            % testDemodRetarSimulImages runs the full isoclinic angle +
+            % retardation chain on synthetic fringe patterns for a
+            % teoretical loaded-disk stress distribution, visually
+            % comparing the measured maps against the theoretical ones
             %run(testFPADemodulatorPSFotoel, 'testDemodRetarSimulImages')
             import OM4MClassLib.Util.*;
             fprintf('\ntest %s...\n ',Logging.WhoCalledMe());
@@ -137,9 +147,12 @@ classdef testFPADemodulatorPSFotoel < matlab.unittest.TestCase
             
         end
 
-        %aqui se prueba con luz blanca para 4alpha y Na para delta
         function testDemodRetarDisk(testCase)
+            % testDemodRetarDisk runs the isoclinic angle (white light) +
+            % retardation (sodium light) chain on real acquired fringe
+            % patterns of a loaded disk (DiscoPolariscopio fixtures)
             %run(testFPADemodulatorPSFotoel, 'testDemodRetarDisk')
+            %aqui se prueba con luz blanca para 4alpha y Na para delta
             import OM4MClassLib.Util.*;
             fprintf('\ntest %s...\n ',Logging.WhoCalledMe());
             
@@ -262,10 +275,15 @@ classdef testFPADemodulatorPSFotoel < matlab.unittest.TestCase
         end
         
         
-        %aqui se prueba con luz FLUO para 4alpha y FLUO para delta
-        %tb se generan las imagenes de calibracion para decodeRGB
         function testDemodRetarDiskRGBFluo(testCase)
+            % testDemodRetarDiskRGBFluo runs the isoclinic angle +
+            % retardation chain with fluorescent light (both steps) on
+            % real acquired fringe patterns of a loaded disk
+            % (DiscoRGBFluo fixtures), and saves the result as an
+            % RGBDeltaMeasure.mat calibration fixture for decodeRGB
             %run(testFPADemodulatorPSFotoel, 'testDemodRetarDiskRGBFluo')
+            %aqui se prueba con luz FLUO para 4alpha y FLUO para delta
+            %tb se generan las imagenes de calibracion para decodeRGB
             import OM4MClassLib.Util.*;
             fprintf('\ntest %s...\n ',Logging.WhoCalledMe());
             
@@ -382,10 +400,12 @@ classdef testFPADemodulatorPSFotoel < matlab.unittest.TestCase
         end
         
         
-        %aqui se prueba con luz FLUO para 4alpha y FLUO para delta
-        %tb se generan las imagenes de calibracion para decodeRGB
         function testDemodRetarRingGBFluo(testCase)
+            % testDemodRetarRingGBFluo repeats testDemodRetarDiskRGBFluo
+            % on a loaded ring (AnilloRGBFluo fixtures)
             %run(testFPADemodulatorPSFotoel, 'testDemodRetarRingGBFluo')
+            %aqui se prueba con luz FLUO para 4alpha y FLUO para delta
+            %tb se generan las imagenes de calibracion para decodeRGB
             import OM4MClassLib.Util.*;
             fprintf('\ntest %s...\n ',Logging.WhoCalledMe());
             
@@ -502,10 +522,13 @@ classdef testFPADemodulatorPSFotoel < matlab.unittest.TestCase
         end
         
         
-        %Aqui se demodula la imagen del anillo con luaz blanca para alpha y
-        %Na para delta
         function testDemodRetarRing(testCase)
+            % testDemodRetarRing repeats testDemodRetarDisk's isoclinic
+            % angle (white light) + retardation (sodium light) chain on
+            % a loaded ring (AnilloPolariscopio fixtures)
             %run(testFPADemodulatorPSFotoel, 'testDemodRetarRing')
+            %Aqui se demodula la imagen del anillo con luaz blanca para alpha y
+            %Na para delta
             import OM4MClassLib.Util.*;
             fprintf('\ntest %s...\n ',Logging.WhoCalledMe());
             

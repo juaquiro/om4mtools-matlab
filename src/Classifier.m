@@ -1,7 +1,18 @@
 classdef Classifier < handle & OM4MClassLib.DataStructs.IProps
-    %CLASSIFIER this class implementes THE CLASSIFIER ASBTRACT INTERFACE
-    %this class inherits from handle and implements interface IProps
-    
+    % Classifier abstract base class for the OM4M classifier hierarchy
+    %
+    % Syntax:
+    %   classifier = ClassifierXxx()
+    %   classifier.Train(X, y)
+    %   [pred, prb] = classifier.Predict(X)
+    %
+    % Description:
+    %   Defines the common training/prediction/error-function pipeline
+    %   (feature mapping, normalization, then subclass-specific
+    %   hypothesis/theta calculation) shared by every concrete classifier
+    %   (ClassifierLR, ClassifierSVM, ClassifierNN, etc.). Concrete
+    %   subclasses only need to implement the abstract methods below.
+
     %% protected props
     properties (Access=protected)
         props;
@@ -14,26 +25,31 @@ classdef Classifier < handle & OM4MClassLib.DataStructs.IProps
     
     %% abstract methods, protected interface
     methods (Abstract=true, Access=protected)
-        %Hypothesis Prediction
+        % HypothesisP predicts labels/probabilities for the given (already
+        % normalized/mapped) feature matrix X
         p=HypothesisP(X);
+        % CalculateTheta fits this.theta from feature matrix X and labels y
         CalculateTheta(X,y);
-        %this function implements the error function that is used
-        %by (implemented)ErrorFunction(this, X, y, lambda)
+        % RawDataErrorFun computes the error struct used by ErrorFunction
         errorStruct=RawDataErrorFun(X, y, lambda);
+        % isTrained returns true once CalculateTheta has been run
         r=isTrained(this);
     end
-    
+
         %% abstract methods, public interface
     methods (Abstract=true)
+        % isSupervised returns true if this classifier requires labels y
         r=isSupervised(this);
+        % isRegression returns true if this classifier predicts a
+        % continuous value instead of a discrete class
         r=isRegression(this);
     end
 
     
     %% protected interface, only for internal use of unsupervised classiers that are composed with a supervised classifier
     methods (Access=protected)
-        %Copy props to another clasiffer with the execption of 
         function this=setProps(this, c)
+            % setProps copies this classifier's props onto another classifier c
             import OM4MClassLib.Util.*;
             callFunc=Logging.WhoCalledMe();
             
@@ -52,6 +68,8 @@ classdef Classifier < handle & OM4MClassLib.DataStructs.IProps
         end
         
         function this=checkSVM_Toolbox(this)
+            % checkSVM_Toolbox errors if the Statistics Toolbox is missing
+            % or older than the minimum version this classifier needs
             import OM4MClassLib.Util.*;
             callFunc=Logging.WhoCalledMe();
             tb='stats'; %toolbox
@@ -71,16 +89,18 @@ classdef Classifier < handle & OM4MClassLib.DataStructs.IProps
     
     %% public interface
     methods
-        %constructor
         function this=Classifier()
+            % Classifier constructs a classifier with default props (see Init)
             import OM4MClassLib.DataStructs.*;
             this.props=PropsEnumList('ClassifierProps');
-            
+
             % Initialization
             this.Init();
         end
-        
+
         function Train(this, X,y)
+            % Train fits the classifier on feature matrix X and labels y
+            % (feature-mapped and normalized internally per this.props)
             try
                 import OM4MClassLib.Util.*;
                 callFunc=Logging.WhoCalledMe();
@@ -124,6 +144,8 @@ classdef Classifier < handle & OM4MClassLib.DataStructs.IProps
         end
         
         function [pred,prb]=Predict(this, X)
+            % Predict returns the predicted label/value pred and its
+            % probability/confidence prb (rounded to 3 digits) for X
             try
                 import OM4MClassLib.Util.*;
                 
@@ -163,8 +185,9 @@ classdef Classifier < handle & OM4MClassLib.DataStructs.IProps
         
         
         function errorStruct=ErrorFunction(this, X, y)
-            % this function includes data normalization, see Train and it
-            % is necessary for computing the learning curve
+            % ErrorFunction computes the error struct for (X, y), including
+            % the same feature mapping/normalization as Train - needed to
+            % compute the learning curve
             try
                 
                 %polynomic mapping
@@ -180,15 +203,16 @@ classdef Classifier < handle & OM4MClassLib.DataStructs.IProps
         end                
         
         function theta=GetTheta(this)
+            % GetTheta returns the fitted model parameters
             theta=this.theta;
         end
     end
-    
-    
+
+
     %% private methods
     methods (Access=private)
-        %Initialize
         function this=Init(this)
+            % Init sets every classifier prop to its default value
             try
                 
                 this.normalizer=featureNormalizer();
@@ -218,10 +242,11 @@ classdef Classifier < handle & OM4MClassLib.DataStructs.IProps
     
     
     %% public IProps interface
-    %check Get implementation¡¡
+    %check Get implementationï¿½ï¿½
     methods
-        % Get interface, note the no parameter
         function ret=Get(this, props)
+            % Get returns the value of props, or the full props struct if
+            % called with no props argument
             if nargin==1
                 ret=this.props.Get();
             else
@@ -229,8 +254,8 @@ classdef Classifier < handle & OM4MClassLib.DataStructs.IProps
             end
         end
         
-        %Set interface
         function this=Set(this, props, propvals)
+            % Set assigns propvals to props, type-checking featureType/svcType
             import OM4MClassLib.Util.*;
             
             callFunc=Logging.WhoCalledMe();
@@ -252,8 +277,10 @@ classdef Classifier < handle & OM4MClassLib.DataStructs.IProps
     
     %% Static methods
     methods (Static=true)
-        
         function save(classifier,varargin)
+            % save writes classifier to a .mat file (default name = class
+            % name + date, or varargin{1} if given); also exports to XML
+            % if classifier is an NNoCV (OpenCV-backed) classifier
             try
                 
                 if not(isa(classifier, 'Classifier'))
@@ -291,6 +318,8 @@ classdef Classifier < handle & OM4MClassLib.DataStructs.IProps
         end
         
         function obj=load(filename)
+            % load reads a classifier previously saved by save() from
+            % filename (.mat extension optional, added automatically)
             try
                 
                 % Checking if the filename was introduced with or without
@@ -312,7 +341,7 @@ classdef Classifier < handle & OM4MClassLib.DataStructs.IProps
                 classifier_types_OK=cellfun(@(x) ['Classifier' x],classifier_types,'UniformOutput',0);                
                 if ~any(ismember(classifier_types_OK,classes))
                     error('Classifier:LoadWrongContents',['The file which is requested to load '...
-                        'doesn´t content a classifier'])
+                        'doesnï¿½t content a classifier'])
                 end
                 S=load(filename);
                 obj=S.classifier;

@@ -1,4 +1,6 @@
 classdef testFPADemodulator < matlab.unittest.TestCase
+    % testFPADemodulator tests DemodulatorFactory and the base
+    % Demodulator/DemodulatorVoid behaviour
     %run(testFPADemodulator)
     
     methods(TestMethodSetup)
@@ -18,6 +20,9 @@ classdef testFPADemodulator < matlab.unittest.TestCase
     
     methods (Test)
         function testAllDemodulatorsConstructors(testCase)
+            % testAllDemodulatorsConstructors builds every DemodulatorTypes
+            % variant via the factory and checks its default props
+            % (biasFP, modFP, shape, onlyModFlag, M) against expectations
             %run(testFPADemodulator, 'testAllDemodulatorsConstructors')
             import OM4MClassLib.Util.*;
             fprintf('\ntest %s...\n ',Logging.WhoCalledMe());
@@ -79,6 +84,8 @@ classdef testFPADemodulator < matlab.unittest.TestCase
         
         
         function testDemodulatorVoid(testCase)
+            % testDemodulatorVoid checks the factory returns a
+            % DemodulatorVoid instance for DemodulatorTypes.Void
             %run(testFPADemodulator, 'testDemodulatorVoid')
             import OM4MClassLib.Util.*;
             fprintf('\ntest %s...\n ',Logging.WhoCalledMe());
@@ -93,6 +100,10 @@ classdef testFPADemodulator < matlab.unittest.TestCase
         
         
         function testDemodulatorVoidProcess(testCase)
+            % testDemodulatorVoidProcess checks DemodulatorVoid.Process
+            % ignores its igram input and produces the expected synthetic
+            % radial phasor (magnitude/phase from a centered meshgrid),
+            % keeping a pre-set mask M unchanged
             %run(testFPADemodulator, 'testDemodulatorVoidProcess')
             import OM4MClassLib.Util.*;
             fprintf('\ntest %s...\n ',Logging.WhoCalledMe());

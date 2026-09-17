@@ -1,10 +1,15 @@
 function vid = DMx41BU02
-%DMX41BU02 Code for creating a video input object.
-%   
+% DFx41BU02 creates a video input object for the 'DFx 41BU02' camera via
+% the winvideo adaptor, BY8 (1280x960).
+%  Known bug: this function is named DMx41BU02 internally (same name as
+% the unrelated DMx41BU02.m in this folder, for the 'DMx 41BU02'
+% device), not DFx41BU02 as this file is named (still invocable as
+% DFx41BU02() since MATLAB resolves by file name).
+%
 %   This is generated using the imaqtool and modified to recover the vid form the name istead of the
-%   
-%   Example: 
-%       vidobj = DMx41BU02;
+%
+%   Example:
+%       vidobj = DFx41BU02;
 %   
 %   See also VIDEOINPUT, IMAQDEVICE/PROPINFO, IMAQHELP, PATH.
 %   

@@ -1,19 +1,20 @@
 function vid = DFK24UJ003
-%DFK24UJ003POLI Code for creating a video input object.
-%   
+% DFK24UJ003 creates a video input object for the DFK 24UJ003 camera via
+% the winvideo adaptor, RGB32 (3872x2764).
+%
 %   This is the machine generated representation of a video input object.
-%   This MATLAB code file, DFK24UJ003POLI.M, was generated from the OBJ2MFILE function.
-%   A MAT-file is created if the object's UserData property is not 
-%   empty or if any of the callback properties are set to a cell array  
-%   or to a function handle. The MAT-file will have the same name as the 
+%   This MATLAB code file, DFK24UJ003.M, was generated from the OBJ2MFILE function.
+%   A MAT-file is created if the object's UserData property is not
+%   empty or if any of the callback properties are set to a cell array
+%   or to a function handle. The MAT-file will have the same name as the
 %   code file but with a .MAT extension. To recreate this video input object,
-%   type the name of the code file, DFK24UJ003Poli, at the MATLAB command prompt.
-%   
-%   The code file, DFK24UJ003POLI.M and its associated MAT-file, DFK24UJ003POLI.MAT (if
+%   type the name of the code file, DFK24UJ003, at the MATLAB command prompt.
+%
+%   The code file, DFK24UJ003.M and its associated MAT-file, DFK24UJ003.MAT (if
 %   it exists) must be on your MATLAB path.
-%   
-%   Example: 
-%       vidobj = DFK24UJ003Poli;
+%
+%   Example:
+%       vidobj = DFK24UJ003;
 %   
 %   See also VIDEOINPUT, IMAQDEVICE/PROPINFO, IMAQHELP, PATH.
 %   

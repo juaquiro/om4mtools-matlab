@@ -1,6 +1,6 @@
 classdef ClassifierProps
-    %ClassifierProps 
-    %   alowed props for Classifiers    
+    % ClassifierProps enumeration of the allowed Get/Set prop names for
+    % Classifier and its subclasses
     enumeration
         lambda,%regularization parameter (lambda) for LR and linReg, C parameter (~1/lambda) for SVN
         hiddenSizes; %number and sizes of NN hidden layers

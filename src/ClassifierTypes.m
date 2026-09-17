@@ -1,7 +1,6 @@
 classdef ClassifierTypes
-    %ClassifierTypes 
-    %Types of Classifiers
-    
+    % ClassifierTypes enumeration of classifier kinds, used by
+    % ClassifierFactory.Create and ClassifierProps.svcType
     enumeration
         LogR, %logistic regression (supervised)
         NN, %neural network, using MATLAB NN toolbox (supervised)

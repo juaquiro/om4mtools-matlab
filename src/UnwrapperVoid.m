@@ -1,10 +1,11 @@
 classdef UnwrapperVoid < Unwrapper
-    %UnwrapperVoid Unwrapper for testing purpouses
-    
+    % UnwrapperVoid dummy unwrapper for testing purposes only - returns
+    % phase masked by bmask/qual, with no actual unwrapping
+
     %% public methods
     methods
-        % constructor
         function  this=UnwrapperVoid()
+            % UnwrapperVoid constructs a dummy test unwrapper
             %%% Pre Initialization %%%
             % Any code not using first output argument (this)
             
@@ -26,14 +27,15 @@ classdef UnwrapperVoid < Unwrapper
     %% private methods
     methods (Access=private)
         function this=Init(this)
-            %%private INIT for class comes here
+            % Init no-op: UnwrapperVoid needs no extra state beyond Unwrapper's
         end
     end
-    
+
     %% protected abstract interface
     methods (Access=protected)
-        % abstract interface
         function this=DoUnwrapp(this)
+            % DoUnwrapp returns phase masked by bmask and qual>0, with no
+            % actual phase unwrapping (this is a dummy unwrapper)
             %get data for unwrapping, already validates and normaliced
             bmask=this.Get(char(UnwrapperProps.bmask));
             phase=this.Get(char(UnwrapperProps.phase));

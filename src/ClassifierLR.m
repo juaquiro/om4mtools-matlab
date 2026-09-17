@@ -1,15 +1,14 @@
 classdef ClassifierLR < Classifier
-    %ClassifierLR
-    %   This class describes linear regression
-    
+    % ClassifierLR multi-class logistic regression classifier (supervised)
+
     %% private props
     properties (Access=private)
     end
-    
+
     %% public methods
     methods
-        % constructor
         function  this=ClassifierLR()
+            % ClassifierLR constructs a logistic regression classifier
             %%% Pre Initialization %%%
             % Any code not using first output argument (this)
             
@@ -28,21 +27,23 @@ classdef ClassifierLR < Classifier
         end
         
         function r=isSupervised(this)
+            % isSupervised: true, logistic regression needs labeled data
             r=true;
-        end        
-        
+        end
+
         function r=isRegression(this)
+            % isRegression: false, this is a classifier, not a regressor
             r=false;
         end
 
     end
-    
+
     %% protected abstract interface
     methods (Access=protected)
-        %Classfier hypothesis h_theta(X)
         function [pred,prb]=HypothesisP(this, X)
+            % HypothesisP predicts pred (argmax class) and prb (its
+            % probability) via the sigmoid of X*theta'
 
-            
             % Add bias to the X data matrix
             m = size(X, 1); % Number of samples
             Xbias = [ones(m, 1) X];
@@ -53,10 +54,10 @@ classdef ClassifierLR < Classifier
             
         end
         
-        %function used to compute the parameters theta
         function CalculateTheta(this, X,y)
+            % CalculateTheta fits one-vs-all theta rows via fmincg, one
+            % per class in y, minimizing UtilFunML.CostFunctionLR
 
-            
             m = size(X, 1); % Number of training examples
             n = size(X, 2); % features number
             num_labels=length(unique(y));
@@ -83,8 +84,7 @@ classdef ClassifierLR < Classifier
         end
         
         function errStruct=RawDataErrorFun(this, X, y)
-            %[J, JGrad]=UtilFunML.CostFunctionLR(theta, X, y, lambda);
-            %given a
+            % RawDataErrorFun returns accuracy-based error plus F1/precision/recall
             p = this.HypothesisP(X);
             J=100-UtilFunML.Accuracy(y,p);
             
@@ -99,6 +99,7 @@ classdef ClassifierLR < Classifier
         end
         
         function r=isTrained(this)
+            % isTrained returns true once theta has been fitted
             if isempty(this.theta)
                 r=false;
             else
@@ -106,13 +107,12 @@ classdef ClassifierLR < Classifier
             end
         end
     end
-    
-    
+
+
     %% private methods
     methods (Access=private)
-        %Initialize
         function this=Init(this)
-            
+            % Init no-op: ClassifierLR needs no extra state beyond Classifier's
         end
     end
 end

@@ -1,4 +1,6 @@
 classdef testPolarMeasurement < matlab.unittest.TestCase
+    % testPolarMeasurement tests PolarMeasurement (combined isoclinic
+    % angle + retardation photoelastic measurement pipeline)
     %run(testPolarMeasurement)
     
     methods(TestMethodSetup)
@@ -19,6 +21,11 @@ classdef testPolarMeasurement < matlab.unittest.TestCase
     methods (Test)
         
         function testDemodRetarSimulImages(testCase)
+            % testDemodRetarSimulImages runs PolarMeasurement's full
+            % isoclinic-angle + retardation chain on synthetic fringe
+            % patterns for a teoretical loaded-disk stress distribution,
+            % visually comparing the measured maps against the
+            % theoretical ones
             %run(testPolarMeasurement, 'testDemodRetarSimulImages')
             import OM4MClassLib.Util.*;
             fprintf('\ntest %s...\n ',Logging.WhoCalledMe());
@@ -103,6 +110,10 @@ classdef testPolarMeasurement < matlab.unittest.TestCase
         
         
         function testSaveLoad(testCase)
+            % testSaveLoad runs a partial isoclinic + wrapped-retardation
+            % measurement, then checks PolarMeasurement.save/load
+            % round-trips every property unchanged, both with the
+            % default file name and with an explicit one
             %run(testPolarMeasurement, 'testSaveLoad')
             import OM4MClassLib.Util.*;
             fprintf('\ntest %s...\n ',Logging.WhoCalledMe());
@@ -204,6 +215,10 @@ classdef testPolarMeasurement < matlab.unittest.TestCase
         
         
         function testDemodRetarDisk(testCase)
+            % testDemodRetarDisk runs PolarMeasurement's full isoclinic
+            % angle + retardation chain (including phasor filtering and
+            % ROI auto-detection via calcROI) on real acquired fringe
+            % patterns of a loaded disk (DiscoPolariscopio fixtures)
             %run(testPolarMeasurement, 'testDemodRetarDisk')
             import OM4MClassLib.Util.*;
             fprintf('\ntest %s...\n ',Logging.WhoCalledMe());
@@ -296,6 +311,9 @@ classdef testPolarMeasurement < matlab.unittest.TestCase
         
         
         function testDemodRetarRing(testCase)
+            % testDemodRetarRing repeats testDemodRetarDisk's isoclinic
+            % angle + retardation chain on real acquired fringe patterns
+            % of a loaded ring (AnilloPolariscopio fixtures)
             %run(testPolarMeasurement, 'testDemodRetarRing')
             import OM4MClassLib.Util.*;
             fprintf('\ntest %s...\n ',Logging.WhoCalledMe());
@@ -389,6 +407,10 @@ classdef testPolarMeasurement < matlab.unittest.TestCase
         
         
         function testFTTemporalDemodSimul(testCase)
+            % testFTTemporalDemodSimul runs PolarMeasurement's
+            % retardation-only chain with DemodulatorTypes.FTTempAnalysis
+            % (spatio-temporal FT demodulation, no isoclinic step or
+            % unwrapping) on a 50-frame simulated loading ramp
             %run(testPolarMeasurement, 'testFTTemporalDemodSimul')
             import OM4MClassLib.Util.*;
             fprintf('\ntest %s...\n ',Logging.WhoCalledMe());

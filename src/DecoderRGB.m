@@ -1,14 +1,16 @@
 classdef DecoderRGB <  handle
-    %this class implements the path follower RGB decoder method. Form a RGB calibration table, using a RGB  image the RGBDecoder returns the
-    % measurement as codified in the RGB calibration table
-    %this class is based in Dropbox\AQ_SYNC\AQ\KIROS\PAPERS\Proyectos\Legacy\Iot-om4m\Om4mLib\Trunk\src\XtremeFringe\PathFollower.cs
-    %This class is based in the paper
-    %Juan Antonio Quiroga, Ángel Garcia-Botella, and José Antonio Gómez-Pedrero,
-    % "Improved method for isochromatic demodulation by RGB calibration," Appl. Opt. 41, 3461-3468 (2002)
-    % Beware this is not a fringe demodulator (see Demodulator), and does
-    % not follow its interface. However for compatibility we maintain the
-    % constructor without parameters and the Process() method. Default
-    % params should be OK for the majority of applications
+    % DecoderRGB path-follower RGB decoder: from an RGB calibration table
+    % and an RGB image, returns the measurement encoded at each pixel by
+    % that calibration
+    %
+    % Description:
+    %   Based on Quiroga, Garcia-Botella & Gomez-Pedrero, "Improved
+    %   method for isochromatic demodulation by RGB calibration," Appl.
+    %   Opt. 41, 3461-3468 (2002), and on the legacy PathFollower.cs
+    %   implementation. Not a fringe Demodulator and does not follow its
+    %   interface, but keeps a parameterless constructor and a Process()
+    %   method for rough compatibility. Default params should be OK for
+    %   most applications.
     
     %% props
     %protected
@@ -31,8 +33,9 @@ classdef DecoderRGB <  handle
     
     %% public methods
     methods
-        %constructor
         function this=DecoderRGB(RGBCalib)
+            % DecoderRGB constructs a decoder from an [Nx4] RGB
+            % calibration table [measurement, R, G, B]
             import OM4MClassLib.Util.*;
             callFunc=Logging.WhoCalledMe();
             
@@ -43,8 +46,16 @@ classdef DecoderRGB <  handle
             this.Init();
         end
         
-        %this function
         function this=Process(this, g, roiMask, varargin)
+            % Process decodes RGB image g within roiMask into
+            % this.DeltaMap by following a quality-guided path from a
+            % starting point, decoding each pixel against a locally
+            % re-centered subset of the calibration table.
+            %
+            % Optional args (varargin): d0 (starting retardation, default
+            % 0), P0 (starting point, default: highest-quality pixel in
+            % roiMask), deltaMapIn/procMaskIn (seed maps to refine an
+            % existing result, default all-zero).
             import OM4MClassLib.Util.*
             callFunc=Logging.WhoCalledMe();
             
@@ -189,6 +200,8 @@ classdef DecoderRGB <  handle
     %% private methods
     methods (Access=private)
         function this=Init(this)
+            % Init sets default public prop values and builds
+            % InterpRGBCalib from RGBCalib
             %defalult value for public props
             this.Lambda=0;
             this.DeltaMap=[];
@@ -205,10 +218,10 @@ classdef DecoderRGB <  handle
         end
         
         
-        %return the 2*NPoints+1 subarray of RGBCalib centred in d0
         function LocalRGBCalib=SubArray(this, d0, RGBCalib, dwidth)
-            %import OM4MClassLib.Util.*
-            %callFunc=Logging.WhoCalledMe();
+            % SubArray returns the rows of RGBCalib whose measurement
+            % falls within dwidth (fraction of the calibration's
+            % measurement range) of d0
             callFunc='UtilFunFPALocalRGBCalib';
             
             N=length(RGBCalib(:, 1));
@@ -252,10 +265,10 @@ classdef DecoderRGB <  handle
     
     %% static methods
     methods(Static)
-        %this function calculates the RGB calibration from a RGB image g,
-        %with valid values en roiMask and a value for each pixel of
-        %DeltaMap
         function [RGBCalib, RGBCalibSigma]=ExtractRGBCalib(g, roiMask, DeltaMap)
+            % ExtractRGBCalib builds an RGB calibration table (median +
+            % std of R/G/B per retardation bin) from an RGB image g,
+            % valid pixels in roiMask, and a known-retardation DeltaMap
             import OM4MClassLib.Util.*
             callFunc=Logging.WhoCalledMe();
             
@@ -308,30 +321,23 @@ classdef DecoderRGB <  handle
         
         
         
-        % Matlab implementation of the RGB calibration demodulation
-        %
-        % INPUT:
-        %
-        %   LocalDeltaMap mapa local con los valores ya medidos de retardo (para el termino de regularizacion)
-        %   LocalProcMask mask  indicar los puntos que ya estan procesados en LocalDeltaMap
-        %   lambda es el parametro de regularizacion
-        %   RGBVal  [1x3] valor RGB para el que se quiere calcular el retardo
-        %   LocalDeltaMap [NVecxNVec] mapa local con los valores ya medidos de retardo (para el termino de regularizacion)
-        %   LocalProcMask [NVecxNVec] mascara que indica los puntos que ya estan procesados en LocalDeltaMap
-        %
-        % Outputs:
-        %   delta: [1x1] calulated retardation for RGBVal from LocalRGBCalib
-        %   Umin: value for the functional
-        %
-        %REFERENCES
-        %
-        % [1] Juan Antonio Quiroga, Ángel Garc??a-Botella, and José Antonio Gómez-Pedrero, "Improved method for isochromatic demodulation by RGB calibration," Appl. Opt. 41, 3461-3468 (2002)
-        %
-        %   AQ 7/6/2018
-        %   Copyright 2010 IOT
-        %   $ Revision: 1.0.0.0 $
-        %   $ Date: 1/6/18 $
         function  [delta, Umin]=LocalDecodeFromRGB(RGBVal, LocalRGBCalib, LocalDeltaMap, LocalProcMask, Lambda)
+            % LocalDecodeFromRGB finds the retardation in LocalRGBCalib
+            % whose RGB value best matches RGBVal, regularized against
+            % the already-decoded neighborhood (LocalDeltaMap/
+            % LocalProcMask, weight Lambda). See Quiroga, Garcia-Botella
+            % & Gomez-Pedrero, Appl. Opt. 41, 3461-3468 (2002).
+            %
+            % Inputs:
+            %   RGBVal [1x3] RGB value to decode
+            %   LocalRGBCalib [Nx4] local calibration subset [measurement, R, G, B]
+            %   LocalDeltaMap, LocalProcMask [NVecxNVec] already-decoded
+            %     neighborhood values and which of them are valid
+            %   Lambda regularization weight
+            %
+            % Outputs:
+            %   delta calculated retardation for RGBVal
+            %   Umin value of the minimized functional at delta
             %separamos valores R, G, B
             R=RGBVal(:,:,1);
             G=RGBVal(:,:,2);
@@ -370,8 +376,8 @@ classdef DecoderRGB <  handle
         end
         
         function InterpRGBCalib=interpRGBCalibration(RGBCalib, interpFactor)
-            %interp RGB Calibration
-            %interpolamos la calibracion
+            % interpRGBCalibration upsamples RGBCalib by interpFactor via
+            % spline interpolation of each RGB channel vs. measurement
             dC=RGBCalib(:, 1); %retar from calibration
             dCi=linspace(min(dC), max(dC), interpFactor*length(dC))'; %interpolated retar from calibration
             InterpRGBCalib=zeros(length(dCi), 4);

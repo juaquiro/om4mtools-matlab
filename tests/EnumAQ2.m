@@ -1,8 +1,7 @@
 classdef EnumAQ2 < int32
-    %ENUMAQ1 Summary of this function goes here
-    %   Detailed explanation goes here
-    %for PropsEnumList there is no restriction with the numerical index it
-    %can be even a float,
+    % EnumAQ2 is a fixture enumeration (used by testPropsEnumList) with
+    % non-contiguous integer values, since PropsEnumList (unlike
+    % CellEnumList) places no restriction on the numerical index
     
     enumeration
         A(-1)

@@ -1,5 +1,9 @@
 function vid = DFGPro_winvideo_Y800_720x576
-%DFGUSB2PRO Code for creating a video input object.
+% DFGPro_winvideo_Y800_720x576 creates a video input object for the
+% DFG/USB2pro frame grabber via the winvideo adaptor.
+%  Known bug: despite its name, vidFormat below is set to 'Y800_640x480'
+% (swapped with DFGPro_winvideo_Y800_640x480.m's vidFormat, which is set
+% to 'Y800_720x576'). Documented as-is, not fixed.
 %
 %   This is generated using the imaqtool and modified to recover the vid form the name istead of the deviceID
 %

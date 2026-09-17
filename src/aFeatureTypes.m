@@ -1,7 +1,7 @@
 classdef aFeatureTypes
-    %FeaturePros
-    %Types of props for aFeature
-    
+    % aFeatureTypes enumeration of aFeature kinds, used by
+    % aFeatureFactory.Create - see that class for which of these
+    % actually have a matching class in this repo (most don't)
     enumeration
         Unknown;
         FeatureTest, %return the mean error and the std in the DPM, transmission mode (AQtest)

@@ -1,8 +1,9 @@
 classdef PropsEnumList < OM4MClassLib.DataStructs.IProps
-    %PROPSENUMLIST Propierties List
-    %   This list is init by a enumeration and oly permited keys are the init enumeration
-    %   To use this class inherint from IProps and include a PropsEnumList as a memeber of your class
-    %   and implement the Get and Set using the PropsEnumList object
+    % PropsEnumList is a key/value properties list (backed by
+    % containers.Map) whose only permitted keys are the members of the
+    % enumeration it is constructed with. To use it, inherit from IProps,
+    % add a PropsEnumList as a class member, and implement Get/Set by
+    % delegating to this object's Get/Set
     
     %% private props
     properties
@@ -13,6 +14,9 @@ classdef PropsEnumList < OM4MClassLib.DataStructs.IProps
     %% public methods
     methods
         function this=PropsEnumList(dataTypes)
+            % PropsEnumList constructs a props list keyed by every
+            % member of the dataTypes enumeration (name of the
+            % enumeration class), each initialized to an empty value
             import OM4MClassLib.Util.*;
             callFunc=Logging.WhoCalledMe();
             this.dataTypes=dataTypes;
@@ -34,12 +38,12 @@ classdef PropsEnumList < OM4MClassLib.DataStructs.IProps
     
     %% IProps methods
     methods
-        % Get() returns a structure will all props and their values
-        % Get(prop) with prop a value of the enumeration this.dataTypes
-        % return the corresponding value
-        % Get(Cell_array_of_prop) with prop a char-value of the enumeration this.dataTypes
-        % return a cell array with the corresponding values
         function ret=Get(this, props)
+            % Get() returns a struct with all props and their values.
+            % Get(prop), prop a char value of the enumeration
+            % this.dataTypes, returns the corresponding value.
+            % Get(cellOfProps) returns a cell array of the corresponding
+            % values
             try
                 import OM4MClassLib.Util.*;
                 callFunc=Logging.WhoCalledMe();
@@ -70,11 +74,11 @@ classdef PropsEnumList < OM4MClassLib.DataStructs.IProps
             end
         end
         
-        % Set(prop, propvals) with prop a value of the enumeration this.dataTypes
-        % with the corresponding value
-        % Set(Cell_array_of_prop, Cell_array_of_vals) with prop a char-value of the enumeration this.dataTypes
-        % set the map with the corresponding values
         function this=Set(this, props, propvals)
+            % Set(prop, propvals), prop a char value of the enumeration
+            % this.dataTypes, stores propvals under prop.
+            % Set(cellOfProps, cellOfVals) stores each value under its
+            % matching prop by position
             try
                 import OM4MClassLib.Util.*;
                 callFunc=Logging.WhoCalledMe();

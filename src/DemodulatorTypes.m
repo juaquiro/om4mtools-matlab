@@ -1,7 +1,6 @@
 classdef DemodulatorTypes
-    %DemodulatorType enumeration of demodulator types
-    %for testing purpouses use same name than class
-    
+    % DemodulatorTypes enumeration of demodulator kinds, used by
+    % DemodulatorFactory.Create
     enumeration
         FT; % Fourier transform
         Void; %dummy only for testing purpouses

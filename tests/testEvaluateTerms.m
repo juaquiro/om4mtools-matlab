@@ -1,4 +1,5 @@
 classdef testEvaluateTerms < matlab.unittest.TestCase
+    % testEvaluateTerms tests Zernikes.EvaluateTerms against zernfun
     %run(testEvaluateTerms)
 
     methods(TestMethodSetup)
@@ -16,6 +17,8 @@ classdef testEvaluateTerms < matlab.unittest.TestCase
     methods(Test)
         
         function testSinglePoint(testCase) %#ok<*DEFNU>
+            % testSinglePoint checks EvaluateTerms at one random (X,Y)
+            % point matches zernfun for every order 0:300
             import Zernikes.*;
 
             X=rand()-0.5;
@@ -33,6 +36,8 @@ classdef testEvaluateTerms < matlab.unittest.TestCase
         end
         
         function testVector(testCase)
+            % testVector checks EvaluateTerms on 100 random (X,Y) points
+            % matches zernfun for every order 0:100
 
            import Zernikes.*;
 

@@ -1,13 +1,11 @@
 classdef UtilFunML
-    %UtilFunML
-    %   Staic class with util funs
-    
+    % UtilFunML static utility functions for the Machine Learning
+    % library (classifiers, cost functions, curves, NN helpers)
+
     %% public methods
     methods(Static)
         function g = sigmoid(z)
-            %SIGMOID Compute sigmoid functoon
-            %   J = SIGMOID(z) computes the sigmoid of z.
-            
+            % sigmoid computes the sigmoid (logistic) function of z
             g = 1.0 ./ (1.0 + exp(-z));
         end
         
@@ -192,15 +190,9 @@ classdef UtilFunML
         end
         
         function [J, JGrad]=CostFunctionLR(theta, X, y, lambda)
-            
-            %Compute cost and gradient for logistic regression with
-            %regularization
-            %   J = LRCOSTFUNCTION(theta, X, y, lambda) computes the cost of using
-            %   theta as the parameter for regularized logistic regression and the
-            %   gradient of the cost w.r.t. to the parameters.
-            %   the data X is mxn and theta is (n+1)x1
-            
-            
+            % CostFunctionLR computes the regularized logistic regression
+            % cost J and gradient JGrad for parameters theta ((n+1)x1)
+            % on data X (mxn) and labels y
             % Initialize some useful values
             n=length(theta); %number of features + 1
             
@@ -224,25 +216,17 @@ classdef UtilFunML
         end
         
         function a=Accuracy(y_act, y_pred)
-            %Accuracy given two sets of (numerical)labels calculates the accuracy (the total clasification succces rate)
-            %given the actual and predicted labels
+            % Accuracy computes the classification success rate (%)
+            % between actual labels y_act and predicted labels y_pred
             a=mean(double(y_pred == y_act)) * 100;
-            
+
         end
-        
-        
+
+
         function [J, JGrad]=CostFunctionLinReg(theta, X, y, lambda)
-            
-            %Compute cost and gradient for linear regression with
-            %regularization
-            %   J = CostFunctionLinReg(theta, X, y, lambda) computes the cost of using
-            %   theta as the parameter for regularized linear regression and the
-            %   gradient of the cost w.r.t. to the parameters.
-            %   the data X if n is the number of features X is mxn and
-            %   theta is (n+1)x1
-            
-            
-            % Initialize some useful values
+            % CostFunctionLinReg computes the regularized linear
+            % regression cost J and gradient JGrad for parameters theta
+            % ((n+1)x1) on data X (mxn) and targets y
             % Add bias to the X data matrix
             m = size(X, 1); % Number of samples
             Xbias = [ones(m, 1) X];
@@ -259,12 +243,19 @@ classdef UtilFunML
         end
         
         function [error_train, error_val] = learningCurve(classfier, X, y, Xval, yval, varargin)
-            % learningCurve calculates the learning curve for the
-            % input classifier with its current parameters (i.e. lambda) using the training set X,y and the cross validation set Xval, yval
-            % iniCnpFlag determines if the normalization params are calculated in the
-            % initial train
-            % error_train and error_val are arrays of stErr structs generated using genErrStruct
-            try                                                              
+            % learningCurve computes the learning curve for classfier
+            % (with its current params, e.g. lambda) by training on
+            % increasing subsets of X/y (every deltaSamples samples) and
+            % evaluating on both the training subset and the
+            % cross-validation set Xval/yval. Normalization params are
+            % computed once on the initial full-X train, then held fixed
+            % for the per-subset trainings.
+            % error_train/error_val are arrays of error structs (see
+            % genErrorStruct).
+            %
+            % Optional args: deltaSamples (5) step size between learning
+            % curve points.
+            try
                 import OM4MClassLib.Util.*;
                 
                 callFunc=Logging.WhoCalledMe();
@@ -423,10 +414,11 @@ classdef UtilFunML
         end
         
         function [error_train, error_val] = validationCurve(classfier, lambdav, X, y, Xval, yval)
-            % validationCurve calculates the learning curve for the
-            % input classifier with its current parameters (i.e. lambda) using the training set X,y and the cross validation set Xval, yval
-            % iniCnpFlag determines if the normalization params are calculated in the
-            % initial train
+            % validationCurve computes the validation curve for
+            % classfier: trains it once per lambda value in lambdav
+            % (on the full X/y), then evaluates train/validation error
+            % (error_train/error_val, see checkErrorStruct) on X/y and
+            % Xval/yval respectively at each lambda
             try
                 import OM4MClassLib.Util.*;
                 
@@ -483,10 +475,12 @@ classdef UtilFunML
         end
         
         function [error_train, error_val] = ZernikeMuCurve(classfier, muv, X, y, Xval, yval)
-            % validationCurve calculates the learning curve for the
-            % input classifier with its current parameters (i.e. lambda) using the training set X,y and the cross validation set Xval, yval
-            % iniCnpFlag determines if the normalization params are calculated in the
-            % initial train
+            % ZernikeMuCurve computes the curvature-regularization (mu)
+            % curve for a ClassifierZernikes classfier: trains it once
+            % per mu value in muv (on the full X/y, keeping lambda fixed
+            % at its current value), then evaluates train/validation
+            % error (error_train/error_val, see checkErrorStruct) on
+            % X/y and Xval/yval respectively at each mu
             try
                 import OM4MClassLib.Util.*;
                 
@@ -536,9 +530,11 @@ classdef UtilFunML
         end
         
         function [d, K] = NICDCurve(c, X, Kmax)
-            % NIDCurve calculates the normalized inter cluster distance for clsuter numbers k=2:Kmax.
-            % d is a vector Kmax x 1 with the intercluster distances and K
-            % is the optimum cluster number that maximizes d
+            % NICDCurve computes the normalized inter-cluster distance
+            % for an unsupervised classifier c trained on X, for cluster
+            % counts k=2:Kmax. d is a 1xKmax vector of inter-cluster
+            % distances (d(1) is set equal to d(Kmax), since k=1 isn't
+            % meaningfully computed); K is the cluster count maximizing d.
             try
                 import OM4MClassLib.Util.*;
                 
@@ -573,11 +569,11 @@ classdef UtilFunML
         
         
         function theta = normalEqn(X, y, lambda)
-            % LS solution to min_theta[(theta*X'-y)^2 + lambda*theta^2]
-            %   the data X includes the bias as well as the parameters
-            %   theta, i.e. if n is the number of features X is mxn and
-            %   theta is (n+1)x1
-            
+            % normalEqn is the regularized least-squares (normal
+            % equation) solution theta ((n+1)x1) to
+            % min_theta[(X*theta-y)^2 + lambda*theta(2:end)^2], adding
+            % the bias column to X (mxn) itself before solving (see
+            % normalEqnWithoutBias)
             % Add bias to the X data matrix
             m = size(X, 1); % Number of samples
             Xbias = [ones(m, 1) X];
@@ -587,6 +583,10 @@ classdef UtilFunML
         end
         
         function theta= normalEqnWithoutBias(X, y, lambda)
+            % normalEqnWithoutBias is the regularized least-squares
+            % (normal equation) solution theta to
+            % min_theta[(X*theta-y)^2 + lambda*theta(2:end)^2], assuming
+            % X already includes any bias column (unlike normalEqn)
             n=size(X,2); %n features including bias
             
             b=X'*y;
@@ -597,6 +597,8 @@ classdef UtilFunML
         end
         
         function checkTrainSetLabels(y)
+            % checkTrainSetLabels errors unless y is a column vector of
+            % consecutive integer labels 1,2,...,N (N=number of classes)
             import OM4MClassLib.Util.*;
             
             callFunc=Logging.WhoCalledMe();
@@ -615,10 +617,11 @@ classdef UtilFunML
             end
         end
         
-        % this function generates the error struct for k classes
-        % J is the global accuracy, F1s, P and R have a value for each
-        % class
         function errStruct=genErrorStruct(k)
+            % genErrorStruct returns an empty error struct for k classes:
+            % J (scalar, overall error/cost, initialized to 0) and
+            % F1s/P/R (F1-score/precision/recall, each a kx1 zero vector
+            % - one value per class)
             import OM4MClassLib.Util.*;
             
             callFunc=Logging.WhoCalledMe();
@@ -645,8 +648,10 @@ classdef UtilFunML
         end
         
         function errStruct_o=checkErrorStruct(errStruct_i, k)
-            %check fields of errStruct_i and check that F1s, P and R are
-            %vectors of kx1 with k the number of clases
+            % checkErrorStruct validates errStruct_i has the required
+            % fields (J, F1s, P, R), then returns errStruct_o with F1s/P/R
+            % padded/resized to kx1 (k classes) - copying in whatever
+            % values errStruct_i already had
             try
                 import OM4MClassLib.Util.*;
                 
@@ -681,11 +686,10 @@ classdef UtilFunML
         end
         
         function [F1s, P, R]=Fscore(y,p)
-            % compute Precisin, Reacll and F1score for each of the classes
-            % in the labels y. a one-vs-all strategy is used
-            % y are the actual training classes ad p the predicted values
-            %if there are n clases F1s, P and R are column vectors with the
-            %values for each class
+            % Fscore computes precision P, recall R and F1-score F1s for
+            % each class in actual labels y vs. predicted labels p,
+            % using a one-vs-all strategy. F1s/P/R are column vectors,
+            % one value per class.
             numClasses=length(unique(y));
             
             F1s=zeros(numClasses, 1);
@@ -734,7 +738,12 @@ classdef UtilFunML
         % NN algorithm with one hidden layer
         function [J grad]=nnCostFunction(nn_params,input_layer_size, ...
                 hidden_layer_size,num_labels,X,y,lambda)
-            
+            % nnCostFunction computes the regularized cost J and
+            % gradient grad (unrolled Theta1_grad/Theta2_grad) of a
+            % single-hidden-layer neural network, via forward
+            % propagation (cost) and backpropagation (gradient).
+            % nn_params is Theta1/Theta2 unrolled into one vector; X/y
+            % are the training data/labels (1-indexed classes).
             % Reshape nn_params back into the parameters Theta1 and Theta2, the weight matrices
             % for our 2 layer neural network
             Theta1=reshape(nn_params(1:hidden_layer_size * (input_layer_size + 1)), ...
@@ -762,7 +771,7 @@ classdef UtilFunML
             z3=Theta2*a2;
             a3=UtilFunML.sigmoid(z3);
             h=a3;
-            % Función de coste
+            % Funciï¿½n de coste
             costPos=-Y.*log(h');
             costNeg=(1-Y).*log(1-h)';
             cost=costPos-costNeg;
@@ -815,25 +824,27 @@ classdef UtilFunML
         end
         
         function g=sigmoidGradient(z)
+            % sigmoidGradient computes the derivative of the sigmoid
+            % function at z
             g=UtilFunML.sigmoid(z).*(1-UtilFunML.sigmoid(z));
         end
-        
+
         function W=randInitializeNNWeights(L_in,L_out)
-            % RANDINITIALIZEWEIGHTS(L_in, L_out) randomly initializes the weights
-            % of a layer with L_in incoming connections and L_out outgoing connections
+            % randInitializeNNWeights randomly initializes the L_out x
+            % (1+L_in) weight matrix W of a layer with L_in incoming and
+            % L_out outgoing connections, in [-epsilon, epsilon] with
+            % epsilon=sqrt(6/(L_in+L_out))
             epsilon=sqrt(6/(L_in+L_out));
             W=rand(L_out,1+L_in)*2*epsilon-epsilon;
         end
-        
+
         function checkNNGradients(lambda)
-            % CHECKNNGRADIENTS Creates a small neural network to check the
-            % backpropagation gradients.
-            % CHECKNNGRADIENTS(lambda) Creates a small neural network to check the
-            % backpropagation gradients, it will output the analytical gradients
-            % produced by your backprop code and the numerical gradients (computed
-            % using computeNumericalGradient). These two gradient computations should
-            % result in very similar values.
-            
+            % checkNNGradients builds a small neural network with random
+            % test data and compares its analytical backprop gradient
+            % (nnCostFunction) against a numerically-estimated gradient
+            % (computeNumericalGradient) - the two should be very
+            % similar. lambda (default 0) is the regularization strength
+            % to test with.
             if ~exist('lambda', 'var') || isempty(lambda)
                 lambda = 0;
             end

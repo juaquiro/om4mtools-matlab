@@ -1,10 +1,11 @@
 classdef DemodulatorFT < Demodulator
-    %DemodulatorFT FT implementation of demodulator
-    
+    % DemodulatorFT single-shot Fourier-transform fringe demodulator
+    % (locates side lobes, demodulates via FFT)
+
     %% public methods
     methods
-        % constructor
         function  this=DemodulatorFT()
+            % DemodulatorFT constructs an FT demodulator
             %%% Pre Initialization %%%
             % Any code not using first output argument (this)
             
@@ -22,8 +23,9 @@ classdef DemodulatorFT < Demodulator
             this.Init();
         end
         
-        % abstract interface
         function this=Process(this, FPList)
+            % Process demodulates FPList{1} by locating its NL side
+            % lobes (near w0 if set) and FFT-demodulating around them
             import OM4MClassLib.Util.*
             callFunc=Logging.WhoCalledMe();
             
@@ -57,10 +59,14 @@ classdef DemodulatorFT < Demodulator
         end
         
         function stepVals=GetStepValues(this)
+            % GetStepValues returns this.steps (fixed at 1, kept for
+            % interface compatibility only - FT is not a PSI method)
             stepVals=this.steps;
         end
-        
+
         function FPList=GenerateFPs(this, imSize)
+            % GenerateFPs returns a crossed-grid pattern plus its
+            % vertical and horizontal components, at period Tx=Ty
             NR=imSize(1);
             NC=imSize(2);
             
@@ -82,6 +88,7 @@ classdef DemodulatorFT < Demodulator
     %% private methods
     methods (Access=private)
         function this=Init(this)
+            % Init sets default NL/w0 props and this.steps
             %default value for NL is 4, it can be 2 or 4
             this.Set(char(DemodulatorProps.NL), 4); 
             

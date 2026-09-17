@@ -1,11 +1,11 @@
 classdef DemodRetarPolPS < Demodulator
-    %DemodRetarPolPS this implements the classical 8 step method of
-    %photoelastic PSI
-    
+    % DemodRetarPolPS classical 8-step phase-shifting photoelasticity
+    % retardation demodulator
+
     %% public methods
     methods
-        % constructor
         function  this=DemodRetarPolPS()
+            % DemodRetarPolPS constructs an 8-step PSI retardation demodulator
             %%% Pre Initialization %%%
             % Any code not using first output argument (this)
             
@@ -23,8 +23,12 @@ classdef DemodRetarPolPS < Demodulator
             this.Init();
         end
         
-        % abstract interface
         function this=Process(this, FPList)
+            % Process demodulates the 8 phase-shifted images in FPList
+            % into a single retardation phasor z (this.zList), by
+            % building the 4 candidate phasors implied by the unwrapped
+            % z2alpha and keeping the one with highest incoherent energy
+            % inside the mask
             import OM4MClassLib.Util.*
             callFunc=Logging.WhoCalledMe();
             
@@ -92,15 +96,17 @@ classdef DemodRetarPolPS < Demodulator
         end
         
         function FPList=GenerateFPs(this, imSize)
+            % GenerateFPs not implemented for this demodulator - always errors
             import OM4MClassLib.Util.*
             callFunc=Logging.WhoCalledMe();
             retMsg=['DemodulatorRetarPol->' callFunc '->not available'];
             error(retMsg);
-            
+
         end
-        
-        
+
+
         function stepsVals=GetStepValues(this)
+            % GetStepValues returns the 8 phase-shift step combinations used by Process
             stepsVals=this.steps;
         end
         
@@ -110,6 +116,7 @@ classdef DemodRetarPolPS < Demodulator
     %% private methods
     methods (Access=private)
         function this=Init(this)
+            % Init sets the 8 phase-shift step combinations and default z2alpha
             this.steps={[ 90 45  45 -45]
                 [ 90 45 -45  45]
                 [ 90 45 -45   0]

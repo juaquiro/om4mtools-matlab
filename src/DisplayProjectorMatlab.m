@@ -1,50 +1,38 @@
-%> @file DisplayProjectorMatlab.m
-%> @brief Matlab figures image projector class
-%> @copyright 2019 IOT
-%> @author SS 15/01/19
-
-% ======================================================================
-%> @brief this class implements the DisplayProjector class with Matlab figures
-%> @brief this class uses logical display size, if there is scaling this
-%> @brief size is different from physical display size. Check Init()
-%> @brief if physical syze is needed use DisplayProjector that uses Java primitives 
-%> @details Esta clase solo es valida a partir de Matlab2018
-%> @see DisplayTypes for available projector follower types
-%> @see DisplayFactory for a static factory
-%> @see testFPADisplayProjectorMatlab for unit tests
-% ======================================================================
 classdef DisplayProjectorMatlab <  handle
+    % DisplayProjectorMatlab MATLAB-figure-based image projector -
+    % requires R2018a or newer
+    %
+    % Description:
+    %   Uses the logical display size, which differs from the physical
+    %   size when the OS applies scaling (see Init()); use
+    %   DisplayProjector (Java-based) instead if the physical size is
+    %   needed. See DisplayTypes for available projector types,
+    %   DisplayFactory for a static factory, and
+    %   testFPADisplayProjectorMatlab for unit tests.
     %% props
     %public
     properties
-        %> cell list of images
-        gList;
-        %> number of the screen
-        Monitor;
-        %> Projector figure
-        hfig;
-        %> Projection image
-        Imag;
+        gList; % cell list of images
+        Monitor; % number of the screen
+        hfig; % projector figure handle
+        Imag; % projection image handle
     end
-    
+
     %get only propos
     properties (SetAccess=private)
-        %> screen resolution
-        screenSize;
+        screenSize; % screen resolution
     end
-    
-    
+
+
     %% public methods
     methods
-        % ======================================================================
-        %> @brief contructor
-        %> @param varargin como entrada puede recibir el numero del monitor en el que se quiere proyectar, el valor por defecto si no se pasa argunemto es 2
-        % ======================================================================
         function this=DisplayProjectorMatlab(varargin)
-            %mirar que varargin sea como maximo 1 parametro y usar por
-            %defecto 2
-            %verificar numero de proyectores
-            
+            % DisplayProjectorMatlab constructs a MATLAB-figure-based
+            % display projector. varargin{1}, if given, is the target
+            % monitor number (must not exceed the number of connected
+            % monitors); defaults to monitor 2 if there's more than one,
+            % else 1.
+
             posAll=get(0,'MonitorPositions');
             NMons=size(posAll, 1); %number of screen
             if NMons==1
@@ -68,11 +56,8 @@ classdef DisplayProjectorMatlab <  handle
             this.Init();
         end
         
-        % ======================================================================
-        %> @brief this funcion display a image in the screen
-        %> @param n number of the image in gList
-        % ======================================================================
         function Display(this, n)
+            % Display shows image n from gList on the projector figure
             import OM4MClassLib.Util.*;
             callFunc=Logging.WhoCalledMe();
             
@@ -87,12 +72,9 @@ classdef DisplayProjectorMatlab <  handle
             drawnow;
         end
         
-        % ======================================================================
-        %> @brief this funcion project one color in the screen
-        %> @param RGB matriz RGB (componentes entre 0 y 1) que identifica el color que se desea proyectar
-        % ======================================================================
         function DisplayRGB(this, RGB)
-            % Color the screen grey
+            % DisplayRGB fills the whole screen with solid color RGB
+            % (3-element vector, components in [0, 1])
             X(:,:,1) = uint8(255*RGB(1)*ones(this.screenSize(1),this.screenSize(2)));
             X(:,:,2) = uint8(255*RGB(2)*ones(this.screenSize(1),this.screenSize(2)));
             X(:,:,3) = uint8(255*RGB(3)*ones(this.screenSize(1),this.screenSize(2)));
@@ -101,17 +83,15 @@ classdef DisplayProjectorMatlab <  handle
             drawnow;
         end
         
-        % ======================================================================
-        %> @brief this funcion pre charge the images before the display in others projectors
-        % ======================================================================
         function TextureImages()
-            
+            % TextureImages no-op here (other projectors pre-load
+            % images before display; this one doesn't need to)
+
         end
-        
-        % ======================================================================
-        %> @brief this funcion clear the screen
-        % ======================================================================
+
         function CloseScreen(this)
+            % CloseScreen hides the projector figure (doesn't actually
+            % close it, since that would also destroy hfig/Imag)
             %AQ 6MAY20 do not close, because hfig and Imag are destroyed
             if ishandle(this.hfig)
                 set(this.hfig, 'Visible', 'off');
@@ -123,9 +103,13 @@ classdef DisplayProjectorMatlab <  handle
     %% private methods
     methods (Access=private)
         function this=Init(this)
+            % Init creates the fullscreen projector figure on this.Monitor
+            % (using MonitorPositions' logical size, rounded, with a
+            % warning if it wasn't already integer - see
+            % https://undocumentedmatlab.com/articles/working-with-non-standard-dpi-displays)
             import OM4MClassLib.Util.*;
             callFunc=Logging.WhoCalledMe();
-                      
+
             if verLessThan('matlab', '9.4')
                 error('Version must be R2018a or higher');
             end

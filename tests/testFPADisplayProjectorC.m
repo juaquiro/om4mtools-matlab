@@ -1,4 +1,6 @@
 classdef testFPADisplayProjectorC < matlab.unittest.TestCase
+    % testFPADisplayProjectorC tests DisplayProjectorC / DisplayTypes.CDLL
+    % (loadlibrary-based full-screen projector display)
     %run(testFPADisplayProjectorC)
     
     methods(TestMethodSetup)
@@ -18,6 +20,8 @@ classdef testFPADisplayProjectorC < matlab.unittest.TestCase
     
     methods (Test)
         function testConstructorObjeto(testCase)
+            % testConstructorObjeto checks DisplayProjectorC can be
+            % constructed for monitor 1, monitor 2, or no monitor argument
             %run(testFPADisplayProjector, 'testConstructorObjeto')
             import OM4MClassLib.Util.*;
             fprintf('\ntest %s...\n ',Logging.WhoCalledMe());
@@ -39,6 +43,9 @@ classdef testFPADisplayProjectorC < matlab.unittest.TestCase
         end
         
         function testConstructor(testCase)
+            % testConstructor visually checks a crosshair pattern
+            % displays correctly via the factory (DisplayTypes.CDLL) on
+            % monitor 1, monitor 2, and with no monitor argument
             %run(testFPADisplayProjectorC, 'testConstructor')
             import OM4MClassLib.Util.*;
             fprintf('\ntest %s...\n ',Logging.WhoCalledMe());
@@ -100,6 +107,8 @@ classdef testFPADisplayProjectorC < matlab.unittest.TestCase
         end
         
         function testDisplayList(testCase)
+            % testDisplayList visually checks a 9-frame phase-shifted
+            % fringe sequence displays in order via dp.gList/TextureImages/Display
             %run(testFPADisplayProjectorC, 'testDisplayList')
             import OM4MClassLib.Util.*;
             fprintf('\ntest %s...\n ',Logging.WhoCalledMe());
@@ -136,6 +145,8 @@ classdef testFPADisplayProjectorC < matlab.unittest.TestCase
         end
         
         function testRGB(testCase)
+            % testRGB visually checks DisplayRGB fills the screen with
+            % white, then red, green and blue in turn
             %run(testFPADisplayProjectorC, 'testRGB')
             import OM4MClassLib.Util.*;
             fprintf('\ntest %s...\n ',Logging.WhoCalledMe());

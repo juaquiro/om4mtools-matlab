@@ -1,6 +1,6 @@
 classdef test_UtilTime < matlab.unittest.TestCase
+    % test_UtilTime tests OM4MClassLib.Util.UtilTime
     %run(test_UtilTime)
-    %test the class UtilTime
 
     methods(TestMethodSetup)
         function SetUp(testCase)
@@ -18,6 +18,9 @@ classdef test_UtilTime < matlab.unittest.TestCase
 
     methods (Test)
         function testWaitForNSeconds(testCase)
+            % testWaitForNSeconds visually checks that
+            % UtilTime.WaitForNSeconds(10, ...) blocks for ~10s, showing
+            % a waitbar
             %run(test_UtilTime, 'testWaitForNSeconds')
             import OM4MClassLib.Util.*;
             disp(Logging.WhoCalledMe());

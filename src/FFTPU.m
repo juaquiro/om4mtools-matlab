@@ -1,6 +1,6 @@
-%FFT based Phase Unwrapping, as iput we get the wrappep phase pw and the
-%ROI
 function u=FFTPU(w, M)
+% FFTPU unwraps wrapped phase w within ROI M using the FFT-based
+% least-squares phase unwrapping method (Ghiglia & Romero)
 [NR, NC]=size(w);
 
 % prepare indexs for diferentiation

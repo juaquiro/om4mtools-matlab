@@ -1,10 +1,8 @@
-
-%this class describes the data captured by a imaqCam
-%it is better tha a structire because of a) data validation, b) self
-%contained we do not need any extra enum, and we can get always the public
-%props list you can not add an extra field dynamically as in a struct
 classdef imaqCamData
-    % EnumImaqCamData are the fileds of a valid imaqCamData
+    % imaqCamData holds the data captured/computed by imaqCam.Capture
+    % (frame or HDR map, luminance, undistorted coordinates, timing).
+    % Preferred over a plain struct because it validates fields and
+    % always exposes a fixed public property list (no dynamic fields)
      properties (Access=public) %GetAccess=public, SetAccess=public
         hImage; %handle of a image object is used for the preview function and the depicting of the results
         I; %frame or hdrMap

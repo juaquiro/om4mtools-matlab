@@ -4,8 +4,9 @@ classdef UtilTime
     
     %% static methods
     methods(Static)
-        %this waits for n seconnds and display a waitvar
         function WaitForNSeconds(N, waitMsg)
+            % WaitForNSeconds blocks for N seconds (N>=1), showing a
+            % waitbar with title waitMsg updated once per second
             import OM4MClassLib.Util.*
             callFunc=Logging.WhoCalledMe();
             

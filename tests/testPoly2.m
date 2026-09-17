@@ -1,4 +1,6 @@
 classdef testPoly2 < matlab.unittest.TestCase
+    % testPoly2 tests Poly2's Evaluate/Derive/Laplacian against
+    % brute-force sums and derivest's numerical derivatives
     %run(testPoly2)
 
     methods(TestMethodSetup)
@@ -16,6 +18,8 @@ classdef testPoly2 < matlab.unittest.TestCase
     methods(Test)
         
         function testEvaluateSinglePoint(testCase)
+            % testEvaluateSinglePoint checks Poly2.Evaluate at one random
+            % (X,Y) point against a brute-force double sum of monomials
 
             X=rand();
             Y=rand();
@@ -35,6 +39,8 @@ classdef testPoly2 < matlab.unittest.TestCase
         end
         
         function testEvaluateVector(testCase)
+            % testEvaluateVector checks Poly2.Evaluate on a meshgrid of
+            % points against a brute-force sum, point by point
 
             [X, Y]=meshgrid(-5:5);
 
@@ -56,6 +62,9 @@ classdef testPoly2 < matlab.unittest.TestCase
         end
         
         function testEvaluateNonSquareMatrix(testCase)
+            % testEvaluateNonSquareMatrix repeats testEvaluateVector's
+            % check with non-square coefficient matrices (fewer columns,
+            % then fewer rows)
             [X, Y]=meshgrid(-5:5);
 
             C=magic(5);
@@ -94,6 +103,9 @@ classdef testPoly2 < matlab.unittest.TestCase
         end
         
         function testDerive(testCase)
+            % testDerive checks Poly2.Derive's analytic partial
+            % derivatives (X and Y directions) against derivest's
+            % numerical derivative of Poly2.Evaluate, point by point
             [X, Y]=meshgrid(-5:5);
 
             C=magic(5);
@@ -114,6 +126,9 @@ classdef testPoly2 < matlab.unittest.TestCase
         end
         
         function testLaplacian(testCase)
+            % testLaplacian checks Poly2.Laplacian's analytic second-order
+            % sum (d2/dx2+d2/dy2) against derivest's second-order
+            % numerical derivatives of Poly2.Evaluate, point by point
             [X, Y]=meshgrid(-5:5);
 
             C=magic(5);

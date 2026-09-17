@@ -1,18 +1,18 @@
 classdef DemodulatorTimePSA < Demodulator
-    %DemodulatorTimePSA temporal demodulation an PSA using the impulse
-    %response and carrier w0 as in the FPA book
-    
+    % DemodulatorTimePSA PSA demodulator via a fixed impulse response h
+    % and carrier w0 (as described in the FPA book)
+
     %% props
     %private set
     properties (GetAccess=public, SetAccess=private)
-        h;
-        w0;
+        h; % PS filter impulse response coefficients
+        w0; % PS filter carrier frequency in rad/step
     end
-    
+
     %% public methods
     methods
-        % constructor
         function  this=DemodulatorTimePSA()
+            % DemodulatorTimePSA constructs a fixed-filter PSA demodulator
             %%% Pre Initialization %%%
             % Any code not using first output argument (this)
             
@@ -30,8 +30,10 @@ classdef DemodulatorTimePSA < Demodulator
             this.Init();
         end
         
-        % abstract interface
         function this=Process(this, FPList)
+            % Process demodulates the igrams in FPList by convolving them
+            % with the fixed impulse response h (a weighted sum), then
+            % refines the mask M with the modulation-based ROI
             import OM4MClassLib.Util.*
             callFunc=Logging.WhoCalledMe();
             
@@ -79,10 +81,14 @@ classdef DemodulatorTimePSA < Demodulator
         end
         
         function stepVals=GetStepValues(this)
+            % GetStepValues returns the filter's phase-shift steps, in
+            % StepsTwoPwiRange units
             stepVals=this.steps;
         end
-        
+
         function FPList=GenerateFPs(this, imSize)
+            % GenerateFPs generates length(h) fringe patterns (period Tx
+            % or Ty per PSDir), each phase-shifted by (n-1)*w0
             NR=imSize(1);
             NC=imSize(2);
             
@@ -119,8 +125,10 @@ classdef DemodulatorTimePSA < Demodulator
             
         end
         
-        %Override Set interface
         function this=Set(this, props, propvals)
+            % Set overrides the base Set to also recompute h/w0/deltaList
+            % (via set_h_w0_4PSFilter) whenever any prop changes - in
+            % particular PSType
             import OM4MClassLib.Util.*;
             callFunc=Logging.WhoCalledMe();
             
@@ -137,6 +145,8 @@ classdef DemodulatorTimePSA < Demodulator
     %% private methods
     methods (Access=private)
         function this=Init(this)
+            % Init sets the default PSType (A0502, see FPA book appendix
+            % A) and derives h/w0/deltaList/steps from it
             %default value for PSType is A.5.6 (see apendix A of FPA)
             %first set the default DemodulatorProps.PSType using props
             %becasue we are using a override Set
@@ -150,6 +160,8 @@ classdef DemodulatorTimePSA < Demodulator
         end
         
         function this=set_h_w0_4PSFilter(this)
+            % set_h_w0_4PSFilter sets h/w0 for the current PSType, then
+            % derives deltaList/steps from them
             PSType=this.Get(char(DemodulatorProps.PSType));
             
             switch PSType

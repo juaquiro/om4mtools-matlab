@@ -1,6 +1,7 @@
-%Linear regresion for the list of features X to adjust the values Y
-%using a regularization coefficient lamda
 function [theta] = RegresionByNormalEqn(X, Y, lambda)
+    % RegresionByNormalEqn fits theta for feature matrix X and targets Y
+    % via the ridge-regularized normal equation (lambda default 0, not
+    % applied to the bias term)
 
     if(nargin<3)
         lambda=0;

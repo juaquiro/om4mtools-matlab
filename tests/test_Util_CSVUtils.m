@@ -1,6 +1,6 @@
 classdef test_Util_CSVUtils < matlab.unittest.TestCase
+    % test_Util_CSVUtils tests OM4MClassLib.Util.CSVUtils
     %run(test_Util_CSVUtils)
-    %test the class test_Util_XLSUtils
 
     methods(TestMethodSetup)
         function SetUp(testCase)
@@ -18,6 +18,8 @@ classdef test_Util_CSVUtils < matlab.unittest.TestCase
 
     methods (Test)
         function testReadFile1(testCase)
+            % testReadFile1 checks ReadFile's sample count, field count/
+            % names and sample values for testFileHighIndex.csv
             %run(test_Util_CSVUtils, 'testReadFile1')
             import OM4MClassLib.Util.*;
             disp(Logging.WhoCalledMe());
@@ -41,6 +43,9 @@ classdef test_Util_CSVUtils < matlab.unittest.TestCase
         end
 
         function testReadFile2(testCase)
+            % testReadFile2 repeats testReadFile1's checks on
+            % testFilePolycarbonate.csv (with an explicit empty
+            % sheetName argument)
             %run(test_Util_CSVUtils, 'testReadFile2')
             import OM4MClassLib.Util.*;
             disp(Logging.WhoCalledMe());
@@ -64,6 +69,11 @@ classdef test_Util_CSVUtils < matlab.unittest.TestCase
         end
 
         function testCsvRead2Cell1(testCase)
+            % testCsvRead2Cell1 checks CsvRead2Cell's outputs on
+            % testFileHighIndex.csv, then round-trips it through
+            % cell2csv in both 1997 (unquoted) and 2010 (quoted) Excel
+            % formats and checks the two reloaded files differ (quoting
+            % changes each field's stored text)
             %run(test_Util_CSVUtils, 'testCsvRead2Cell1')
             import OM4MClassLib.Util.*;
             disp(Logging.WhoCalledMe());
@@ -115,6 +125,8 @@ classdef test_Util_CSVUtils < matlab.unittest.TestCase
 
 
         function testReadFile3(testCase)
+            % testReadFile3 duplicates testReadFile2's checks on
+            % testFilePolycarbonate.csv
             %run(test_Util_CSVUtils, 'testReadFile3')
             import OM4MClassLib.Util.*;
             disp(Logging.WhoCalledMe());
@@ -138,6 +150,9 @@ classdef test_Util_CSVUtils < matlab.unittest.TestCase
         end
 
         function testCsvRead2Cell2(testCase)
+            % testCsvRead2Cell2 checks CsvRead2Cell's outputs on
+            % testFileHighIndex.csv, then checks a cell2csv round-trip
+            % with default separator/format reproduces identical text
             %run(test_Util_CSVUtils, 'testCsvRead2Cell2')
             import OM4MClassLib.Util.*;
             disp(Logging.WhoCalledMe());
@@ -175,6 +190,10 @@ classdef test_Util_CSVUtils < matlab.unittest.TestCase
 
 
         function testReadWriteFileManos(testCase)
+            % testReadWriteFileManos reads a real manuscript-transcription
+            % csv, edits a few fields, writes it via WriteFile, and
+            % checks the reloaded file reflects the edits (unchanged
+            % elsewhere)
             %run(test_Util_CSVUtils, 'testReadWriteFileManos')
             import OM4MClassLib.Util.*;
             disp(Logging.WhoCalledMe());
@@ -237,6 +256,8 @@ classdef test_Util_CSVUtils < matlab.unittest.TestCase
         end
 
         function testExceptionNoCSVFile(testCase)
+            % testExceptionNoCSVFile checks ReadFile errors with the
+            % expected message when given a non-csv file extension
             %run(test_Util_CSVUtils, 'testExceptionNoCSVFile')
             try
                 import OM4MClassLib.Util.*;

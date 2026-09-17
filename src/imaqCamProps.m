@@ -1,6 +1,6 @@
 classdef imaqCamProps
-    %imaqCamProps 
-    %   alowed props for imaqCam
+    % imaqCamProps enumerates the allowed props for imaqCam's IProps
+    % interface (this.props, get/set via Get/Set)
     enumeration
             detectCornerParams; %this is a struct with relevant corner detection params            
             drawObject; %drawing object (it is vision.ShapeInserter) for drawing shapes in a frame see the detect corners callback     

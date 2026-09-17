@@ -1,30 +1,35 @@
 classdef featureNormalizer < handle
-    %featureNormalizer is an objet for normalize feature sets
-    
+    % featureNormalizer normalizes a feature matrix to zero mean/unit
+    % std, using params (mu/sigma per feature) fitted once via CalcParams
+
     %% private props
     properties (Access=private)
         mu;
         sigma;
         n; %feature number
     end
-    
+
     %% public methods
     methods
         function this=featureNormalizer()
-            %empty constructor
+            % featureNormalizer constructs an unfitted normalizer
             this.mu=[];
             this.sigma=[];
             this.n=0;
         end
-        
+
         function CalcParams(this, X)
+            % CalcParams fits this.mu/sigma (per-column mean/std) from
+            % feature matrix X
             this.n=size(X,2); %n, feature number
             this.mu=mean(X);
             this.sigma=std(X);
         end
-        
-        
+
+
         function X_norm=Go(this,X)
+            % Go normalizes X using the fitted mu/sigma (or returns X
+            % unchanged if CalcParams was never called)
             try
                 
                 import OM4MClassLib.Util.*;

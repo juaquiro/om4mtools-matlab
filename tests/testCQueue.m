@@ -1,15 +1,5 @@
-%> @file testCQueue.m
-%> @brief init tests for CQueue
-%> @details NA
-%> @copyright 2016 IOT
-%> @author AQ 21MAR16
-%> @see CQueue
-
-% ======================================================================
-%> @brief unit test class for CQueue
-%> @details And here we can put some more detailed informations about the class.
-% ======================================================================
 classdef testCQueue < matlab.unittest.TestCase
+    % testCQueue tests OM4MClassLib.DataStructs.CQueue
     %run(testCQueue)
     
     methods(TestMethodSetup)
@@ -30,6 +20,8 @@ classdef testCQueue < matlab.unittest.TestCase
     
     methods (Test)
         function testQueueWithInts(testCase)
+            % testQueueWithInts exercises push/pop/size/isempty/empty on
+            % a CQueue of scalar numbers, including the pop-on-empty error
             %run(testCQueue, 'testQueueWithInts')
             import OM4MClassLib.Util.*;
             disp(Logging.WhoCalledMe());
@@ -82,6 +74,8 @@ classdef testCQueue < matlab.unittest.TestCase
         end
         
         function testQueueWithPixels(testCase)
+            % testQueueWithPixels exercises push/pop/size/isempty/empty
+            % on a CQueue of Pixel structs, checking FIFO order on drain
             %run(testCQueue, 'testQueueWithPixels')
             
             import OM4MClassLib.Util.*;

@@ -1,14 +1,11 @@
 function [orn, ornMod]=OrMinDer(FP, varargin)
-%OrMinDer Orientation by minmum diference fit
-% [orn, ornMod]=OrMinDer(FP, N) computes the orientation using a window
-% size N.Default values are N=5 px
-% References
-% [1] Yang, Xia; Yu, Qifeng, and Fu, Sihua. An algorithm for estimating both fringe orientation and fringe density. Optics Communications. 2007 Jun 15; 274(2):286-292
-
-%   AQ, 28/8/09
-%   Copyright 2009 OM4M
-%   $ Revision: 1.0.0.0 $
-%   $ Date: 28-08-2009 $
+% OrMinDer estimates fringe orientation orn (mod pi) and its confidence
+% ornMod from fringe pattern FP, via minimum-difference fitting over a
+% window of size N (varargin{1}, default 5 px).
+%
+% Ref: Yang, Yu & Fu, "An algorithm for estimating both fringe
+% orientation and fringe density," Optics Communications 274(2),
+% 286-292 (2007)
 try
     % get input parameters
     % only want 1 optional inputs at most

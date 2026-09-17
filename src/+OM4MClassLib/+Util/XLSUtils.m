@@ -1,13 +1,14 @@
 classdef XLSUtils
-    %XLSUtils Static Helper Class for managing xls files
+    % XLSUtils is a static helper class for managing xls/xlsx files
     
     
     %% static methods
     methods(Static)
-        % This function returns an array of structs whose fields are named
-        % after the headers in the first row of the xls file. Spaces are
-        % replaced with underscores.
         function entries=ReadFile(fileName, varargin)
+            % ReadFile returns an array of structs whose fields are
+            % named after the headers in the first row of the xls/xlsx
+            % file (spaces replaced with underscores). Optional
+            % varargin{1} is the sheet name/index (default 1)
             try
                 import OM4MClassLib.Util.*;
                 callFunc=Logging.WhoCalledMe();
@@ -73,10 +74,10 @@ classdef XLSUtils
                         ' -When the Options dialog box appears, click on the Trust Center category in the left-hand column.\n',...
                         ' -Click on the Trust Center Settings button on the right-hand side of the Options dialog box.\n',...
                         ' -When the Trust Center dialog box opens up, click on the Protected View settings in the left-hand column.',...
-                        ' -Here you can uncheck “Enable Protected View for files originating from the Internet”, ',...
-                        ' “Enable Protected View for files located in potentially unsafe locations”, ',...
-                        ' and “Enable Protected View for Outlook attachments”.  ',...
-                        ' When you’ve made your selections, click OK, and Protected View will now be disabled.']);
+                        ' -Here you can uncheck ï¿½Enable Protected View for files originating from the Internetï¿½, ',...
+                        ' ï¿½Enable Protected View for files located in potentially unsafe locationsï¿½, ',...
+                        ' and ï¿½Enable Protected View for Outlook attachmentsï¿½.  ',...
+                        ' When youï¿½ve made your selections, click OK, and Protected View will now be disabled.']);
                     
                     error('MATLAB:OM4M:XLSRead', msg);
                 else
@@ -85,9 +86,10 @@ classdef XLSUtils
             end
             
         end
-        % This function writes an array of structs in a xls file whose headers are named
-        % with the fields of the struct
         function WriteFile(result, filename, varargin)
+            % WriteFile writes struct array result into filename as an
+            % xls sheet, using its field names as headers. Optional
+            % varargin: sheetName (default 1), Position (default 'A1')
             try                
                 % set defaults for optional inputs
                 % SheetName=1; This will load the default sheet
@@ -116,10 +118,9 @@ classdef XLSUtils
             end
         end
         
-        % Filter an array of entries obtained with 'ReadFile' based on one
-        % field's value. Returns a new array with the entries that pass the
-        % filter.
         function filteredEntries=FilterByValue(entries, fieldName, fieldValue)
+            % FilterByValue returns the subset of entries (as returned
+            % by ReadFile) whose fieldName equals fieldValue
             try                
                 if(ischar(fieldValue))
                     filteredEntries=entries(strcmp(fieldValue,{entries(:).(fieldName)}));
@@ -131,10 +132,10 @@ classdef XLSUtils
             end 
         end
         
-        % Filter an array of entries obtained with 'ReadFile' based on more
-        % than one field's value. Returns a new array with the entries that pass the
-        % filter.
         function filteredEntries=FilterByValuesAND(entries, varargin)
+            % FilterByValuesAND returns the subset of entries (as
+            % returned by ReadFile) matching all of the given
+            % fieldName/fieldValue pairs (varargin), ANDed together
             try                
                 error(nargchk(2, numel(fieldnames(entries))*2, nargin, 'struct'));
                 numVarArgIn= length(varargin);
@@ -157,11 +158,10 @@ classdef XLSUtils
                 throw(ME)
             end
         end
-        % Filter an array of entries obtained with 'ReadFile' indexing them
-        % as the value of a field (Organize the entries by fieldName). 
-        % Returns a new cell array where each cell contains all the
-        % entries where the fieldName has the same value.
         function result=SelectByFieldName(entries, fieldName)
+            % SelectByFieldName groups entries (as returned by ReadFile)
+            % into a cell array, one cell per distinct char value of
+            % fieldName, each holding the matching entries
             try 
                 import OM4MClassLib.Util.XLSUtils;
                 result = cell(1,1);                

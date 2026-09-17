@@ -1,5 +1,5 @@
 function p = fixturesRoot()
-%FIXTURESROOT absolute path to the test fixtures data.
+% fixturesRoot absolute path to the test fixtures data.
 %Tests that build subfolder-relative fixture paths (e.g. '.\DiscoRGBFluo\...')
 %need this because such paths only resolve against the current folder, not
 %against addpath entries - unlike bare filenames, which resolve either way.

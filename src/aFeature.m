@@ -1,6 +1,7 @@
 classdef aFeature < handle & OM4MClassLib.DataStructs.IProps
-    %aFeature this class implementes the aFeature ASBTRACT INTERFACE
-    %this class inherits from handle and implements interface IProps
+    % aFeature abstract base class for ML features: holds the computed
+    % feature matrix X plus labels y/labels, and splits them into
+    % train/cross-validation/test sets (see trainSets)
     
     %% props
     
@@ -44,12 +45,15 @@ classdef aFeature < handle & OM4MClassLib.DataStructs.IProps
     
     %% abstract methods, public interface
     methods (Abstract=true)
-        Calculate(listObj); %calculate the features matrix X of a mx1 listObj, this is a mx1 array of objects
+        % Calculate computes the feature matrix X from listObj, a mx1
+        % array of objects
+        Calculate(listObj);
     end
     
     %% property access method
     methods
         function set.y(this,value)
+            % set.y validates value is a mx1 vector (or empty) before assigning
             import OM4MClassLib.Util.*;
             
             callFunc=Logging.WhoCalledMe();
@@ -68,6 +72,7 @@ classdef aFeature < handle & OM4MClassLib.DataStructs.IProps
         end
         
         function value = get.y(this)
+            % get.y returns this.y, re-validating it is a mx1 vector (or empty)
             import OM4MClassLib.Util.*;
             
             callFunc=Logging.WhoCalledMe();
@@ -87,10 +92,12 @@ classdef aFeature < handle & OM4MClassLib.DataStructs.IProps
         end
         
         function set.labels(this,value)
+            % set.labels validates value is a mx1 cell array of strings
+            % (or empty) before assigning
             import OM4MClassLib.Util.*;
-            
+
             callFunc=Logging.WhoCalledMe();
-            
+
             dim=size(value);
             % labels must be a mx1 cell array of strings or be empty
             if iscellstr(value)
@@ -106,6 +113,8 @@ classdef aFeature < handle & OM4MClassLib.DataStructs.IProps
         end
         
         function value = get.labels(this)
+            % get.labels returns this.labels, re-validating it is a mx1
+            % cell array of strings (or empty)
             import OM4MClassLib.Util.*;
             
             callFunc=Logging.WhoCalledMe();
@@ -126,36 +135,31 @@ classdef aFeature < handle & OM4MClassLib.DataStructs.IProps
         
         
         function value = get.X(this)
+            % get.X returns the feature matrix
             value=this.X ;
         end
-        
+
         function value = get.Id(this)
+            % get.Id returns the feature type identifier
             value=this.Id ;
         end
-        
-        %number of samples
+
         function value=get.m(this)
+            % get.m returns the number of samples (rows of X)
             value=size(this.X,1);
         end
-        
-        %number of features
+
         function value=get.n(this)
+            % get.n returns the number of features (columns of X)
             value=this.n;
         end
-        
-        
-        %this dependent property return a structure with three fileds,
-        % each field is a aFeature object. The field os value
-        % are the train sets
-        % (every time reshufles the indexs fro the 3 sets)
-        % TRS: TRain Set. It's a struct which contains the 60% of the X, y
-        % and labels data
-        % CVS: Cross Validation Set. It's a struct which contains the 20%
-        % of the X, y and labels data
-        % TES: Test Error Set. It's a struct which contains the last 20%
-        % of the X,y and labels data
-        % see  UtilFunM.learningCurve
+
         function value=get.trainSets(this)
+            % get.trainSets randomly shuffles X/y/labels (storing the
+            % shuffle indices in this.pInd), then splits them into a 60%
+            % train set (TRS), 20% cross-validation set (CVS), and 20%
+            % test set (TES), returned as a struct with those 3
+            % aFeature-typed fields (see UtilFunML.learningCurve)
             m=this.m; %samples number
             
             p=randperm(m);
@@ -213,25 +217,28 @@ classdef aFeature < handle & OM4MClassLib.DataStructs.IProps
     
     %% public interface
     methods
-        %constructor
         function this=aFeature
+            % aFeature constructs a feature with default props (see Init)
             import OM4MClassLib.DataStructs.*;
             this.props=PropsEnumList('aFeatureProps');
             % Initialization
             this.Init();
         end
-        
-        %concatenates two features
+
         function this=Cat(this, f)
+            % Cat is meant to concatenate two features along the
+            % feature dimension (n=n1+n2, same samples) - not yet
+            % implemented, always errors
             error('not implemented');
             %comprobat que f es typo aFeatiure y que el Id no es el mismo
             %concatenar X de forma que el numero de featires es n=n1+n2 y
             %se mantiene el de muestras (y las etiquetas)
             %Id es ahora un array con dos enumFeatureTypes [id1, id2]
         end
-        
-        %adds new samples of the same feature
+
         function this=AddSamples(this, f)
+            % AddSamples appends f's X/y/labels (same feature Id) as
+            % extra rows/samples onto this feature's X/y/labels
             import OM4MClassLib.Util.*;
             
             callFunc=Logging.WhoCalledMe();
@@ -269,8 +276,8 @@ classdef aFeature < handle & OM4MClassLib.DataStructs.IProps
     
     %% private methods
     methods (Access=private)
-        %Initialize
         function this=Init(this)
+            % Init sets the default aFeatureProps.M prop to an empty cell
             try
                 
                 %ini props
@@ -284,28 +291,31 @@ classdef aFeature < handle & OM4MClassLib.DataStructs.IProps
     
     
     %% public IProps interface
-    %check Get implementation¡¡
+    %check Get implementationï¿½ï¿½
     %if a prop must be made dependent override corresponding function in
     %child class
     methods
-        % Get interface, note the no parameter
         function ret=Get(this, props)
+            % Get returns the value of props, or the full props struct if
+            % called with no props argument
             if nargin==1
                 ret=this.props.Get();
             else
                 ret=this.props.Get(props);
             end
         end
-        
-        %Set interface
+
         function this=Set(this, props, propvals)
+            % Set assigns propvals to props
             this.props.Set(props, propvals);
         end
     end
-    
+
     %% Static methods
-    methods (Static=true)        
+    methods (Static=true)
         function save(feature,varargin)
+            % save writes feature to a .mat file (default name = class
+            % name + date, or varargin{1} if given)
             try
                 
                 if not(isa(feature, 'aFeature'))
@@ -334,8 +344,10 @@ classdef aFeature < handle & OM4MClassLib.DataStructs.IProps
         end
         
         function obj=load(filename)
+            % load reads a feature previously saved by save() from
+            % filename (.mat extension optional, added automatically)
             try
-                
+
                 % Checking if the filename was introduced with or without
                 % the correct file extension, and adding it if neccesary
                 [~,~,ext]=fileparts(filename);

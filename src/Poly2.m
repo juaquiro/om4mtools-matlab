@@ -1,17 +1,14 @@
 classdef Poly2
-    %POLY2 Summary of this class goes here
-    %   Detailed explanation goes here
-    
+    % Poly2 static utilities for bivariate polynomials represented by
+    % their coefficient matrix C
+
     properties
     end
-    
+
     methods (Static=true)
-        %Evaluate a bivariate polynomial at given coordinates.
-        % x: X coordinates of the evaluation points
-        % y: Y coordiantes of the evaluation points
-        % C: Coefficient matrix that defines the polynomial
-        % z: Returned matrix of calculated values. Same shape as x and y
         function z = Evaluate(x, y, C)
+            % Evaluate evaluates the bivariate polynomial C at
+            % coordinates (x, y); z has the same shape as x and y
             if nargin < 3
                 error('Poly2:Evaluate:tooFewArguments', 'Evaluate expects 3 arguments');
             end
@@ -34,13 +31,9 @@ classdef Poly2
             end
         end
         
-        %POLYDER2 Derivative of bivariate polynomials
-        %   This function returns the coefficient matrix of the given bivariate
-        %   polynomial derived along the given dimension
-        % C: Coefficient matrix that defines the polynomial
-        % dim: Spatial dimension to derve along
-        % Cder: Coefficient matrix of the derived polynomial
-        function [ Cder ] = Derive(C, dim)       
+        function [ Cder ] = Derive(C, dim)
+            % Derive returns the coefficient matrix Cder of polynomial C
+            % differentiated along dimension dim (1=x, 2=y)
             switch(dim)
                 case 1
                     Cder=Poly2.DeriveCoeff(C);
@@ -55,10 +48,9 @@ classdef Poly2
             end 
         end
         
-        %POLYLAPLACIAN Calculates the laplacian of a bivariate polynomial
-        %   C: coefficient matrix of the initial polynomial
-        %   L:     coefficient matrix of the laplacian
         function [ L ] = Laplacian(C)
+            % Laplacian returns the coefficient matrix L of the
+            % Laplacian of bivariate polynomial C
             Px=Poly2.Derive(C,1);
             Py=Poly2.Derive(C,2);
 
@@ -70,9 +62,9 @@ classdef Poly2
     end
     
     methods(Static=true, Access=private)
-       %Helper function used by Derive. Does the actual calculation of the
-       %derived coefficients
        function Cder=DeriveCoeff(C)
+           % DeriveCoeff computes the actual derivative coefficients for
+           % Derive, differentiating along the first dimension of C
             maxOrder=size(C);
             maxOrder(1)=maxOrder(1)-1;
             if(maxOrder(1)==0)

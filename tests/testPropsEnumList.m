@@ -1,6 +1,7 @@
 classdef testPropsEnumList < matlab.unittest.TestCase
+    % testPropsEnumList tests OM4MClassLib.DataStructs.PropsEnumList and
+    % the ClassWithProps IProps fixture built on top of it
     %run(testPropsEnumList)
-    %test the class SurfMeasure
 
     methods(TestMethodSetup)
         function SetUp(testCase)
@@ -18,6 +19,8 @@ classdef testPropsEnumList < matlab.unittest.TestCase
 
     methods (Test)
         function testPropsEnumListConstructor(testCase)
+            % testPropsEnumListConstructor checks a fresh PropsEnumList
+            % is an IProps and Get() returns one field per EnumAQ2 member
             %run(testPropsEnumList, 'testPropsEnumListConstructor')
             import OM4MClassLib.DataStructs.*;
             import OM4MClassLib.Util.*;
@@ -38,6 +41,8 @@ classdef testPropsEnumList < matlab.unittest.TestCase
         end
 
         function testPropsEnumListSingleGetSet(testCase)
+            % testPropsEnumListSingleGetSet checks Set/Get for a single
+            % EnumAQ2 member at a time, with numeric/matrix/cell values
             %run(testPropsEnumList, 'testPropsEnumListSingleGetSet')
             import OM4MClassLib.DataStructs.*;
             import OM4MClassLib.Util.*;
@@ -72,6 +77,8 @@ classdef testPropsEnumList < matlab.unittest.TestCase
         end
 
         function testPropsEnumListMultipleGetSet(testCase)
+            % testPropsEnumListMultipleGetSet checks Set/Get with
+            % multiple EnumAQ2 members passed together as cell arrays
             %run(testPropsEnumList, 'testPropsEnumListMultipleGetSet')
             import OM4MClassLib.DataStructs.*;
             import OM4MClassLib.Util.*;
@@ -108,6 +115,10 @@ classdef testPropsEnumList < matlab.unittest.TestCase
         end
 
         function testPropsEnumListClassWithProps(testCase)
+            % testPropsEnumListClassWithProps checks ClassWithProps (an
+            % IProps built on PropsEnumList/EnumPropsTypes) exposes its
+            % P1/P2 default values, Add() uses them correctly, and both
+            % single- and multi-value Set/Get work as expected
             %run(testPropsEnumList, 'testPropsEnumListClassWithProps')
             import OM4MClassLib.DataStructs.*;
             import OM4MClassLib.Util.*;

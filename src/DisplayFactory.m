@@ -1,15 +1,13 @@
-%> @file DisplayFactory.m
-%> @brief Factory of image projectors
-%> @copyright 2019 IOT
-%> @author SS 15/01/19
-
-% ======================================================================
-%> @brief static factory for the displays projectors
-% ======================================================================
-classdef DisplayFactory   
+classdef DisplayFactory
+    % DisplayFactory static factory that builds a concrete display
+    % projector from a DisplayTypes enum value
     %% public methods
     methods(Static)
         function obj=Create(type,varargin)
+            % Create returns a new display projector instance matching
+            % type (a DisplayTypes enum value), forwarding varargin (at
+            % most 1 extra arg) to its constructor; errors if type is
+            % unknown/invalid
             import OM4MClassLib.Util.*;
             callFunc=Logging.WhoCalledMe();
             nameofClass='DisplayTypes';

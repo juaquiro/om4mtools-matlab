@@ -1,4 +1,7 @@
 classdef testMLPolynomicFeatureMapper < matlab.unittest.TestCase
+    % testMLPolynomicFeatureMapper tests polynomicFeatureMapper.Go
+    % against brute-force monomial expansions for various feature counts
+    % and orders p
     %before running the tests
     methods(TestMethodSetup)
         function SetUp(testCase)
@@ -17,9 +20,12 @@ classdef testMLPolynomicFeatureMapper < matlab.unittest.TestCase
     
     methods (Test)
         
-        % Checking that it works with the data we already have
         function testML_polynomicFeatureMapper01(testCase)
-            
+            % testML_polynomicFeatureMapper01 checks Go's this.powers
+            % and X_mapped/output for p=3 on 3 real lens-QC features
+            % loaded via TrainingDataLoader
+            % Checking that it works with the data we already have
+
             import OM4MClassLib.Util.* Util.*;
             fprintf('\n%s: ',Logging.WhoCalledMe());
             % Generating X
@@ -60,9 +66,11 @@ classdef testMLPolynomicFeatureMapper < matlab.unittest.TestCase
             end
         end
         
-        % 2 sets of 4 Xi (4 Xi + bias), p=2. Bias is internally removed
         function testML_polynomicFeatureMapper02(testCase)
-            
+            % testML_polynomicFeatureMapper02 checks Go for 2 samples of
+            % 4 features (bias already removed), p=2
+            % 2 sets of 4 Xi (4 Xi + bias), p=2. Bias is internally removed
+
             import  OM4MClassLib.Util.*;
             fprintf('\n%s: ',Logging.WhoCalledMe());
             
@@ -86,9 +94,11 @@ classdef testMLPolynomicFeatureMapper < matlab.unittest.TestCase
             end
         end
         
-        % 2 sets of 3 Xi, p=3
         function testML_polynomicFeatureMapper03(testCase)
-            
+            % testML_polynomicFeatureMapper03 checks Go for 2 samples of
+            % 3 features, p=3
+            % 2 sets of 3 Xi, p=3
+
             import  OM4MClassLib.Util.*;
             fprintf('\n%s: ',Logging.WhoCalledMe());
             
@@ -112,9 +122,11 @@ classdef testMLPolynomicFeatureMapper < matlab.unittest.TestCase
             end
         end
         
-        % 3 sets of 2 Xi, p=6
         function testML_polynomicFeatureMapper04(testCase)
-            
+            % testML_polynomicFeatureMapper04 checks Go for 3 samples of
+            % 2 features, p=6
+            % 3 sets of 2 Xi, p=6
+
             import  OM4MClassLib.Util.*;
             fprintf('\n%s: ',Logging.WhoCalledMe());
             
@@ -140,9 +152,11 @@ classdef testMLPolynomicFeatureMapper < matlab.unittest.TestCase
             end
         end
         
-        % 2 sets of 4 Xi, p=3
         function testML_polynomicFeatureMapper05(testCase)
-            
+            % testML_polynomicFeatureMapper05 checks Go for 2 samples of
+            % 4 features, p=3
+            % 2 sets of 4 Xi, p=3
+
             import  OM4MClassLib.Util.*;
             fprintf('\n%s: ',Logging.WhoCalledMe());
             
@@ -168,9 +182,11 @@ classdef testMLPolynomicFeatureMapper < matlab.unittest.TestCase
             end
         end
         
-        %p=1
         function testML_polynomicFeatureMapper06(testCase)
-            
+            % testML_polynomicFeatureMapper06 checks Go with p=1 is the
+            % identity (X_poly==X) for 3 samples of 4 features
+            %p=1
+
             import  OM4MClassLib.Util.*;
             fprintf('\n%s: ',Logging.WhoCalledMe());
             
@@ -195,9 +211,12 @@ classdef testMLPolynomicFeatureMapper < matlab.unittest.TestCase
             end
         end
         
-        %p=1 con un fichero de PL
         function testML_polynomicFeatureMapper07(testCase)
-            
+            % testML_polynomicFeatureMapper07 checks Go with p=1 is the
+            % identity on X loaded from the bugMapperGo.mat fixture
+            % (a regression fixture for a previously found bug)
+            %p=1 con un fichero de PL
+
             import  OM4MClassLib.Util.*;
             fprintf('\n%s: ',Logging.WhoCalledMe());
             

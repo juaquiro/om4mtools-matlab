@@ -1,17 +1,20 @@
 classdef DemodulatorGC < Demodulator
-    %DemodulatorGC Demodulador de GCodes
-    %This demodulator does not return a phaso. The list has two ellements, first is the Gray Code, and the second the visivility W-K in the
-    
+    % DemodulatorGC Gray Code demodulator
+    %
+    % Description:
+    %   Does not return a phasor. zList has 2 elements: the decoded Gray
+    %   Code order D, and the binary-pattern visibility V = W-K.
+
     %% props
     %private set
     properties (Access=private)
         LUT_GC2D; %1D LUT to transform Decimal binary codes to Gray binary codes
     end
-    
+
     %% public methods
     methods
-        % constructor
         function  this=DemodulatorGC()
+            % DemodulatorGC constructs a Gray Code demodulator
             %%% Pre Initialization %%%
             % Any code not using first output argument (this)
             
@@ -29,8 +32,10 @@ classdef DemodulatorGC < Demodulator
             this.Init();
         end
         
-        % abstract interface
         function this=Process(this, FPList)
+            % Process decodes the NIgrams Gray Code patterns in FPList
+            % into an order map D and visibility V=W-K (last two patterns
+            % are the all-white/all-black reference images)
             import OM4MClassLib.Util.*
             callFunc=Logging.WhoCalledMe();
             
@@ -75,10 +80,14 @@ classdef DemodulatorGC < Demodulator
         end
         
         function stepVals=GetStepValues(this)
+            % GetStepValues returns this.steps ([], N/A for Gray Code)
             stepVals=this.steps;
         end
-        
+
         function FPList=GenerateFPs(this, imSize)
+            % GenerateFPs generates the Gray Code pattern set (as RGB
+            % images) for period Tx or Ty (per PSDir), and records
+            % NIgrams and the decode LUT (this.LUT_GC2D)
             NR=imSize(1);
             NC=imSize(2);
             
@@ -125,6 +134,8 @@ classdef DemodulatorGC < Demodulator
     %% private methods
     methods (Access=private)
         function this=Init(this)
+            % Init sets defaults appropriate for Gray Code (binary shape,
+            % no steps/deltaList, NIgrams unknown until GenerateFPs runs)
             %default direction for patterns vertical, we use the base Set
             %to avoid using the superseeded Set of the class
             %here does not matter because the demodulator is multiplexed

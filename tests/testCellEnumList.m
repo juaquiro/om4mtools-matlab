@@ -1,6 +1,6 @@
 classdef testCellEnumList < matlab.unittest.TestCase
+    % testCellEnumList tests OM4MClassLib.DataStructs.CellEnumList
     %run(testCellEnumList)
-    %test the class SurfMeasure
 
     methods(TestMethodSetup)
         function SetUp(testCase)
@@ -18,6 +18,8 @@ classdef testCellEnumList < matlab.unittest.TestCase
 
     methods (Test)
         function testCellEnumListConstructor(testCase)
+            % testCellEnumListConstructor checks a fresh CellEnumList
+            % can immediately Set/Get a single EnumAQ1 member
             %run(testCellEnumList, 'testCellEnumListConstructor')
             import OM4MClassLib.DataStructs.*;
             import OM4MClassLib.Util.*;
@@ -35,6 +37,8 @@ classdef testCellEnumList < matlab.unittest.TestCase
         end
 
         function testCellEnumListGetSetOneParameter(testCase)
+            % testCellEnumListGetSetOneParameter checks Set/Get with a
+            % single member, both as a bare value and wrapped in 1x1 cells
             %run(testCellEnumList, 'testCellEnumListGetSetOneParameter')
             import OM4MClassLib.DataStructs.*;
             import OM4MClassLib.Util.*;
@@ -60,6 +64,8 @@ classdef testCellEnumList < matlab.unittest.TestCase
 
 
         function testCellEnumListGetSet(testCase)
+            % testCellEnumListGetSet checks Set/Get with single members
+            % and with multiple members passed as matching cell arrays
             %run(testCellEnumList, 'testCellEnumListGetSet')
             import OM4MClassLib.DataStructs.*;
             import OM4MClassLib.Util.*;
@@ -97,6 +103,8 @@ classdef testCellEnumList < matlab.unittest.TestCase
         end
 
         function testCellEnumListGetAll(testCase)
+            % testCellEnumListGetAll checks Get([]) returns every member's
+            % value, indexable by each member's numeric value
             %run(testCellEnumList, 'testCellEnumListGetAll')
             import OM4MClassLib.DataStructs.*;
             import OM4MClassLib.Util.*;

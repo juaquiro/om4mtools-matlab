@@ -1,19 +1,21 @@
 function vid = DFK31BF03Z
-%DFK31BF03-Z Code for creating a video input object.
-%   
+% DFK31BF03Z creates a video input object for the DFx 31BF03-Z camera
+% (device name has a hyphen, function name does not) via the winvideo
+% adaptor, BY8 (1024x768).
+%
 %   This is the machine generated representation of a video input object.
-%   This MATLAB code file, DFK31BF03-Z.M, was generated from the OBJ2MFILE function.
-%   A MAT-file is created if the object's UserData property is not 
-%   empty or if any of the callback properties are set to a cell array  
-%   or to a function handle. The MAT-file will have the same name as the 
+%   This MATLAB code file, DFK31BF03Z.M, was generated from the OBJ2MFILE function.
+%   A MAT-file is created if the object's UserData property is not
+%   empty or if any of the callback properties are set to a cell array
+%   or to a function handle. The MAT-file will have the same name as the
 %   code file but with a .MAT extension. To recreate this video input object,
-%   type the name of the code file, DFK31BF03-Z, at the MATLAB command prompt.
-%   
-%   The code file, DFK31BF03-Z.M and its associated MAT-file, DFK31BF03-Z.MAT (if
+%   type the name of the code file, DFK31BF03Z, at the MATLAB command prompt.
+%
+%   The code file, DFK31BF03Z.M and its associated MAT-file, DFK31BF03Z.MAT (if
 %   it exists) must be on your MATLAB path.
-%   
-%   Example: 
-%       vidobj = DFK31BF03-Z;
+%
+%   Example:
+%       vidobj = DFK31BF03Z;
 %   
 %   See also VIDEOINPUT, IMAQDEVICE/PROPINFO, IMAQHELP, PATH.
 %   

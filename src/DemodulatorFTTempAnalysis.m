@@ -1,19 +1,20 @@
 classdef DemodulatorFTTempAnalysis < Demodulator
-    %DemodulatorTempAnalysis implements FT temporal analysis methods in which
-    %each igram pixel is analized in time
-    % for Process we assume that the temporal samples are uniform and that
-    % the phase is monotonic
-    
+    % DemodulatorFTTempAnalysis temporal-FT fringe demodulator: each
+    % igram pixel is demodulated across time rather than space
+    %
+    % Description:
+    %   Process assumes uniform temporal sampling and a monotonic phase.
+
     %% props
     %private set
     properties (GetAccess=public, SetAccess=private)
-        w0;
+        w0; % temporal carrier frequency in rad/sample
     end
-    
+
     %% public methods
     methods
-        % constructor
         function  this=DemodulatorFTTempAnalysis()
+            % DemodulatorFTTempAnalysis constructs a temporal-FT demodulator
             %%% Pre Initialization %%%
             % Any code not using first output argument (this)
             
@@ -31,8 +32,10 @@ classdef DemodulatorFTTempAnalysis < Demodulator
             this.Init();
         end
         
-        % abstract interface
         function this=Process(this, FPList)
+            % Process demodulates the temporal sequence FPList (one igram
+            % per time sample) pixel-by-pixel via 1D FFT along time,
+            % skipping pixels outside the mask M
             import OM4MClassLib.Util.*;
             callFunc=Logging.WhoCalledMe();
             
@@ -82,8 +85,9 @@ classdef DemodulatorFTTempAnalysis < Demodulator
             this.Set(char(DemodulatorProps.zList), zList);                        
         end
         
-        %get the N step values in rads, volts, angle etc 
-        function stepVals=GetStepValues(this)           
+        function stepVals=GetStepValues(this)
+            % GetStepValues returns NIgrams evenly-spaced steps over
+            % TempRange (units: volts, degrees, etc. depending on the setup)
             N=this.Get(char(DemodulatorProps.NIgrams));
             Range=this.Get(char(DemodulatorProps.TempRange));
             %in units of tempRange  that can be Volts for a piezo o 90 degrees for the polariscope etc
@@ -93,7 +97,9 @@ classdef DemodulatorFTTempAnalysis < Demodulator
         end
         
         function FPList=GenerateFPs(this, imSize)
-            %for the moment generates DemodulatorProps.NIgrams number of igrams phase shifted in time by w0 rads           
+            % GenerateFPs generates NIgrams grayscale fringe patterns
+            % (period Tx or Ty, per PSDir), each phase-shifted in time by
+            % w0 rad from the previous one
             NR=imSize(1);
             NC=imSize(2);
                     
@@ -127,7 +133,8 @@ classdef DemodulatorFTTempAnalysis < Demodulator
     
     %% private methods
     methods (Access=private)
-        function this=Init(this)            
+        function this=Init(this)
+            % Init sets default NIgrams/PSDir props and the temporal carrier w0
             %default number of patterns
             this.Set(char(DemodulatorProps.NIgrams), 50);
             

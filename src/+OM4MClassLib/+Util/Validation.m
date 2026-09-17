@@ -1,11 +1,12 @@
 classdef Validation
-    %LOGGING Static Helper Class for v validation
-    
+    % Validation is a static helper class for parameter validation
+
     
     %% static methods
     methods(Static)
-        %this function launch an exception if v is not in the cell list vList
         function retMsg=CheckInputParam(v, vList)
+            % CheckInputParam errors if v does not equal any element of
+            % cell array vList; otherwise returns true
             import OM4MClassLib.Util.*
             callFunc=Logging.WhoCalledMe();
             
@@ -41,13 +42,12 @@ classdef Validation
             
         end
         
-        %this funcion transform to text any MATLAB variable. Its makes a
-        %differnece if the function is deployed or not becasue evalc and
-        %eval have known issues with the compiler, see http://blogs.mathworks.com/loren/2008/06/19/writing-deployable-code/
-        %the dolution for the not(isdeployed) and the isdeployed cases are from http://stackoverflow.com/questions/12799161/is-there-a-matlab-function-to-convert-any-data-structure-to-a-string
-        %we are going to avid the vStr = evalc(['disp(v)']); solution for
-        %Compiler compativility
         function vStr=all2str(v)
+            % all2str converts any MATLAB variable v (empty, char,
+            % numeric, cell or struct) to a display string, without
+            % using evalc/eval (which have known issues under the MATLAB
+            % Compiler, see http://blogs.mathworks.com/loren/2008/06/19/writing-deployable-code/);
+            % adapted from http://stackoverflow.com/questions/12799161/is-there-a-matlab-function-to-convert-any-data-structure-to-a-string
             import OM4MClassLib.Util.*
             callFunc=Logging.WhoCalledMe();
 
@@ -90,11 +90,8 @@ classdef Validation
             error([callFunc, '->' retMsg]);
         end
         
-        %> @brief this function validates equal size for v1 and v2
-        %> @param v1 1st element
-        %> @param v2 2nd element
-        %> @author AQ 18SEP20
         function mustBeEqualSize(v1,v2)
+            % mustBeEqualSize errors unless size(v1)==size(v2)
             import OM4MClassLib.Util.*
             callFunc=Logging.WhoCalledMe();
             % Test for equal size

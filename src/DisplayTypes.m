@@ -1,19 +1,10 @@
-%> @file DisplayTypes.m
-%> @brief Types of image projectors
-%> @copyright 2019 IOT
-%> @author SS 04/19
-
-% ======================================================================
-%> @brief this class implements the enumeration of display types
-% ======================================================================
 classdef DisplayTypes
+    % DisplayTypes enumeration of display projector kinds, used by
+    % DisplayFactory.Create
     enumeration
-        %> Java
-        JavaDisp;
-        %> Matlab figures
-        Matlab;
-        %> C++ dll interface
-        CDLL;
+        JavaDisp; % Java-based (DisplayProjector)
+        Matlab; % MATLAB figure-based (DisplayProjectorMatlab)
+        CDLL; % C++ DLL-based (DisplayProjectorC)
     end
 end
 

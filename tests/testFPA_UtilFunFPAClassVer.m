@@ -1,20 +1,9 @@
-%> @file testFPA_UtilFunFPAClassVer.m
-%> @brief File containint the ubnit tests for UtilFunFPA using the MATLAB class unit testing
-%> @details con  R>R2016 el framework de pruebas mtest ya no funciona no podemos pasar las pruebas de testFPA_UtilFunFPA()
-%> este fichero implementa pruebas unitarias de UtilFunFPA usando el test framework de
-%> MATLAB basado en clases y compatible copn vers >= R2015
-%> @see testFPA_UtilFunFPA.m, UtilFunFPA.m
-%> @copyright 2016 IOT
-%> @author AQ
-
-
-% ======================================================================
-%> @brief this is the class with the unit tests for UtilFunFPA
-%> @details the problem is that the mtest unit testing framework does not run on R>2016a
-%> @see UtilFunFPA
-%> @author AQ 14APR19
-% ======================================================================
 classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
+    % testFPA_UtilFunFPAClassVer tests UtilFunFPA's static fringe
+    % pattern analysis functions (Gray-code, demodulation, phase
+    % gradients, camera calibration, deflectometry, DPM calculation).
+    % Converted from the legacy mtest-framework tests (dropped after
+    % R2016a) to matlab.unittest - see UtilFunFPA.m.
     %run(testFPA_UtilFunFPAClassVer)
 
     methods(TestMethodSetup)
@@ -40,6 +29,10 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
 
     methods (Test)
         function testBin2Grey(testCase)
+            % testBin2Grey checks UtilFunFPA.bin2gray/gray2bin against a
+            % precomputed ground-truth table (Dec2Grey_15) for all 4-bit
+            % values, both directions, and cross-checks the two directions
+            % against each other
             %run(testFPA_UtilFunFPAClassVer, 'testBin2Grey')
             %test of the bin2grey and grey2bin functions
             %load a file previously calculated from \Dropbox
@@ -101,6 +94,9 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
         end
 
         function testGenerateGC(testCase)
+            % testGenerateGC checks UtilFunFPA.generateGC's LUTs (against
+            % the Dec2Grey_4Bits ground-truth table) and pattern
+            % count/sizes, for both X and Y directions
             %run(testFPA_UtilFunFPAClassVer, 'testGenerateGC')
             %load a file previously calculated from \Dropbox
             %(IOT)\AQ_SYNC\AQ11\Programs\Matlab\GreyCodes\GreyCodeAQ and compare
@@ -146,6 +142,9 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
         end
 
         function testDecodeGC(testCase)
+            % testDecodeGC checks UtilFunFPA.decodeGC correctly recovers
+            % the fringe order from UtilFunFPA.generateGC's patterns,
+            % for both X and Y directions
             %aqui comprobamos que el demodeGC trabaja OK con el generaGC
             %run(testFPA_UtilFunFPAClassVer, 'testDecodeGC')
 
@@ -188,6 +187,11 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
         end
 
         function testDecodeGC_PSA(testCase)
+            % testDecodeGC_PSA checks a Gray-code fringe order combined
+            % with an LSPSA-demodulated phase (absolute phase =
+            % GC-order*2*pi + wrapped phase) has a near-zero gradient
+            % along the constant direction, for every period 3:60 px,
+            % in both X and Y
             %run(testFPA_UtilFunFPAClassVer, 'testDecodeGC_PSA')
             %genera un GC + PSA para diferentes periodos y verifica que
             %todos casan
@@ -278,6 +282,11 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
         end
 
         function testDecodeGC_PSA_ParicularCase1(testCase)
+            % testDecodeGC_PSA_ParicularCase1 repeats testDecodeGC_PSA's
+            % absolute-phase gradient check for a single period (T=20px)
+            % with NIgrams=0.5*T (rather than =T), using
+            % DemodulatorLSPSA - a stricter case for DemodulatorGCPSA's
+            % own tests
             %run(testFPA_UtilFunFPAClassVer, 'testDecodeGC_PSA_ParicularCase1')
             %genera un GC + PSA para un caso particular y verificar asi los tets de DemodulatorGCPSA
             %aqui se puede ver como los test (muy restrictivos con la
@@ -361,6 +370,9 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
         end
 
         function testDecodeGC_PSA_ParicularCase2(testCase)
+            % testDecodeGC_PSA_ParicularCase2 repeats
+            % testDecodeGC_PSA_ParicularCase1 using
+            % DemodulatorLSEquispacedPSA instead of DemodulatorLSPSA
             %run(testFPA_UtilFunFPAClassVer, 'testDecodeGC_PSA_ParicularCase2')
             %genera un GC + PSA para un caso particular y verificar asi los tets de DemodulatorGCPSA
             %aqui se puede ver como los test (muy restrictivos con la
@@ -447,6 +459,10 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
 
 
         function testLinLUTGV(testCase)
+            % testLinLUTGV visually checks UtilFunFPA.LinLUTGV's
+            % linearization LUT (T(u), H(T(u))) on a real monitor-camera
+            % radiometric response fixture (RadCal.mat), both on the
+            % full sampled response and on it trimmed at both ends
             %run(testFPA_UtilFunFPAClassVer, 'testLinLUTGV')
             S=load('RadCal.mat');
             %sampled response
@@ -484,15 +500,17 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
         end
 
 
-        % In this test we load an experimental radiometric response and
-        % linearize it. Afther, we generate a igram using the maximum and
-        % minimum GV detected from the lienar reponse, pass the igram
-        % though the radiometric response and finally correct back the
-        % igram to have a linear respose
-        % in this test "intensity" refers to continous values and "GV" to
-        % discrete values
-        % run(testFPA_UtilFunFPAClassVer, 'testLinLUTGVWithFringePattern')
         function testLinLUTGVWithFringePattern(testCase)
+            % testLinLUTGVWithFringePattern loads an experimental
+            % radiometric response and linearizes it, generates a
+            % synthetic fringe pattern spanning the linear response's
+            % [u0,u1] GV range, passes it through the (nonlinear) system
+            % response, transforms it back via T(u), and checks the
+            % linearized round-trip recovers the same [v0,v1] output
+            % range as the raw response would - for both single-channel
+            % and RGB igrams. In this test "intensity" refers to
+            % continuous values and "GV" to discrete values
+            % run(testFPA_UtilFunFPAClassVer, 'testLinLUTGVWithFringePattern')
             %load smapled Radiometric response
             S=load('RadCal.mat');
             
@@ -618,6 +636,10 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
 
 
         function testLinLUTGVWithDoubleResponse(testCase)
+            % testLinLUTGVWithDoubleResponse repeats testLinLUTGV's
+            % checks after affinely rescaling the sampled response
+            % (double precision, non-[0,255] range) to check LinLUTGV
+            % still handles it correctly
             %run(testFPA_UtilFunFPAClassVer, 'testLinLUTGVWithDoubleResponse')
             S=load('RadCal.mat');
             %sampled response
@@ -654,12 +676,11 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
 
         end
 
-        % ======================================================================
-        %> @brief testGradientConsistency
-        %> @details this function checks the gradient consistency funcion
-        %> @param testCase ref to the unit testing framework class
-        % ======================================================================
         function testGradientConsistency(testCase)
+            % testGradientConsistency checks UtilFunFPA.GradientConsistency
+            % returns ~0 for both continuous (unwrapped) and wrapped
+            % forward differences of a synthetic surface (a mathematically
+            % consistent gradient field has zero curl)
             %run(testFPA_UtilFunFPAClassVer, 'testGradientConsistency')
             import OM4MClassLib.Util.*;
             fprintf('\n%s: ',Logging.WhoCalledMe());
@@ -689,12 +710,11 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
             figure; imagesc(Q); title('wrapped differences'); colorbar; colormap flag
         end
 
-        % ======================================================================
-        %> @brief test function phaseGradient
-        %> @details this function checks the function phaseGradient
-        %> @param testCase ref to the unit testing framework class
-        % ======================================================================
         function testPhaseGradientDirect(testCase)
+            % testPhaseGradientDirect checks UtilFunFPA.phaseGradientDirect
+            % recovers a noisy synthetic phasor's true (noise-free)
+            % directional derivatives, comparing against both the exact
+            % gradient and a naive 1st-difference-of-noisy-phase baseline
             %run(testFPA_UtilFunFPAClassVer, 'testPhaseGradientDirect');
             import OM4MClassLib.Util.*;
             fprintf('\n%s: ',Logging.WhoCalledMe());
@@ -748,12 +768,10 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
         end
 
 
-        % ======================================================================
-        %> @brief test function gradientDirect
-        %> @details this function checks the function gradientDirect
-        %> @param testCase ref to the unit testing framework class
-        % ======================================================================
         function testGradientDirect(testCase)
+            % testGradientDirect repeats testPhaseGradientDirect's check
+            % for UtilFunFPA.gradientDirect, which takes a real (already
+            % unwrapped) noisy signal directly instead of a phasor
             %run(testFPA_UtilFunFPAClassVer, 'testGradientDirect');
             import OM4MClassLib.Util.*;
             fprintf('\n%s: ',Logging.WhoCalledMe());
@@ -805,12 +823,10 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
 
 
 
-        % ======================================================================
-        %> @brief test function phaseGradientPlaneFit
-        %> @details this function checks the function phaseGradientPlaneFit
-        %> @param testCase ref to the unit testing framework class
-        % ======================================================================
         function testPhaseGradientPlaneFit(testCase)
+            % testPhaseGradientPlaneFit repeats testPhaseGradientDirect's
+            % check for UtilFunFPA.phaseGradientPlaneFit (local
+            % plane-fit-based directional derivative estimation)
             %run(testFPA_UtilFunFPAClassVer, 'testPhaseGradientPlaneFit');
             import OM4MClassLib.Util.*;
             fprintf('\n%s: ',Logging.WhoCalledMe());
@@ -862,12 +878,11 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
             testCase.assertEqual(0, std(e(Mxy)), 'AbsTol', tol);
         end
 
-        % ======================================================================
-        %> @brief test function GradientPlaneFit
-        %> @details this function checks the function GradientPlaneFit
-        %> @param testCase ref to the unit testing framework class
-        % ======================================================================
         function testGradientPlaneFit(testCase)
+            % testGradientPlaneFit checks UtilFunFPA.GradientPlaneFit's
+            % directional derivatives against the exact gradient for a
+            % clean signal (tight tolerance) and visually inspects its
+            % behavior on a noisy signal (looser filtering settings)
             %run(testFPA_UtilFunFPAClassVer, 'testGradientPlaneFit');
             import OM4MClassLib.Util.*;
             fprintf('\n%s: ',Logging.WhoCalledMe());
@@ -930,14 +945,12 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
         end
 
 
-        % ======================================================================
-        %> @brief testHomographyCalcWithComputerVisionToolbox
-        %> @details this function checks the calculation of the homography between a plane and the camera using
-        %> the computer vision toolbox funcionality from MATLAB
-        %> the example here is taken from the computer vision toolbox from MATLAB
-        %> @param testCase ref to the unit testing framework class
-        % ======================================================================
         function testHomographyCalcWithComputerVisionToolbox(testCase)
+            % testHomographyCalcWithComputerVisionToolbox checks
+            % UtilFunFPA.homography_solve/homography_transform against
+            % the Computer Vision Toolbox's own checkerboard-calibration
+            % example image, transforming pixel coordinates to mm and
+            % visually comparing against the known checkerboard geometry
             %run(testFPA_UtilFunFPAClassVer, 'testHomographyCalcWithComputerVisionToolbox');
             import OM4MClassLib.Util.*;
             fprintf('\n%s: ',Logging.WhoCalledMe());
@@ -1015,15 +1028,14 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
 
         end
 
-        % ======================================================================
-        %> @brief testCameraCalibrationCVTbx_5MAY20
-        %> @details this function makes a geometrical calibration of the
-        %> camera of the delfectometer and estimates ditances to the screen with and without suporting glass plate
-        %> with the MATLAB Computer Vision Toolbox
-        %> @see oneNote-> Mejoras calculo DPM APR20 for details
-        %> @param testCase ref to the unit testing framework class
-        % ======================================================================
         function testCameraCalibrationCVTbx_5MAY20(testCase)
+            % testCameraCalibrationCVTbx_5MAY20 geometrically calibrates
+            % the deflectometer's real camera (checkerboard images from
+            % the 5MAY20 session, with supporting glass) via the
+            % Computer Vision Toolbox, then estimates the camera-lens
+            % and camera-screen distances (UtilFunFPA.DistancePlaneCam)
+            % and visually inspects reprojection errors and the lens
+            % distortion map
             %run(testFPA_UtilFunFPAClassVer, 'testCameraCalibrationCVTbx_5MAY20');
             import OM4MClassLib.Util.*;
             fprintf('\n%s: ',Logging.WhoCalledMe());
@@ -1152,16 +1164,16 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
         end
 
 
-        % ======================================================================
-        %> @brief testUndistortImagesCVTbx_5MAY20
-        %> @details this function is an example of undistort images using MATLAB Computer Vision
-        %> Toolbox. Here we calculate the homography from the worldpoints
-        %> and also using the extrinsics for comparison. Also we calculate
-        %> resolution in mm/px at the selected plane image, Zc or Z+Z_c
-        %> @see oneNote-> Mejoras calculo DPM APR20 for details
-        %> @param testCase ref to the unit testing framework class
-        % ======================================================================
         function testUndistortImagesCVTbx_5MAY20(testCase)
+            % testUndistortImagesCVTbx_5MAY20 calibrates the camera
+            % (5MAY20 checkerboard fixtures), saves the resulting
+            % cameraParameters to params_Calibracion_5MAY20.json (used
+            % by several tests elsewhere), undistorts one image/its
+            % checkerboard points, and cross-checks metric (mm)
+            % coordinates computed via the toolbox's pointsToWorld
+            % against UtilFunFPA.DistancePlaneCam/homography_transform
+            % (verifying they agree), finally estimating the spatial
+            % resolution (mm/px) around the principal point
             %run(testFPA_UtilFunFPAClassVer, 'testUndistortImagesCVTbx_5MAY20');
             import OM4MClassLib.Util.*;
             fprintf('\n%s: ',Logging.WhoCalledMe());
@@ -1350,18 +1362,12 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
 
 
 
-        % ======================================================================
-        %> @brief testCameraCalibrationCVTbx_29JUN20
-        %> @details this function makes a geometrical calibration of the
-        %> camera of the delfectometer and estimates ditances to the screen with and without suporting glass plate
-        %> with the MATLAB Computer Vision Toolbox. This test is the same
-        %> than testCameraCalibrationCVTbx_5MAY20 but in this case the test
-        %> images where captured using the IOTMGeomCalibGUI.mlapp GUI of
-        %> the Preseus Repo (..\src\Deflectometer\FFVAppInt\)
-        %> @see oneNote-> Calibraci�n Geom�trica del Mapper 29 JUNIO 2020 for details
-        %> @param testCase ref to the unit testing framework class
-        % ======================================================================
         function testCameraCalibrationCVTbx_29JUN20(testCase)
+            % testCameraCalibrationCVTbx_29JUN20 repeats
+            % testCameraCalibrationCVTbx_5MAY20's calibration and
+            % camera-lens/camera-screen distance estimation on a later
+            % fixture set (Calibracion_29JUN20_2) captured via the
+            % perseus repo's IOTMGeomCalibGUI.mlapp
             %run(testFPA_UtilFunFPAClassVer, 'testCameraCalibrationCVTbx_29JUN20');
             import OM4MClassLib.Util.*;
             fprintf('\n%s: ',Logging.WhoCalledMe());
@@ -1488,16 +1494,11 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
         end
 
 
-        % ======================================================================
-        %> @brief testUndistortImagesCVTbx_29JUN20
-        %> @details this function is an example of undistort images using MATLAB Computer Vision
-        %> Toolbox. Here we calculate the homography from the worldpoints
-        %> and also using the extrinsics for comparison. Also we calculate
-        %> resolution in mm/px at the selected plane image, Zc or Z+Z_c
-        %> @see oneNote-> Calibraci�n Geom�trica del Mapper 29 JUNIO 2020 for details
-        %> @param testCase ref to the unit testing framework class
-        % ======================================================================
         function testUndistortImagesCVTbx_29JUN20(testCase)
+            % testUndistortImagesCVTbx_29JUN20 repeats
+            % testUndistortImagesCVTbx_5MAY20's undistortion, toolbox-vs
+            % -homography metric coordinate cross-check and spatial
+            % resolution estimate on the 29JUN20_2 fixture set
             %run(testFPA_UtilFunFPAClassVer, 'testUndistortImagesCVTbx_29JUN20');
             import OM4MClassLib.Util.*;
             fprintf('\n%s: ',Logging.WhoCalledMe());
@@ -1686,16 +1687,11 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
 
         end
 
-        % ======================================================================
-        %> @brief testUndistortImagesCVTbx_15DIC20
-        %> @details this function is an example of undistort images using MATLAB Computer Vision
-        %> Toolbox. Here we calculate the homography from the worldpoints
-        %> and also using the extrinsics for comparison. Also we calculate
-        %> resolution in mm/px at the lens plane, Zc or screen plane Z+Z_c
-        %> @see oneNote-> calibracion 15DIC20 for details
-        %> @param testCase ref to the unit testing framework class
-        % ======================================================================
         function testUndistortImagesCVTbx_15DIC20(testCase)
+            % testUndistortImagesCVTbx_15DIC20 repeats
+            % testUndistortImagesCVTbx_5MAY20's undistortion, toolbox-vs
+            % -homography metric coordinate cross-check and spatial
+            % resolution estimate on the 15DIC20 fixture set
             %run(testFPA_UtilFunFPAClassVer, 'testUndistortImagesCVTbx_15DIC20');
             import OM4MClassLib.Util.*;
             fprintf('\n%s: ',Logging.WhoCalledMe());
@@ -1883,17 +1879,12 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
         end
 
 
-        % ======================================================================
-        %> @brief testCameraCalibrationCVTbx_15DIC20
-        %> @details this function makes a geometrical calibration of the
-        %> camera of the deflectometer and estimates ditances to the screen with the suporting glass plate
-        %> with the MATLAB Computer Vision Toolbox. This test is the same
-        %> the test images where captured using the IOTMGeomCalibGUI.mlapp GUI of
-        %> the Perseus Repo (..\src\Deflectometer\FFVAppInt\)
-        %> @see oneNote->Calibraci�n 15 DIC 20 for details
-        %> @param testCase ref to the unit testing framework class
-        % ======================================================================
         function testCameraCalibrationCVTbx_15DIC20(testCase)
+            % testCameraCalibrationCVTbx_15DIC20 repeats
+            % testCameraCalibrationCVTbx_5MAY20's calibration and
+            % camera-lens/camera-screen distance estimation on the
+            % 15DIC20 fixture set (with the 1mm supporting glass),
+            % captured via the perseus repo's IOTMGeomCalibGUI.mlapp
             %run(testFPA_UtilFunFPAClassVer, 'testCameraCalibrationCVTbx_15DIC20');
             import OM4MClassLib.Util.*;
             fprintf('\n%s: ',Logging.WhoCalledMe());
@@ -2038,13 +2029,11 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
 
 
 
-        % ======================================================================
-        %> @brief testfilterHarmonicsX
-        %> @details testing of the testfilterHarmonicsX function. in this
-        %function we use MATLAB>2019b argument validation sintax
-        %> @param testCase ref to the unit testing framework class
-        % ======================================================================
         function testfilterHarmonicsX(testCase)
+            % testfilterHarmonicsX visually checks
+            % UtilFunFPA.filterHarmonicsX removes a synthetic spurious
+            % X-direction spatial-frequency harmonic from an image,
+            % both without a mask and with a mask (default and explicit 'R')
             %run(testFPA_UtilFunFPAClassVer, 'testfilterHarmonicsX');
             import OM4MClassLib.Util.*;
             fprintf('\n%s: ',Logging.WhoCalledMe());
@@ -2084,18 +2073,14 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
 
 
 
-        % ======================================================================
-        %> @brief testIOTMapperGeomCalibrationVsSize
-        %> @details this function makes a geometrical calibration of the
-        %> IOT Mapper including camera internals and estimates ditances to the screen with the suporting glass plate
-        %> with the MATLAB Computer Vision Toolbox. Here we compare the
-        %> results obtained using a laserjet printed 7x8 pattern with different quare sizes
-        %> 6, 8 and 10 mm, the reason is that 8 mm gives correct results
-        %> while 6 and 10 mm are incorrect.
-        %> @see oneNote->InspeccionCos/2021/Fabricaci�n Blancos de calibraci�n Visionlab en placas
-        %> @param testCase ref to the unit testing framework class
-        % ======================================================================
         function testIOTMapperGeomCalibrationVsSize(testCase)
+            % testIOTMapperGeomCalibrationVsSize repeats
+            % testCameraCalibrationCVTbx_5MAY20's calibration and
+            % camera-lens/camera-screen distance/resolution estimation
+            % using a laserjet-printed checkerboard; active fixture uses
+            % 8mm squares (the correct size found by comparing against
+            % 6mm/10mm variants, commented out here, which gave
+            % incorrect results)
             %run(testFPA_UtilFunFPAClassVer, 'testIOTMapperGeomCalibrationVsSize');
             import OM4MClassLib.Util.*;
             fprintf('\n%s: ',Logging.WhoCalledMe());
@@ -2259,16 +2244,14 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
         end
 
         % ======================================================================
-        %> @brief testLSDemodEquispacedPeaks
-        %> @details test the LSDemodEquispaced function with the peaks
-        %>  testing phase using NFPs steps with a size of NRxNC
-        %>  Also we validate the normalization factor comparing the returned
-        %>  modulation agaisnt the input modulation. Cjeck error maps for
-        %>  different NFPs
-        %> @see deflectometry.docx
-        %> @param testCase ref to the unit testing framework class
-        %> @details run(testFPA_UtilFunFPAClassVer, 'testLSDemodEquispacedPeaks');
         function testLSDemodEquispacedPeaks(testCase)
+            % testLSDemodEquispacedPeaks checks UtilFunFPA.LSDemodEquispaced
+            % recovers a synthetic peaks()-based phase/modulation from
+            % 5 equispaced-step igrams (both phase+modulation and
+            % modulation-only modes), checking the modulation error
+            % tolerance and visually inspecting phase/modulation error
+            % histograms and maps
+            % run(testFPA_UtilFunFPAClassVer, 'testLSDemodEquispacedPeaks');
             % Close all existing figures
             close all;
 
@@ -2363,13 +2346,13 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
 
         end
  
-        % ======================================================================
-        %> @brief testLSDemodEquispacedVsLSGeneralPeaks
-        %> @details aqui miramos la diferencia de tiempo en calcular la moduladion entre el LS general y el LS
-        %> equiespaciado
-        %> @param testCase ref to the unit testing framework class
-        %> @details run(testFPA_UtilFunFPAClassVer, 'testLSDemodEquispacedVsLSGeneralPeaks');        
         function testLSDemodEquispacedVsLSGeneralPeaks(testCase)
+            % testLSDemodEquispacedVsLSGeneralPeaks times
+            % UtilFunFPA.LSDemodEquispaced against the general
+            % UtilFunFPA.LSDemod on the same equispaced-step peaks()
+            % igrams and checks their modulation outputs agree within
+            % tolerance
+            % run(testFPA_UtilFunFPAClassVer, 'testLSDemodEquispacedVsLSGeneralPeaks');
             close all;
 
             % Define the dimensions
@@ -2447,17 +2430,13 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
             title('only mod LS PSA mod map');
         end
         
-        % ======================================================================
-        %> @brief testLSDemod
-        %> @details test the LSDemod function with the peaks
-        %>  testing phase using NFPs steps with a size of NRxNC
-        %>  Also we validate the normalization factor comparing the returned
-        %>  modulation agaisnt the input modulation. Check error maps for
-        %>  different NFPs
-        %> @see deflectometry.docx
-        %> @param testCase ref to the unit testing framework class
-        %> @details run(testFPA_UtilFunFPAClassVer, 'testLSDemodPeaks');
-        function testLSDemodPeaks(testCase)                                    
+        function testLSDemodPeaks(testCase)
+            % testLSDemodPeaks repeats testLSDemodEquispacedPeaks's check
+            % using UtilFunFPA.LSDemod (general, non-equispaced) with
+            % arbitrary random phase-shift deltas, checking phase and
+            % modulation error for both onlyModFlag=false and
+            % onlyModFlag=true
+            % run(testFPA_UtilFunFPAClassVer, 'testLSDemodPeaks');
             close all;
 
             % Define the dimensions
@@ -2550,10 +2529,13 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
             
         end
         
-        % Here we calculate the LS PSA phase for a truncated igrams and
-        % check the effect on the phase and its gradients
-        % run(testFPA_UtilFunFPAClassVer, 'testLSDemodSaturation');
         function testLSDemodSaturation(testCase)
+            % testLSDemodSaturation visually checks the effect of
+            % clipping (saturating) some igram gray values before
+            % feeding them to UtilFunFPA.LSDemod on the recovered phase
+            % map, its gradients, and the phase error against ground
+            % truth
+            % run(testFPA_UtilFunFPAClassVer, 'testLSDemodSaturation');
             close all; % Close all open figures
             
             NR = 480; % Number of rows
@@ -2635,11 +2617,14 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
             
         end
         
-        % here we simulate a defelction measurement of a phase object using two
-        % fringe directions using a simple massig deflectometric setup. What we measure are the deirvatives of the output
-        % wavefront for each fringe direction
-        % run(testFPA_UtilFunFPAClassVer, 'testPSA6MultiplexedXY');
         function testPSA6MultiplexedXY(testCase)
+            % testPSA6MultiplexedXY checks UtilFunFPA.PSA6MultiplexedXY
+            % demodulates two orthogonal-grid deflectometric fringe
+            % directions multiplexed into 6 igrams, recovering both
+            % directional phasors (phase and modulation-only modes) and
+            % validating their modulation values against the synthetic
+            % input
+            % run(testFPA_UtilFunFPAClassVer, 'testPSA6MultiplexedXY');
             close all
             
             NR=512; NC=511;
@@ -2726,6 +2711,11 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
         % ==================================================================
 
         function test_LocateSidelobes_ReferenciaRotlex(testCase)
+            % test_LocateSidelobes_ReferenciaRotlex checks
+            % UtilFunFPA.LocateSidelobes finds the two expected
+            % sidelobe frequencies (within 1 px tolerance) on 6 real
+            % Rotlex/progressive-lens reference fringe pattern fixture
+            % images
             %run(testFPA_UtilFunFPAClassVer, 'test_LocateSidelobes_ReferenciaRotlex')
             import OM4MClassLib.Util.*;
             fprintf('\n%s: ',Logging.WhoCalledMe());
@@ -2798,6 +2788,10 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
         end
 
         function test_LocateSidelobes_ComputerExample(testCase)
+            % test_LocateSidelobes_ComputerExample checks
+            % UtilFunFPA.LocateSidelobes recovers the two known
+            % synthetic spatial-frequency sidelobes from a two-carrier
+            % fringe pattern generated with known frequencies
             %run(testFPA_UtilFunFPAClassVer, 'test_LocateSidelobes_ComputerExample')
             import OM4MClassLib.Util.*;
             fprintf('\n%s: ',Logging.WhoCalledMe());
@@ -2830,6 +2824,10 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
         end
 
         function test_FFTDemod_ReferenciaRotlex(testCase)
+            % test_FFTDemod_ReferenciaRotlex visually checks
+            % UtilFunFPA.FFTDemod demodulates both fringe directions of
+            % a real Rotlex reference fixture image, using sidelobes
+            % located via UtilFunFPA.LocateSidelobes
             %run(testFPA_UtilFunFPAClassVer, 'test_FFTDemod_ReferenciaRotlex')
             import OM4MClassLib.Util.*;
             fprintf('\n%s: ',Logging.WhoCalledMe());
@@ -2860,6 +2858,10 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
         end
 
         function test_FFTDemod(testCase)
+            % test_FFTDemod checks UtilFunFPA.FFTDemod recovers two
+            % synthetic crossed carrier fringe phases (against a
+            % carrier-only reference pattern, with a band-pass radius)
+            % with near-zero bias and small standard deviation error
             %run(testFPA_UtilFunFPAClassVer, 'test_FFTDemod')
             import OM4MClassLib.Util.*;
             fprintf('\n%s: ',Logging.WhoCalledMe());
@@ -2933,6 +2935,11 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
         end
 
         function test_phaseGradientDirect(testCase)
+            % test_phaseGradientDirect checks
+            % UtilFunFPA.phaseGradientDirect's phase gradients (Dx, Dy)
+            % computed from a complex synthetic phasor match the
+            % ground-truth gradient() of the underlying peaks() phase
+            % within tolerance
             %run(testFPA_UtilFunFPAClassVer, 'test_phaseGradientDirect')
             import OM4MClassLib.Util.*;
             fprintf('\n%s: ',Logging.WhoCalledMe());
@@ -2964,6 +2971,10 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
         end
 
         function test_FFTDemod_ProgHoya1(testCase)
+            % test_FFTDemod_ProgHoya1 visually checks
+            % UtilFunFPA.FFTDemod demodulates a real progressive-lens
+            % fringe pattern fixture image against its reference image,
+            % using sidelobes located via UtilFunFPA.LocateSidelobes
             %run(testFPA_UtilFunFPAClassVer, 'test_FFTDemod_ProgHoya1')
             import OM4MClassLib.Util.*;
             fprintf('\n%s: ',Logging.WhoCalledMe());
@@ -3008,6 +3019,11 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
         end
 
         function test_FFTDemod_BlankStratemeyerBC_20_n_16(testCase)
+            % test_FFTDemod_BlankStratemeyerBC_20_n_16 visually checks
+            % UtilFunFPA.FFTDemod demodulates a real blank-lens fringe
+            % pattern fixture image against a separate reference
+            % fixture image, using sidelobes located via
+            % UtilFunFPA.LocateSidelobes
             %run(testFPA_UtilFunFPAClassVer, 'test_FFTDemod_BlankStratemeyerBC_20_n_16')
             import OM4MClassLib.Util.*;
             fprintf('\n%s: ',Logging.WhoCalledMe());
@@ -3047,6 +3063,10 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
         end
 
         function test_wRes_Pro(testCase)
+            % test_wRes_Pro visually checks UtilFunFPA.VicleFilter
+            % separates a synthetic low-frequency phase trend from an
+            % added low-frequency sinusoidal disturbance plus noise,
+            % within a weighted circular ROI
             %run(testFPA_UtilFunFPAClassVer, 'test_wRes_Pro')
             import OM4MClassLib.Util.*;
             fprintf('\n%s: ',Logging.WhoCalledMe());
@@ -3075,6 +3095,13 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
         end
 
         function test_StressDisk(testCase)
+            % test_StressDisk checks UtilFunFPA.StressDisk's synthetic
+            % photoelasticity disk retardation values are non-negative
+            % and within range, visually checks isochromatic/isoclinic
+            % maps via UtilFunFPA.DrawAlpha, and checks
+            % UtilFunFPA.LBFPattern produces identical intensity
+            % patterns from the equivalent w2alpha and w4alpha stress
+            % angle representations
             %run(testFPA_UtilFunFPAClassVer, 'test_StressDisk')
             import OM4MClassLib.Util.*;
             fprintf('\n%s: ',Logging.WhoCalledMe());
@@ -3142,6 +3169,11 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
         end
 
         function test_CalcIsoclinPS(testCase)
+            % test_CalcIsoclinPS checks a TimePSA DemodulatorFactory
+            % 4-step phase-shifting measurement of
+            % UtilFunFPA.StressDisk's synthetic isoclinic pattern,
+            % after unwrapping via UtilFunFPA.Calc2Alpha, matches the
+            % theoretical stress angle within tolerance
             %run(testFPA_UtilFunFPAClassVer, 'test_CalcIsoclinPS')
             import OM4MClassLib.Util.*;
             fprintf('\n%s: ',Logging.WhoCalledMe());
@@ -3194,6 +3226,11 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
         end
 
         function test_CalcRetarFormCircPolPS8(testCase)
+            % test_CalcRetarFormCircPolPS8 checks
+            % UtilFunFPA.CircPol's 8-step classical circular-polariscope
+            % intensities on UtilFunFPA.StressDisk's synthetic pattern
+            % match their closed-form expressions, and that combining
+            % them recovers the theoretical retardation delta
             %run(testFPA_UtilFunFPAClassVer, 'test_CalcRetarFormCircPolPS8')
             import OM4MClassLib.Util.*;
             fprintf('\n%s: ',Logging.WhoCalledMe());
@@ -3250,6 +3287,11 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
         end
 
         function test_Temp1DFFTDemod(testCase)
+            % test_Temp1DFFTDemod checks UtilFunFPA.Temp1DFFTDemod
+            % recovers a synthetic 1D temporal linear phase ramp (with
+            % a low-frequency background) within tolerance, both with
+            % default settings and with explicit center-frequency/sigma
+            % filter parameters
             %run(testFPA_UtilFunFPAClassVer, 'test_Temp1DFFTDemod')
             import OM4MClassLib.Util.*;
             fprintf('\n%s: ',Logging.WhoCalledMe());
@@ -3290,6 +3332,11 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
         end
 
         function test_DerOpsFreeBoundary1D(testCase)
+            % test_DerOpsFreeBoundary1D checks
+            % UtilFunFPA.DerOpsFreeBoundary1D's first/second/third-order
+            % free-boundary finite-difference matrices (Dx, Dxx, Dxxx)
+            % have the expected sizes and exact expected sparse-matrix
+            % contents for N=10
             %run(testFPA_UtilFunFPAClassVer, 'test_DerOpsFreeBoundary1D')
             import OM4MClassLib.Util.*;
             fprintf('\n%s: ',Logging.WhoCalledMe());
@@ -3342,6 +3389,10 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
         end
 
         function testunwrapRLS1DPeaks(testCase)
+            % testunwrapRLS1DPeaks visually checks
+            % UtilFunFPA.unwrapRLS1D unwraps a 1D slice of a synthetic
+            % peaks()-based phasor across its 'Dxxx', 'thinplate' and
+            % 'membrane' regularization modes
             %run(testFPA_UtilFunFPAClassVer, 'testunwrapRLS1DPeaks')
             close all;
 
@@ -3385,6 +3436,12 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
         end
 
         function testPCADemodPeaks(testCase)
+            % testPCADemodPeaks visually checks UtilFunFPA.PCADemod
+            % recovers a synthetic peaks()-based phase and its
+            % (initially increasing, arbitrary-order) phase-shift
+            % deltas from unordered igrams, checking phase error
+            % histograms and comparing recovered vs. ground-truth
+            % deltas
             %run(testFPA_UtilFunFPAClassVer, 'testPCADemodPeaks')
             close all;
 
@@ -3431,6 +3488,10 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
         end
 
         function testPCADemodPeaksMonotonicDeltas(testCase)
+            % testPCADemodPeaksMonotonicDeltas repeats testPCADemodPeaks
+            % using arbitrary but monotonically increasing (sorted
+            % random) phase-shift deltas, visually comparing recovered
+            % vs. ground-truth phase and deltas
             %run(testFPA_UtilFunFPAClassVer, 'testPCADemodPeaksMonotonicDeltas')
             close all;
 
@@ -3478,6 +3539,11 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
         end
 
         function testPCADemodSaturation(testCase)
+            % testPCADemodSaturation visually checks the effect of
+            % clipping (saturating) igram gray values before feeding
+            % them to UtilFunFPA.PCADemod on the recovered phase map,
+            % its gradients (via UtilFunFPA.phaseGradientDirect), and
+            % the resulting phase/gradient error
             %run(testFPA_UtilFunFPAClassVer, 'testPCADemodSaturation')
             close all;
 
@@ -3533,6 +3599,12 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
         end
 
         function testAIADemodPeaks(testCase)
+            % testAIADemodPeaks visually checks UtilFunFPA.AIADemod
+            % (Advanced Iterative Algorithm) recovers a synthetic
+            % peaks()-based phase and its arbitrary, monotonically
+            % increasing phase-shift deltas, checking phase error
+            % histograms and comparing recovered vs. ground-truth
+            % deltas
             %run(testFPA_UtilFunFPAClassVer, 'testAIADemodPeaks')
             close all;
 
@@ -3579,6 +3651,12 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
         end
 
         function testAIADemodSaturation(testCase)
+            % testAIADemodSaturation visually checks the effect of
+            % binarizing (thresholding) igrams before feeding them,
+            % with a known deltas seed, to UtilFunFPA.AIADemod on the
+            % recovered phase map, its gradients (via
+            % UtilFunFPA.phaseGradientDirect), and the resulting
+            % phase/gradient error
             %run(testFPA_UtilFunFPAClassVer, 'testAIADemodSaturation')
             close all;
 
@@ -3635,6 +3713,10 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
         end
 
         function testNormalizaIgramFFT(testCase)
+            % testNormalizaIgramFFT visually checks
+            % UtilFunFPA.IgramNorm normalizes each RGB channel of a
+            % real fluorescence deflectometry fixture image, showing
+            % the normalized igram and modulation for each channel
             %run(testFPA_UtilFunFPAClassVer, 'testNormalizaIgramFFT')
             close all;
             gc=double(imread('DeltaDisFluoCDF.tif'));
@@ -3653,6 +3735,11 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
         end
 
         function testOrientationFromMinimumDerShadowMoire(testCase)
+            % testOrientationFromMinimumDerShadowMoire visually checks
+            % UtilFunFPA.OrMinDer's minimum-derivative fringe
+            % orientation estimate on a real shadow-moire defect
+            % fixture image, overlaying orientation vectors on the
+            % fringe pattern and on the orientation map
             %run(testFPA_UtilFunFPAClassVer, 'testOrientationFromMinimumDerShadowMoire')
             close all
             iptsetpref('ImshowBorder','tight');
@@ -3698,6 +3785,10 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
         end
 
         function testOrientationFromMinimumDerMiract(testCase)
+            % testOrientationFromMinimumDerMiract repeats
+            % testOrientationFromMinimumDerShadowMoire's visual check
+            % of UtilFunFPA.OrMinDer's orientation estimate on a real
+            % Miract fixture image, also showing the modulation map
             %run(testFPA_UtilFunFPAClassVer, 'testOrientationFromMinimumDerMiract')
             close all
             iptsetpref('ImshowBorder','tight');
@@ -3747,6 +3838,11 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
         end
 
         function testOrientationFromMinimumDerSignalTapa(testCase)
+            % testOrientationFromMinimumDerSignalTapa repeats
+            % testOrientationFromMinimumDerShadowMoire's visual check
+            % of UtilFunFPA.OrMinDer's orientation estimate on a real
+            % "Signal_tapa" fixture image, also showing the modulation
+            % map
             %run(testFPA_UtilFunFPAClassVer, 'testOrientationFromMinimumDerSignalTapa')
             close all
             iptsetpref('ImshowBorder','tight');
@@ -3795,6 +3891,12 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
         end
 
         function testDirectionShadowMoire(testCase)
+            % testDirectionShadowMoire visually checks
+            % UtilFunFPA.calcDirection resolves the 2-pi direction
+            % ambiguity of UtilFunFPA.OrMinDer's orientation estimate
+            % on a real shadow-moire defect fixture image, overlaying
+            % direction and orientation vectors on both the fringe
+            % pattern and their respective maps
             %run(testFPA_UtilFunFPAClassVer, 'testDirectionShadowMoire')
             close all
             iptsetpref('ImshowBorder','tight');
@@ -3875,6 +3977,10 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
         end
 
         function testDirectionMiract(testCase)
+            % testDirectionMiract repeats testDirectionShadowMoire's
+            % visual check of UtilFunFPA.calcDirection on a real Miract
+            % fixture image, weighting the direction calculation with
+            % an explicit fixture mask
             %run(testFPA_UtilFunFPAClassVer, 'testDirectionMiract')
             close all
             iptsetpref('ImshowBorder','tight');
@@ -3955,6 +4061,10 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
         end
 
         function testDirectionDeltaDisNa(testCase)
+            % testDirectionDeltaDisNa repeats testDirectionShadowMoire's
+            % visual check of UtilFunFPA.calcDirection on a real
+            % "Delta7DisNa" fixture image (red channel), weighting the
+            % direction calculation with an explicit fixture mask
             %run(testFPA_UtilFunFPAClassVer, 'testDirectionDeltaDisNa')
             close all
             iptsetpref('ImshowBorder','tight');
@@ -4036,6 +4146,11 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
         end
 
         function testDemIQTSignalTapaWithDirection(testCase)
+            % testDemIQTSignalTapaWithDirection visually checks
+            % UtilFunFPA.DemIQT (with direction resolution enabled) on
+            % a real "Signal_tapa" fixture image, showing direction and
+            % orientation vector overlays plus the demodulated wrapped
+            % phase after UnwrapperFactory(FlynMd) unwrapping
             %run(testFPA_UtilFunFPAClassVer, 'testDemIQTSignalTapaWithDirection')
             %in this test we use DemIQT with Direction
             close all
@@ -4136,6 +4251,11 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
         end
 
         function testDemIQTSignalTapaWithOrientation(testCase)
+            % testDemIQTSignalTapaWithOrientation repeats
+            % testDemIQTSignalTapaWithDirection using
+            % UtilFunFPA.DemIQT's orientation-only mode (onlyOrFlag)
+            % instead of full direction resolution, valid only for open
+            % fringes, on the transposed "Signal_tapa" fixture image
             %run(testFPA_UtilFunFPAClassVer, 'testDemIQTSignalTapaWithOrientation')
             %in this test we use DemIQT with Orientarion Only.
             %This is OK only for open fringes
@@ -4243,6 +4363,11 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
         end
 
         function testDemIQTDeltaDisNa(testCase)
+            % testDemIQTDeltaDisNa repeats
+            % testDemIQTSignalTapaWithDirection's visual check of
+            % UtilFunFPA.DemIQT (default settings) on a real
+            % "Delta7DisNa" fixture image (red channel) with its
+            % fixture mask
             %run(testFPA_UtilFunFPAClassVer, 'testDemIQTDeltaDisNa')
             close all
             iptsetpref('ImshowBorder','tight');
@@ -4339,6 +4464,10 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
         end
 
         function testDemIQTMiract(testCase)
+            % testDemIQTMiract repeats
+            % testDemIQTSignalTapaWithDirection's visual check of
+            % UtilFunFPA.DemIQT (default settings) on a real Miract
+            % fixture image with its fixture mask
             %run(testFPA_UtilFunFPAClassVer, 'testDemIQTMiract')
             close all
             iptsetpref('ImshowBorder','tight');
@@ -4435,6 +4564,10 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
         end
 
         function testDemIQTShadowMoire(testCase)
+            % testDemIQTShadowMoire repeats
+            % testDemIQTSignalTapaWithDirection's visual check of
+            % UtilFunFPA.DemIQT (default settings) on a real
+            % shadow-moire defect fixture image with an all-ones mask
             %run(testFPA_UtilFunFPAClassVer, 'testDemIQTShadowMoire')
             close all
             iptsetpref('ImshowBorder','tight');
@@ -4531,6 +4664,12 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
         end
 
         function testDemPSAsync5TunOrientedShadowMoire(testCase)
+            % testDemPSAsync5TunOrientedShadowMoire visually checks
+            % UtilFunFPA.DemPSAsync5TunOriented demodulates a real
+            % shadow-moire defect fixture image in both the horizontal
+            % and vertical directions, then combines them into an XY
+            % phase using both UtilFunFPA.OrMinDer's orientation and
+            % UtilFunFPA.calcDirection's resolved direction
             %run(testFPA_UtilFunFPAClassVer, 'testDemPSAsync5TunOrientedShadowMoire')
             g=double((imread('shadowMoireDefect_01.tif')));
             gm=ones(size(g));
@@ -4579,6 +4718,10 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
         end
 
         function testDemAsync5TunOriented1DSignal(testCase)
+            % testDemAsync5TunOriented1DSignal checks
+            % UtilFunFPA.DemPSAsync5TunOriented recovers a synthetic 1D
+            % row-vector phase ramp within tolerance, and errors with
+            % the expected message when given a column-vector signal
             %run(testFPA_UtilFunFPAClassVer, 'testDemAsync5TunOriented1DSignal')
             import OM4MClassLib.Util.*;
             fprintf('\n%s: ',Logging.WhoCalledMe());
@@ -4611,6 +4754,11 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
         end
 
         function testDemAsync5TunShadowMoire(testCase)
+            % testDemAsync5TunShadowMoire visually checks
+            % UtilFunFPA.DemAsinc5Tun (spatially-tuned demodulation) on
+            % a real shadow-moire defect fixture image, including its
+            % phase/modulation/decimation-level maps and unwrapping via
+            % UnwrapperFactory(FlynMd)
             %run(testFPA_UtilFunFPAClassVer, 'testDemAsync5TunShadowMoire')
             import OM4MClassLib.Util.*;
             fprintf('\n%s: ',Logging.WhoCalledMe());
@@ -4645,6 +4793,12 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
         end
 
         function testDemPSAsync5TunOrientedMiract(testCase)
+            % testDemPSAsync5TunOrientedMiract repeats
+            % testDemPSAsync5TunOrientedShadowMoire's visual check of
+            % UtilFunFPA.DemPSAsync5TunOriented (horizontal/vertical,
+            % combined via orientation and direction) on a real Miract
+            % fixture image, additionally unwrapping the
+            % direction-combined phase via UnwrapperFactory(FlynMd)
             %run(testFPA_UtilFunFPAClassVer, 'testDemPSAsync5TunOrientedMiract')
             import OM4MClassLib.Util.*;
             fprintf('\n%s: ',Logging.WhoCalledMe());
@@ -4710,6 +4864,10 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
         end
 
         function testDemAsync5TunMiract(testCase)
+            % testDemAsync5TunMiract repeats
+            % testDemAsync5TunShadowMoire's visual check of
+            % UtilFunFPA.DemAsinc5Tun on a real Miract fixture image
+            % with its fixture mask
             %run(testFPA_UtilFunFPAClassVer, 'testDemAsync5TunMiract')
             import OM4MClassLib.Util.*;
             fprintf('\n%s: ',Logging.WhoCalledMe());
@@ -4744,6 +4902,10 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
         end
 
         function testDemAsync5TunDisk(testCase)
+            % testDemAsync5TunDisk repeats testDemAsync5TunShadowMoire's
+            % visual check of UtilFunFPA.DemAsinc5Tun on a real
+            % "Delta7DisNa" fixture image (red channel) with its
+            % fixture mask
             %run(testFPA_UtilFunFPAClassVer, 'testDemAsync5TunDisk')
             import OM4MClassLib.Util.*;
             fprintf('\n%s: ',Logging.WhoCalledMe());
@@ -4778,6 +4940,12 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
         end
 
         function testHomography_solve(testCase)
+            % testHomography_solve checks UtilFunFPA.homography_solve
+            % and UtilFunFPA.homography_transform recover the identity,
+            % an exact affine, and (approximately) a non-linear
+            % point-to-point mapping, including inverse-homography
+            % round trips, visually plotting original vs. transformed
+            % points for each case
             %run(testFPA_UtilFunFPAClassVer, 'testHomography_solve')
             % here we show how the function homography solve workd
             % the funcion was downloaded from
@@ -4895,6 +5063,11 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
         % moved to the Hardware methods block below.
 
         function testLimitsGV4LinearResponse(testCase)
+            % testLimitsGV4LinearResponse visually checks
+            % UtilFunFPA.LinLUTGV's response curve, using a real
+            % camera-vs-monitor gray-value response fixture recorded by
+            % the Hardware-tagged testCalculateResponseFromImages, with
+            % no camera needed at test time
             %run(testFPA_UtilFunFPAClassVer, 'testLimitsGV4LinearResponse')
 
             %Este test verifica la respuesta lineal sin necesidad de emplear la
@@ -4947,6 +5120,10 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
         end
 
         function testArgumentsLinLUTGV(testCase)
+            % testArgumentsLinLUTGV checks UtilFunFPA.LinLUTGV echoes
+            % back its 'D' name-value argument and errors with
+            % MATLAB:validators:mustBeNumeric for a non-numeric 'D'
+            % value or a non-numeric uvs input
             %run(testFPA_UtilFunFPAClassVer, 'testArgumentsLinLUTGV')
 
             dropboxFolder=fixturesRoot();
@@ -4964,6 +5141,10 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
         end
 
         function testFigLimitsGV4LinearResponse(testCase)
+            % testFigLimitsGV4LinearResponse repeats
+            % testLimitsGV4LinearResponse's UtilFunFPA.LinLUTGV
+            % calculation on the same fixture, plotting its response
+            % curves via figurasLin's TFM-report figure helpers instead
             %run(testFPA_UtilFunFPAClassVer, 'testFigLimitsGV4LinearResponse')
             %Test que emplea los datos ImgGV_5_bad1 para D = 2 para crear graficas de
             %la respuesta lineal para emplearlas en el TFM de VdH. Usa figurasLin
@@ -5004,6 +5185,11 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
         % all drive a real camera (imaqCam) and/or a real projector display.
 
         function testImages(testCase)
+            % testImages runs testLimitsGV4LinearResponse,
+            % testFigLimitsGV4LinearResponse, testFigFFTLinGV and
+            % testCalculatePowerWithCorrectionFromLMMfile in sequence,
+            % pausing for a keypress between each, to generate all the
+            % VdH TFM report figures in one pass
             %run(testFPA_UtilFunFPAClassVer, 'testImages')
             %test para ejecutar todos los test que generan imagenes para el
             %TFM de VdH
@@ -5021,6 +5207,12 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
         end
 
         function testCalculateResponseFromImages(testCase)
+            % testCalculateResponseFromImages projects constant gray
+            % levels on a real display, captures them with a real
+            % camera, computes the camera-vs-monitor response curve via
+            % UtilFunFPA.LinLUTGV, then re-projects/re-captures
+            % corrected levels to visually verify the linearized
+            % response
             %run(testFPA_UtilFunFPAClassVer, 'testCalculateResponseFromImages')
             %Test que proyecta us niveles de gris constantes, los recoge en la camara  y verifica la respuesta lineal
             import OM4MClassLib.Util.*;
@@ -5168,6 +5360,13 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
         end
 
         function testFFTLinGV(testCase)
+            % testFFTLinGV projects an LSEquispacedPSA fringe pattern
+            % on a real display, both uncorrected and corrected via
+            % UtilFunFPA.LinLUTGV's T(u), captures each with a real
+            % camera, and compares their FFT harmonics to check the
+            % correction suppresses higher-order harmonics (relies on
+            % figDemodulator, which is not present in this repo - see
+            % testFigFFTLinGV's comment)
             %run(testFPA_UtilFunFPAClassVer,'testFFTLinGV')
 
             %Este test proyecta un patron de franjas con
@@ -5549,6 +5748,13 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
         end
 
         function testCalculatePowerWithCorrection(testCase)
+            % testCalculatePowerWithCorrection captures a real
+            % deflectometric lens measurement (reference and signal
+            % igrams, X/Y directions) with a real camera and projector,
+            % feeds it into a LensMapperMeasurement to compute lens
+            % power (LMM.CalculateLensPower), and visually/statistically
+            % checks the resulting spherical-equivalent and cylinder
+            % power maps against a polynomial surface fit
             %run(testFPA_UtilFunFPAClassVer, 'testCalculatePowerWithCorrection')
             import OM4MClassLib.Util.*;
             fprintf('\ntest %s...\n ',Logging.WhoCalledMe());

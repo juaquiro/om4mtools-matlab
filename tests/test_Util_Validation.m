@@ -1,6 +1,6 @@
 classdef test_Util_Validation < matlab.unittest.TestCase
+    % test_Util_Validation tests OM4MClassLib.Util.Validation
     %run(test_Util_Validation)
-    %test_Util_Validation test the class Validation
 
     methods(TestMethodSetup)
         function SetUp(testCase)
@@ -18,6 +18,8 @@ classdef test_Util_Validation < matlab.unittest.TestCase
 
     methods (Test)
         function test_all2str(testCase)
+            % test_all2str checks Validation.all2str's output for
+            % numeric, char, cell, struct and matrix inputs
             %run(test_Util_Validation, 'test_all2str')
             import OM4MClassLib.Util.*;
             disp(Logging.WhoCalledMe());
@@ -52,6 +54,10 @@ classdef test_Util_Validation < matlab.unittest.TestCase
         end
 
         function test_CheckInputParam(testCase)
+            % test_CheckInputParam checks Validation.CheckInputParam
+            % accepts values present in vList and errors (with the
+            % expected message) for values absent from it, including a
+            % mixed-type vList
             %run(test_Util_Validation, 'test_CheckInputParam')
             import OM4MClassLib.Util.*;
             disp(Logging.WhoCalledMe());
@@ -91,6 +97,9 @@ classdef test_Util_Validation < matlab.unittest.TestCase
         end
 
         function test_mustBeEqualSize(testCase)
+            % test_mustBeEqualSize checks Validation.mustBeEqualSize
+            % passes for equal-size inputs and errors (with the expected
+            % message/identifier) for mismatched sizes
             %run(test_Util_Validation, 'test_mustBeEqualSize')
             import OM4MClassLib.Util.*;
             disp(Logging.WhoCalledMe());

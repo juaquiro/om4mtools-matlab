@@ -1,10 +1,7 @@
 classdef TrainingDataLoader < handle
-    %TRAININGDATALOADER this object is resposible of loading the data and
-    %labels for training a clasifier
-    % Copyright IOT
-    % $Revision: 1 $  $Date: 19/02/2013 $
-    % $JJ$
-    
+    % TrainingDataLoader loads QC stats data and labels for training a
+    % classifier, and splits it into train/cross-validation/test sets
+
     %% private props
     
     properties (GetAccess = 'public', SetAccess = 'private')
@@ -39,13 +36,13 @@ classdef TrainingDataLoader < handle
     
     %% Constructor
     methods
-        % QCStatsFile is the name of the excel QCStats file
-        % labelData is the name of the column used to clasify. It's a
-        % EnumLabelData element
-        % ListNameData is a cell array of EnumNameData elements
-        % LensType is an EnumLens element
-        % Eye is an EnumEye element
         function this=TrainingDataLoader(QCStatsFile, LabelData, ListFeatureNames, LensType, Eye)
+            % TrainingDataLoader loads and splits training data.
+            %
+            % Inputs: QCStatsFile name of the Excel QCStats file;
+            % LabelData the column used to classify (an EnumLabelData);
+            % ListFeatureNames cell array of EnumFeatureNames elements;
+            % LensType an EnumLens element; Eye an EnumEye element.
             try
                 
                 import OM4MClassLib.Util.*;
@@ -62,7 +59,7 @@ classdef TrainingDataLoader < handle
                 end
                 
                 if ~exist(QCStatsFile,'file')
-                    error('QCStatsFile doesn´t exist in the current folder or in the specified path');
+                    error('QCStatsFile doesnï¿½t exist in the current folder or in the specified path');
                 end
                 
                 this.ini(QCStatsFile, LabelData, ListFeatureNames, LensType, Eye);
@@ -78,7 +75,8 @@ classdef TrainingDataLoader < handle
     methods (Access = 'private')
         
         function ini(this,QCStatsFile, LabelData, ListFeatureNames, LensType, Eye)
-            
+            % ini loads QCStatsFile, filters rows by Eye/LensType, and
+            % populates this.X/y/labels from ListFeatureNames/LabelData
             import OM4MClassLib.Util.*;
             
             % Definig the indexer
@@ -137,7 +135,10 @@ classdef TrainingDataLoader < handle
     methods (Access = 'public')
         
         function [TTS, TRS, CVS, TES]=GetTrainSets(this)
-            
+            % GetTrainSets randomly splits this.X/y/labels into a 60%
+            % train set (TRS), 20% cross-validation set (CVS), and 20%
+            % test set (TES), plus the full set TTS; also stores them as
+            % this.TTS/TRS/CVS/TES
             % Definig TTS
             TTS(1).X=this.X;
             TTS(1).y=this.y;
