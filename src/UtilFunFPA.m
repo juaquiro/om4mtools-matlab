@@ -1,34 +1,19 @@
-%> @file UtilFunFPA.m Static class with util funs for the Fringe Pattern Analysis Lib
-%> @brief Static class with util funs for the Fringe Pattern Analysis Lib
-%> @details NA
-%> @copyright 2015 IOT
-%> @author AQ AQ 16/11/15
-%> @see testFPA_UtilFunFPAClassVer.m testFPA_UtilFunFPA.m
-
-% ======================================================================
-%> @brief Static class with util funs for the Fringe Pattern Analysis Lib
-% ======================================================================
 classdef UtilFunFPA
-    
+    % UtilFunFPA static utility functions for the Fringe Pattern
+    % Analysis library (see testFPA_UtilFunFPAClassVer.m,
+    % testFPA_UtilFunFPA.m for unit tests)
+
     %% public methods
     methods(Static)
-        
-        % ======================================================================
-        %> @brief GradientConsistency checks for the consistency of a pair of
-        %> 1st differences
-        %> @details   This funcion calculates the consistency of the pair of diferences
-        %> dx and dy. The integral along each 2x2 square is calculated. A
-        %> value diffrent from zero indicates inconsistencies between both
-        %> differneces. This is also good for phase maps if Q is wrapped mod
-        %> 2pi as Q=angle(exp(1i*Q))
-        %> @see https://www.wiley.com/en-es/Two+Dimensional+Phase+Unwrapping%3A+Theory%2C+Algorithms%2C+and+Software-p-9780471249351
-        %> @param dx 1st differnce in the x direction @details it can be
-        %> contounous or 2pi wrapped (like in deflectometry or shearography)
-        %> @param dy 1st differnce in the y direction @details it can be
-        %> contounous or 2pi wrapped (like in deflectometry or shearography)
-        %> @retval Q consistency map, the smaller the better
-        % ======================================================================
+
         function Q=GradientConsistency(dx, dy)
+            % GradientConsistency computes the loop-integral inconsistency
+            % Q of first-difference pair (dx, dy) around each 2x2 square
+            % (Q~=0 flags an inconsistency between the two differences);
+            % dx/dy can be continuous or 2*pi-wrapped (as in
+            % deflectometry/shearography) - Q is wrapped accordingly.
+            %
+            % Ref: https://www.wiley.com/en-es/Two+Dimensional+Phase+Unwrapping%3A+Theory%2C+Algorithms%2C+and+Software-p-9780471249351
             import OM4MClassLib.Util.*
             callFunc=Logging.WhoCalledMe();
             
@@ -64,9 +49,14 @@ classdef UtilFunFPA
             Q=angle(exp(1i*Q));
         end
         
-        %this function interpolates the matiz g using the mask M as valid
-        %points
         function [gZ]=interpInvalidPoints(g, M, varargin)
+            % interpInvalidPoints fills in matrix g outside mask M by
+            % fitting a Zernike surface (ClassifierZernikes) to the
+            % valid (M==1) points and evaluating it everywhere.
+            %
+            % Optional args (varargin): zOrder (40) Zernike order,
+            % lambda (1e-5) regularization, mu (1e-3) curvature
+            % regularization weight
             import OM4MClassLib.Util.*
             callFunc=Logging.WhoCalledMe();
             gName=inputname(1);
@@ -132,22 +122,14 @@ classdef UtilFunFPA
         
         
         
-        % ======================================================================
-        %> @brief phasor filtering and direct gradient calculation
-        %> @details this function calculates the gradient [phix, phiy] of a phasor's phase, z=b*exp(1i*phi). It uses the same sign convetion that MATLAB gradient().
-        %> Returns a the phase gradient and a Mask with valid differences. For this we use a median filter for outlier removal and gradient after phasor filtering
-        %>
-        %> @param Nmed median filter size for phase only cosine-sine filtering 
-        %> @param NS 2*NS+1 is the neigbouhoord size for phasor filtering
-        %> @param M ROI with valid points
-        %> @param z input phasor z=b*exp(1i*phi)
-        %> @param LPCycles are the number of low pass cycles that we apply
-        %> to the calculated derivatives
-        %> @retval Mxy ROI with valid differences
-        %> @retval phix phase x-gradient
-        %> @retval phiy phase y-gradient
-        % ======================================================================
         function [phix, phiy, Mxy]=phaseGradientDirect(z, M, NS, Nmed, LPCycles)
+            % phaseGradientDirect computes the phase gradient [phix,
+            % phiy] of phasor z=b*exp(1i*phi) within ROI M (MATLAB
+            % gradient() sign convention), via median filtering (Nmed,
+            % outlier removal) then low-pass filtering (LPCycles cycles)
+            % of the cosine/sine-filtered phasor differences, using a
+            % 2*NS+1 phasor-filtering neighborhood. Returns the phase
+            % gradients and Mxy, the ROI restricted to valid differences.
             import OM4MClassLib.Util.*
             callFunc=Logging.WhoCalledMe();            
             
@@ -232,9 +214,15 @@ classdef UtilFunFPA
         %> @retval gy phase y-gradient
         % ======================================================================
         function [gx, gy, Mxy]=gradientDirect(g, M, NS, Nmed, LPCycles)
+            % gradientDirect is phaseGradientDirect's real-valued
+            % counterpart: computes the gradient [gx, gy] of real matrix
+            % g within ROI M, via median filtering (Nmed) then low-pass
+            % filtering (LPCycles cycles, 2*NS+1 neighborhood) of the raw
+            % differences. Returns the gradients and Mxy, the ROI
+            % restricted to valid differences.
             import OM4MClassLib.Util.*
             callFunc=Logging.WhoCalledMe();
-            
+
             zName=inputname(1);
             if (not(ismatrix(g)) || not(isreal(g)))
                 retMsg=[zName 'must be a real matrix'];
@@ -295,24 +283,18 @@ classdef UtilFunFPA
         
         
         
-        % ======================================================================
-        %> @brief gradient calculation of phasor's phase using plane fitting
-        %> @details NOT RECOMENDED there this function has a spatial freq
-        %> dependency, use better phaseGradientDirect
-        %> @details this function calculates the gradient [phix, phiy] of a phasor's phase, z=b*exp(1i*phi). It uses the same sign convetion that MATLAB gradient().
-        %> Returns a the phase gradient and a Mask with valid differences. For this we use a median filter for outlier removal and the the plane fitting method
-        %> @see Xia Yang, Qifeng Yu, Sihua Fu,An algorithm for estimating both fringe orientation and fringe density,
-        %> Optics Communications, Volume 274, Issue 2,2007,Pages 286-292,
-        %>
-        %> @param Nmed median filter size
-        %> @param NS 2*NS+1 is the neigbouhoord size for plane fitting
-        %> @param M ROI with valid points
-        %> @param z input phasor z=b*exp(1i*phi)
-        %> @retval Mxy ROI with valid differences
-        %> @retval phix phase x-gradient
-        %> @retval phiy phase y-gradient
-        % ======================================================================
         function [phix, phiy, Mxy]=phaseGradientPlaneFit(z, M, NS, Nmed)
+            % phaseGradientPlaneFit computes phasor z's phase gradient
+            % [phix, phiy] within ROI M by unwrapping (PUFlynMdMex) then
+            % plane-fitting the gradient (GradientPlaneFit, median filter
+            % Nmed, 2*NS+1 neighborhood).
+            %
+            % NOT RECOMMENDED: has a spatial-frequency dependency - use
+            % phaseGradientDirect instead.
+            %
+            % Ref: Yang, Yu & Fu, "An algorithm for estimating both
+            % fringe orientation and fringe density," Optics
+            % Communications 274(2), 286-292 (2007)
             import OM4MClassLib.Util.*
             callFunc=Logging.WhoCalledMe();
             
@@ -343,22 +325,15 @@ classdef UtilFunFPA
         
         
         
-        % ======================================================================
-        %> @brief gradient calculation using plane fitting
-        %> @details this function calculates the gradient of a matrix. It uses the same sign convetion that MATLAB gradient().
-        %> Returns a the gradient and a Mask with valid differences. For this we use a low pass gauss filter and the the plane fitting method
-        %> @see Xia Yang, Qifeng Yu, Sihua Fu,An algorithm for estimating both fringe orientation and fringe density,
-        %> Optics Communications, Volume 274, Issue 2,2007,Pages 286-292,
-        %>
-        %> @param Nmed median filter size
-        %> @param NS 2*NS+1 is the neigbouhoord size for plane fitting
-        %> @param M ROI with valid points
-        %> @param p input matrix
-        %> @retval Mxy ROI with valid differences
-        %> @retval px x-gradient
-        %> @retval py y-gradient
-        % ======================================================================
         function [px, py, Mxy]=GradientPlaneFit(p, M, NS, Nmed)
+            % GradientPlaneFit computes matrix p's gradient [px, py]
+            % within ROI M via local least-squares plane fitting (2*NS+1
+            % neighborhood, after median filtering p/M by Nmed) - same
+            % sign convention as MATLAB's gradient().
+            %
+            % Ref: Yang, Yu & Fu, "An algorithm for estimating both
+            % fringe orientation and fringe density," Optics
+            % Communications 274(2), 286-292 (2007)
             import OM4MClassLib.Util.*
             callFunc=Logging.WhoCalledMe();
             
@@ -398,25 +373,23 @@ classdef UtilFunFPA
         end
         
         
-        %this function locates the 4 sidelobes of a igram with two carriers
-        %it filters the DC using a fixed low pass filter with R FF passband
-        %the espected
-        % R is optional and is the radious in FF of the passband filters
-        %by default the four side lobes are located in FF in a clockwise order
-        %     2
-        %   1 X 3
-        %     4
-        % When wr is passesd as a param the closest lobe to wr{1} is
-        % located and numbered 1, the remaining lobes are numbered
-        % clockwise
-        % for a linear fringe pattern the numbering is
-        %   1 X 2
-        % or
-        %    1
-        %    X
-        %    2
-        
         function w = LocateSidelobes(g, varargin)
+            % LocateSidelobes locates the side lobes of igram g's Fourier
+            % transform (2 carriers -> 4 lobes, 1 carrier -> 2 lobes),
+            % after filtering out the DC with a fixed low-pass filter.
+            %
+            % By default the 4 side lobes are numbered clockwise:
+            %      2
+            %    1 X 3
+            %      4
+            % or, for a linear fringe pattern (1 carrier), "1 X 2" or
+            % "1 / X / 2". If wr (varargin{1}) is given, the lobe closest
+            % to wr{1} is numbered 1 instead, with the rest numbered
+            % clockwise from there.
+            %
+            % Optional args: wr reference lobe positions (see above); R
+            % radius (in fringes/field) of the DC low-pass filter; NL
+            % number of lobes (2 or 4).
             import OM4MClassLib.Util.*
             callFunc=Logging.WhoCalledMe();
             
@@ -815,7 +788,7 @@ classdef UtilFunFPA
         % w4alfa = envoltura de cuatro veces la fase de isoclinas
         % q = Mapa de calidad para la estimacion
         % m = mascara
-        % Tamaño de la region para el estimador (t*2+1)
+        % Tamaï¿½o de la region para el estimador (t*2+1)
         % mu = Parametro de regularizacion
         function [w2Alpha, M]=Calc2Alpha(w4Alpha,q,m,t,mu)
             import OM4MClassLib.Util.*
@@ -828,8 +801,8 @@ classdef UtilFunFPA
             s=zeros(n);w2Alpha=zeros(n); M=zeros(n);
             dx=cos(w4Alpha/2).*m;dy=sin(w4Alpha/2).*m;
             
-            %DEFINE EL TAMAÑO DEL ARREGLO PARA EL HISTOGRAMA
-            %DEL ALGORITMO DE STRÖBEL
+            %DEFINE EL TAMAï¿½O DEL ARREGLO PARA EL HISTOGRAMA
+            %DEL ALGORITMO DE STRï¿½BEL
             na=10;maxi=0;
             q=round(q./max(max(q))*(na-1))+1;
             for k=1:na
@@ -839,7 +812,7 @@ classdef UtilFunFPA
             hy=zeros(na,maxi);hx=zeros(na,maxi);
             front=zeros(1,na);final=zeros(1,na);
             
-            %ALGORITMO DE STRÖBEL PARA SEGUIR EL MAPA
+            %ALGORITMO DE STRï¿½BEL PARA SEGUIR EL MAPA
             %DE CALIDAD EN LA ESTIMACION
             cont=0;ind=1;
             [yy,xx]=find(q==(max(q(:))));y=yy(1);x=xx(1); % Determina las coordenadas de arranque de la estimacion
@@ -876,7 +849,7 @@ classdef UtilFunFPA
                 end
                 
                 %SACA LAS COORDENADAS DEL HISTOGRAMA
-                %PARA LA SIGUIENTE ESTIMACIÓN
+                %PARA LA SIGUIENTE ESTIMACIï¿½N
                 k=na;ind=0;
                 while ind==0 && k>0
                     ind=front(k);
@@ -1334,8 +1307,8 @@ classdef UtilFunFPA
             %
             %REFERENCES
             %
-            %[1] Z. Wang, B. Han, “Advanced iterative algorithm for phase extraction
-            %     of randomly phase-shifted interferograms”,Opt. Lett. 29(14), 1671-1673
+            %[1] Z. Wang, B. Han, ï¿½Advanced iterative algorithm for phase extraction
+            %     of randomly phase-shifted interferogramsï¿½,Opt. Lett. 29(14), 1671-1673
             %     (2004)
             %
             %   Javier Vargas, 19/10/10
@@ -1468,7 +1441,7 @@ classdef UtilFunFPA
         
         % ======================================================================
         %> @brief LSDemod least squares demodulation using N delta steps with known values
-        %> @details @see FPA book and Z. Wang, B. Han, “Advanced iterative algorithm for phase extraction of randomly phase-shifted interferograms”,Opt. Lett. 29(14), 1671-1673
+        %> @details @see FPA book and Z. Wang, B. Han, ï¿½Advanced iterative algorithm for phase extraction of randomly phase-shifted interferogramsï¿½,Opt. Lett. 29(14), 1671-1673
         %> @copyright 2010 IOT
         %> @author JV, 19/10/10
         %> @author AQ 10/4/2017
@@ -1812,8 +1785,8 @@ classdef UtilFunFPA
         %             %
         %             %REFERENCES
         %             %
-        %             %[1] Z. Wang, B. Han, “Advanced iterative algorithm for phase extraction
-        %             %     of randomly phase-shifted interferograms”,Opt. Lett. 29(14), 1671-1673
+        %             %[1] Z. Wang, B. Han, ï¿½Advanced iterative algorithm for phase extraction
+        %             %     of randomly phase-shifted interferogramsï¿½,Opt. Lett. 29(14), 1671-1673
         %             %     (2004)
         %             %
         %             %   Javier Vargas, 19/10/10
@@ -2015,7 +1988,7 @@ classdef UtilFunFPA
         % wbeta = mapa del angulo de direccion (mod 2pi)
         % q = Mapa de calidad para la estimacion
         % m = mascara
-        % t = Tamaño de la region para el estimador (t*2+1)
+        % t = Tamaï¿½o de la region para el estimador (t*2+1)
         % mu = Parametro de regularizacion
         % r0 pto inicial, [] lo busca automaticamente del maximo de q
         
@@ -2026,7 +1999,7 @@ classdef UtilFunFPA
             s=zeros(n);wbeta=zeros(n);
             dx=cos(wtheta).*m;dy=sin(wtheta).*m;
             
-            %% DEFINE EL TAMAÑO DEL ARREGLO PARA EL HISTOGRAMA DEL ALGORITMO DE STRÖBEL
+            %% DEFINE EL TAMAï¿½O DEL ARREGLO PARA EL HISTOGRAMA DEL ALGORITMO DE STRï¿½BEL
             na=10;maxi=0;
             q=round(q./max(max(q))*(na-1))+1;
             for k=1:na
@@ -2036,7 +2009,7 @@ classdef UtilFunFPA
             hy=zeros(na,maxi);hx=zeros(na,maxi);
             front=zeros(1,na);final=zeros(1,na);
             
-            %% ALGORITMO DE STRÖBEL PARA SEGUIR EL MAPA DE CALIDAD EN LA ESTIMACION
+            %% ALGORITMO DE STRï¿½BEL PARA SEGUIR EL MAPA DE CALIDAD EN LA ESTIMACION
             cont=0;ind=1;
             
             if isempty(r0)
@@ -2081,7 +2054,7 @@ classdef UtilFunFPA
                 
                 
                 %SACA LAS COORDENADAS DEL HISTOGRAMA
-                %PARA LA SIGUIENTE ESTIMACIÓN
+                %PARA LA SIGUIENTE ESTIMACIï¿½N
                 k=na;ind=0;
                 while ind==0 && k>0
                     ind=front(k);
@@ -2285,7 +2258,7 @@ classdef UtilFunFPA
         
         function [z, Delta] = DemPSAsync5TunOriented(g,varargin)
             
-            % DemPSAsync5TunOriented Función para llevar a cabo la demodulación de un patron
+            % DemPSAsync5TunOriented Funciï¿½n para llevar a cabo la demodulaciï¿½n de un patron
             % de franjas usando un metodo asincrono de 5 pasos
             % sintonizable. La demodulacion es orientada vertical u
             % horizontal, es decir segun el caso las franjas verticales u
@@ -2298,7 +2271,7 @@ classdef UtilFunFPA
             %
             % I Patron de franjas (obligatorio)
             %
-            % Nmax Valor máximo del periodo de muestreo (opcional), valor por defecto Nmax=5
+            % Nmax Valor mï¿½ximo del periodo de muestreo (opcional), valor por defecto Nmax=5
             %
             % dir Direccion de demoulacion (opcional):
             %   'horz' direccion horizontal (valor por defecto)
@@ -2334,7 +2307,7 @@ classdef UtilFunFPA
             end
             
             % set defaults for optional inputs
-            % Nmax Valor máximo del periodo de muestreo (opcional), valor por defecto Nmax=5
+            % Nmax Valor mï¿½ximo del periodo de muestreo (opcional), valor por defecto Nmax=5
             % dirDemod Direccion de demoulacion (opcional) 'horz' direccion horizontal (valor por defecto)
             %   'vert' direccion vertical
             optargs = {5, 'horz'};
@@ -2467,7 +2440,7 @@ classdef UtilFunFPA
         end
         
         function [z, zor, zdir, Delta]=DemAsinc5Tun(g,varargin)
-            % DemAsinc5Tun Función para llevar a cabo la demodulación de un patron
+            % DemAsinc5Tun Funciï¿½n para llevar a cabo la demodulaciï¿½n de un patron
             % de franjas usando un metodo asincrono de 5 pasos
             % sintonizable. La demodulacion es 2D incluyendo el calculo de la direccion para hacer
             % el steering del metodo DemPSAsync5TunOriented (solo horizontal o vertical)
@@ -2772,9 +2745,9 @@ classdef UtilFunFPA
             arguments
                 uv (:, 2) {mustBeNumeric}
                 options.D (1,1) {mustBeNumeric} = 1 %Margen de seguridad de la posicion del vector vs para el maximo y el minimo de la respuesta H(u).
-                %Se establece como 1 para evitar problemas con la interpolación
+                %Se establece como 1 para evitar problemas con la interpolaciï¿½n
                 %de Hv. De esta forma tomamos el valor del max-1 y del
-                %min+1 y evita tomar los valores de los máximos (y minimos) que no deseamos.
+                %min+1 y evita tomar los valores de los mï¿½ximos (y minimos) que no deseamos.
                 
             end
             D = options.D;
@@ -2810,7 +2783,7 @@ classdef UtilFunFPA
             % for the interpolation to work v0 and v1 must be "interior" to
             % vs max and min
 
-            %Hallamos la posicion del mínimo y máximo el vector de vs redondeada:
+            %Hallamos la posicion del mï¿½nimo y mï¿½ximo el vector de vs redondeada:
             vunicos=unique(round(vs)); 
             v0=min(vunicos(ONEOFFSET+D:end));
             v1=max(vunicos(ONEOFFSET:end-D));        
