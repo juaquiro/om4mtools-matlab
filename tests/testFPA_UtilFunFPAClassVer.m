@@ -1164,16 +1164,16 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
         end
 
 
-        % ======================================================================
-        %> @brief testUndistortImagesCVTbx_5MAY20
-        %> @details this function is an example of undistort images using MATLAB Computer Vision
-        %> Toolbox. Here we calculate the homography from the worldpoints
-        %> and also using the extrinsics for comparison. Also we calculate
-        %> resolution in mm/px at the selected plane image, Zc or Z+Z_c
-        %> @see oneNote-> Mejoras calculo DPM APR20 for details
-        %> @param testCase ref to the unit testing framework class
-        % ======================================================================
         function testUndistortImagesCVTbx_5MAY20(testCase)
+            % testUndistortImagesCVTbx_5MAY20 calibrates the camera
+            % (5MAY20 checkerboard fixtures), saves the resulting
+            % cameraParameters to params_Calibracion_5MAY20.json (used
+            % by several tests elsewhere), undistorts one image/its
+            % checkerboard points, and cross-checks metric (mm)
+            % coordinates computed via the toolbox's pointsToWorld
+            % against UtilFunFPA.DistancePlaneCam/homography_transform
+            % (verifying they agree), finally estimating the spatial
+            % resolution (mm/px) around the principal point
             %run(testFPA_UtilFunFPAClassVer, 'testUndistortImagesCVTbx_5MAY20');
             import OM4MClassLib.Util.*;
             fprintf('\n%s: ',Logging.WhoCalledMe());
@@ -1362,18 +1362,12 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
 
 
 
-        % ======================================================================
-        %> @brief testCameraCalibrationCVTbx_29JUN20
-        %> @details this function makes a geometrical calibration of the
-        %> camera of the delfectometer and estimates ditances to the screen with and without suporting glass plate
-        %> with the MATLAB Computer Vision Toolbox. This test is the same
-        %> than testCameraCalibrationCVTbx_5MAY20 but in this case the test
-        %> images where captured using the IOTMGeomCalibGUI.mlapp GUI of
-        %> the Preseus Repo (..\src\Deflectometer\FFVAppInt\)
-        %> @see oneNote-> Calibraci�n Geom�trica del Mapper 29 JUNIO 2020 for details
-        %> @param testCase ref to the unit testing framework class
-        % ======================================================================
         function testCameraCalibrationCVTbx_29JUN20(testCase)
+            % testCameraCalibrationCVTbx_29JUN20 repeats
+            % testCameraCalibrationCVTbx_5MAY20's calibration and
+            % camera-lens/camera-screen distance estimation on a later
+            % fixture set (Calibracion_29JUN20_2) captured via the
+            % perseus repo's IOTMGeomCalibGUI.mlapp
             %run(testFPA_UtilFunFPAClassVer, 'testCameraCalibrationCVTbx_29JUN20');
             import OM4MClassLib.Util.*;
             fprintf('\n%s: ',Logging.WhoCalledMe());
@@ -1500,16 +1494,11 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
         end
 
 
-        % ======================================================================
-        %> @brief testUndistortImagesCVTbx_29JUN20
-        %> @details this function is an example of undistort images using MATLAB Computer Vision
-        %> Toolbox. Here we calculate the homography from the worldpoints
-        %> and also using the extrinsics for comparison. Also we calculate
-        %> resolution in mm/px at the selected plane image, Zc or Z+Z_c
-        %> @see oneNote-> Calibraci�n Geom�trica del Mapper 29 JUNIO 2020 for details
-        %> @param testCase ref to the unit testing framework class
-        % ======================================================================
         function testUndistortImagesCVTbx_29JUN20(testCase)
+            % testUndistortImagesCVTbx_29JUN20 repeats
+            % testUndistortImagesCVTbx_5MAY20's undistortion, toolbox-vs
+            % -homography metric coordinate cross-check and spatial
+            % resolution estimate on the 29JUN20_2 fixture set
             %run(testFPA_UtilFunFPAClassVer, 'testUndistortImagesCVTbx_29JUN20');
             import OM4MClassLib.Util.*;
             fprintf('\n%s: ',Logging.WhoCalledMe());
@@ -1698,16 +1687,11 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
 
         end
 
-        % ======================================================================
-        %> @brief testUndistortImagesCVTbx_15DIC20
-        %> @details this function is an example of undistort images using MATLAB Computer Vision
-        %> Toolbox. Here we calculate the homography from the worldpoints
-        %> and also using the extrinsics for comparison. Also we calculate
-        %> resolution in mm/px at the lens plane, Zc or screen plane Z+Z_c
-        %> @see oneNote-> calibracion 15DIC20 for details
-        %> @param testCase ref to the unit testing framework class
-        % ======================================================================
         function testUndistortImagesCVTbx_15DIC20(testCase)
+            % testUndistortImagesCVTbx_15DIC20 repeats
+            % testUndistortImagesCVTbx_5MAY20's undistortion, toolbox-vs
+            % -homography metric coordinate cross-check and spatial
+            % resolution estimate on the 15DIC20 fixture set
             %run(testFPA_UtilFunFPAClassVer, 'testUndistortImagesCVTbx_15DIC20');
             import OM4MClassLib.Util.*;
             fprintf('\n%s: ',Logging.WhoCalledMe());
@@ -1895,17 +1879,12 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
         end
 
 
-        % ======================================================================
-        %> @brief testCameraCalibrationCVTbx_15DIC20
-        %> @details this function makes a geometrical calibration of the
-        %> camera of the deflectometer and estimates ditances to the screen with the suporting glass plate
-        %> with the MATLAB Computer Vision Toolbox. This test is the same
-        %> the test images where captured using the IOTMGeomCalibGUI.mlapp GUI of
-        %> the Perseus Repo (..\src\Deflectometer\FFVAppInt\)
-        %> @see oneNote->Calibraci�n 15 DIC 20 for details
-        %> @param testCase ref to the unit testing framework class
-        % ======================================================================
         function testCameraCalibrationCVTbx_15DIC20(testCase)
+            % testCameraCalibrationCVTbx_15DIC20 repeats
+            % testCameraCalibrationCVTbx_5MAY20's calibration and
+            % camera-lens/camera-screen distance estimation on the
+            % 15DIC20 fixture set (with the 1mm supporting glass),
+            % captured via the perseus repo's IOTMGeomCalibGUI.mlapp
             %run(testFPA_UtilFunFPAClassVer, 'testCameraCalibrationCVTbx_15DIC20');
             import OM4MClassLib.Util.*;
             fprintf('\n%s: ',Logging.WhoCalledMe());
