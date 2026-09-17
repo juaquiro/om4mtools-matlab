@@ -846,6 +846,13 @@ classdef testFPA_UtilFunMapperMeasureClassVer < matlab.unittest.TestCase
 
 
         function testGetPower_CalibrationLensKPC076(testCase)
+            % testGetPower_CalibrationLensKPC076 demodulates a real -10D
+            % calibration lens FFV measurement (with sidelobes that have
+            % rotated far enough that different lobe indices, 1/4
+            % instead of the default 4/3, must be selected); if
+            % CalibrationFFV.mat does not yet exist it derives and saves
+            % a K calibration factor from this lens' known nominal power
+            % first, then computes and visually inspects the power maps
             %run(testFPA_UtilFunMapperMeasureClassVer, 'testGetPower_CalibrationLensKPC076')
             import OM4MClassLib.Util.*;
             fprintf('\n%s: ',Logging.WhoCalledMe());
@@ -953,6 +960,10 @@ classdef testFPA_UtilFunMapperMeasureClassVer < matlab.unittest.TestCase
 
 
         function testGetPower_CalibrationLensKPX223(testCase)
+            % testGetPower_CalibrationLensKPX223 repeats
+            % testGetPower_CalibrationLensKPC076 for a real -2.75D
+            % calibration lens (default lobe indices, no rotation issue),
+            % deriving/saving a K calibration factor if needed
             %run(testFPA_UtilFunMapperMeasureClassVer, 'testGetPower_CalibrationLensKPX223')
             import OM4MClassLib.Util.*;
             fprintf('\n%s: ',Logging.WhoCalledMe());
@@ -1073,6 +1084,9 @@ classdef testFPA_UtilFunMapperMeasureClassVer < matlab.unittest.TestCase
 
 
         function testGetPower_SwissCoat40L88050R(testCase)
+            % testGetPower_SwissCoat40L88050R repeats
+            % testGetPower_SwissCoat40L88031L for lens
+            % SwissCoat40L88050R (older reference image RefB, K=[1 1])
             %run(testFPA_UtilFunMapperMeasureClassVer, 'testGetPower_SwissCoat40L88050R')
             import OM4MClassLib.Util.*;
             fprintf('\n%s: ',Logging.WhoCalledMe());
@@ -1155,6 +1169,9 @@ classdef testFPA_UtilFunMapperMeasureClassVer < matlab.unittest.TestCase
 
 
         function testGetPower_VisionLab565964(testCase)
+            % testGetPower_VisionLab565964 repeats
+            % testGetPower_SwissCoat40L88031L for lens
+            % VisionLab565964, using its own mask fixture (VisionLab565964_Mask.bmp)
             %run(testFPA_UtilFunMapperMeasureClassVer, 'testGetPower_VisionLab565964')
             import OM4MClassLib.Util.*;
             fprintf('\n%s: ',Logging.WhoCalledMe());
@@ -1242,6 +1259,10 @@ classdef testFPA_UtilFunMapperMeasureClassVer < matlab.unittest.TestCase
 
 
         function testCheckCalibrationLensSpectra(testCase)
+            % testCheckCalibrationLensSpectra visually checks
+            % UtilFunFPA.LocateSidelobes finds sensible sidelobes for
+            % the reference image and for the two real calibration-lens
+            % images (KPC076/-10D, KPX223/+10D) blended with the reference
             %run(testFPA_UtilFunMapperMeasureClassVer, 'testCheckCalibrationLensSpectra')
             import OM4MClassLib.Util.*;
             fprintf('\n%s: ',Logging.WhoCalledMe());
@@ -1285,6 +1306,10 @@ classdef testFPA_UtilFunMapperMeasureClassVer < matlab.unittest.TestCase
 
 
         function testFringeProjectionLinearGrid(testCase)
+            % testFringeProjectionLinearGrid visually checks
+            % UtilFunFPA.LocateSidelobes finds the sidelobe for a
+            % single-direction (2-lobe) linear grid reference/signal
+            % image pair ('tapa' fixtures)
             %run(testFPA_UtilFunMapperMeasureClassVer, 'testFringeProjectionLinearGrid')
             import OM4MClassLib.Util.*;
             fprintf('\n%s: ',Logging.WhoCalledMe());
@@ -1310,6 +1335,13 @@ classdef testFPA_UtilFunMapperMeasureClassVer < matlab.unittest.TestCase
 
 
         function testCalibration_YO_D75_SMinus275(testCase)
+            % testCalibration_YO_D75_SMinus275 loads a real
+            % LensMapperMeasurement fixture with no separate reference
+            % (using its own phasor as the carrier), derives a K
+            % calibration factor from this -2.75D lens' known nominal
+            % power, and recomputes/visually inspects the power maps.
+            % If a legacy DLM (LoadMapperFile.m) is available on the
+            % path, also loads that tool's own maps for comparison
             %run(testFPA_UtilFunMapperMeasureClassVer, 'testCalibration_YO_D75_SMinus275')
             import OM4MClassLib.Util.*;
             fprintf('\n%s: ',Logging.WhoCalledMe());
@@ -1372,6 +1404,11 @@ classdef testFPA_UtilFunMapperMeasureClassVer < matlab.unittest.TestCase
 
 
         function testPowerMonofocalLens2D(testCase)
+            % testPowerMonofocalLens2D loads a real bifocal-lens
+            % LensMapperMeasurement fixture, demodulating its reference
+            % igrams (LSPSA) if zrx/zry are not already stored, then
+            % computes and visually inspects the power maps (Seq, Cyl)
+            % and the absolute-value phasor map
             %run(testFPA_UtilFunMapperMeasureClassVer, 'testPowerMonofocalLens2D')
             import OM4MClassLib.Util.*;
             fprintf('\n%s: ',Logging.WhoCalledMe());
@@ -1416,24 +1453,17 @@ classdef testFPA_UtilFunMapperMeasureClassVer < matlab.unittest.TestCase
 
 
 
-        % ======================================================================
-        %> @brief testMejoraCaluloDPM_APR20_LowLevel_GeomCal test for checking improved method for
-        %> DPM estimation with a PAL, monofocal, bifical and NULL lens
-        %> here we make a low level computation that is implemented in
-        %> LMM-Calculate()
-        %> @details the PAL is mounted in a frame is a old AQ lens with
-        %> A~0.5D y far power ~-1.75D. In this test we show how to select
-        %> the ROI and use the improved versions for calculation of first differnecenes from a phasor
-        %> phaseGradientDirect and phaseGradientPlaneFit.
-        %> Here we are using the geometrical calibraction calculated with
-        %> run(testFPA_UtilFunFPAClassVer,'testCameraCalibrationCVTbx_5MAY20');
-        %> and run(testFPA_UtilFunFPAClassVer, 'testUndistortImagesCVTbx_5MAY20');
-        %> @see onenote->Mejoras calculo DPM APR20 for experimental
-        %> @details the measurement was obtained usin the
-        %> TransDeflAppInterface class of the repo https://bitbucket.org/iot_development_es/perseus/src/master/src/Deflectometer/FFVAppInt/
-        %> @author AQ 14APR20
-        % ======================================================================
         function testMejoraCaluloDPM_APR20_LowLevel_GeomCal(testCase)
+            % testMejoraCaluloDPM_APR20_LowLevel_GeomCal manually
+            % reproduces TransDeflAppInterface's lens-power calculation
+            % (perseus repo) at low level - demodulating a real
+            % LensMapperMeasurement fixture's X/Y igrams, checking the
+            % demodulator's default/post-Process ROI props along the
+            % way, deriving the deflection-plane matrix (DPM) components
+            % via UtilFunFPA.phaseGradientDirect and scaling them from
+            % phase-rad/px to diopters, then visually inspecting the
+            % resulting S/C/Seq maps and center-row profiles (plus,
+            % for the NULL-lens fixture specifically, Cyl/Seq histograms)
             %run(testFPA_UtilFunMapperMeasureClassVer, 'testMejoraCaluloDPM_APR20_LowLevel_GeomCal')
             import OM4MClassLib.Util.*;
             fprintf('\ntest %s...\n ',Logging.WhoCalledMe());
