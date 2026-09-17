@@ -3713,6 +3713,10 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
         end
 
         function testNormalizaIgramFFT(testCase)
+            % testNormalizaIgramFFT visually checks
+            % UtilFunFPA.IgramNorm normalizes each RGB channel of a
+            % real fluorescence deflectometry fixture image, showing
+            % the normalized igram and modulation for each channel
             %run(testFPA_UtilFunFPAClassVer, 'testNormalizaIgramFFT')
             close all;
             gc=double(imread('DeltaDisFluoCDF.tif'));
@@ -3731,6 +3735,11 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
         end
 
         function testOrientationFromMinimumDerShadowMoire(testCase)
+            % testOrientationFromMinimumDerShadowMoire visually checks
+            % UtilFunFPA.OrMinDer's minimum-derivative fringe
+            % orientation estimate on a real shadow-moire defect
+            % fixture image, overlaying orientation vectors on the
+            % fringe pattern and on the orientation map
             %run(testFPA_UtilFunFPAClassVer, 'testOrientationFromMinimumDerShadowMoire')
             close all
             iptsetpref('ImshowBorder','tight');
@@ -3776,6 +3785,10 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
         end
 
         function testOrientationFromMinimumDerMiract(testCase)
+            % testOrientationFromMinimumDerMiract repeats
+            % testOrientationFromMinimumDerShadowMoire's visual check
+            % of UtilFunFPA.OrMinDer's orientation estimate on a real
+            % Miract fixture image, also showing the modulation map
             %run(testFPA_UtilFunFPAClassVer, 'testOrientationFromMinimumDerMiract')
             close all
             iptsetpref('ImshowBorder','tight');
@@ -3825,6 +3838,11 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
         end
 
         function testOrientationFromMinimumDerSignalTapa(testCase)
+            % testOrientationFromMinimumDerSignalTapa repeats
+            % testOrientationFromMinimumDerShadowMoire's visual check
+            % of UtilFunFPA.OrMinDer's orientation estimate on a real
+            % "Signal_tapa" fixture image, also showing the modulation
+            % map
             %run(testFPA_UtilFunFPAClassVer, 'testOrientationFromMinimumDerSignalTapa')
             close all
             iptsetpref('ImshowBorder','tight');
@@ -3873,6 +3891,12 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
         end
 
         function testDirectionShadowMoire(testCase)
+            % testDirectionShadowMoire visually checks
+            % UtilFunFPA.calcDirection resolves the 2-pi direction
+            % ambiguity of UtilFunFPA.OrMinDer's orientation estimate
+            % on a real shadow-moire defect fixture image, overlaying
+            % direction and orientation vectors on both the fringe
+            % pattern and their respective maps
             %run(testFPA_UtilFunFPAClassVer, 'testDirectionShadowMoire')
             close all
             iptsetpref('ImshowBorder','tight');
@@ -3953,6 +3977,10 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
         end
 
         function testDirectionMiract(testCase)
+            % testDirectionMiract repeats testDirectionShadowMoire's
+            % visual check of UtilFunFPA.calcDirection on a real Miract
+            % fixture image, weighting the direction calculation with
+            % an explicit fixture mask
             %run(testFPA_UtilFunFPAClassVer, 'testDirectionMiract')
             close all
             iptsetpref('ImshowBorder','tight');
@@ -4033,6 +4061,10 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
         end
 
         function testDirectionDeltaDisNa(testCase)
+            % testDirectionDeltaDisNa repeats testDirectionShadowMoire's
+            % visual check of UtilFunFPA.calcDirection on a real
+            % "Delta7DisNa" fixture image (red channel), weighting the
+            % direction calculation with an explicit fixture mask
             %run(testFPA_UtilFunFPAClassVer, 'testDirectionDeltaDisNa')
             close all
             iptsetpref('ImshowBorder','tight');
@@ -4114,6 +4146,11 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
         end
 
         function testDemIQTSignalTapaWithDirection(testCase)
+            % testDemIQTSignalTapaWithDirection visually checks
+            % UtilFunFPA.DemIQT (with direction resolution enabled) on
+            % a real "Signal_tapa" fixture image, showing direction and
+            % orientation vector overlays plus the demodulated wrapped
+            % phase after UnwrapperFactory(FlynMd) unwrapping
             %run(testFPA_UtilFunFPAClassVer, 'testDemIQTSignalTapaWithDirection')
             %in this test we use DemIQT with Direction
             close all
@@ -4214,6 +4251,11 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
         end
 
         function testDemIQTSignalTapaWithOrientation(testCase)
+            % testDemIQTSignalTapaWithOrientation repeats
+            % testDemIQTSignalTapaWithDirection using
+            % UtilFunFPA.DemIQT's orientation-only mode (onlyOrFlag)
+            % instead of full direction resolution, valid only for open
+            % fringes, on the transposed "Signal_tapa" fixture image
             %run(testFPA_UtilFunFPAClassVer, 'testDemIQTSignalTapaWithOrientation')
             %in this test we use DemIQT with Orientarion Only.
             %This is OK only for open fringes
@@ -4321,6 +4363,11 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
         end
 
         function testDemIQTDeltaDisNa(testCase)
+            % testDemIQTDeltaDisNa repeats
+            % testDemIQTSignalTapaWithDirection's visual check of
+            % UtilFunFPA.DemIQT (default settings) on a real
+            % "Delta7DisNa" fixture image (red channel) with its
+            % fixture mask
             %run(testFPA_UtilFunFPAClassVer, 'testDemIQTDeltaDisNa')
             close all
             iptsetpref('ImshowBorder','tight');
@@ -4417,6 +4464,10 @@ classdef testFPA_UtilFunFPAClassVer < matlab.unittest.TestCase
         end
 
         function testDemIQTMiract(testCase)
+            % testDemIQTMiract repeats
+            % testDemIQTSignalTapaWithDirection's visual check of
+            % UtilFunFPA.DemIQT (default settings) on a real Miract
+            % fixture image with its fixture mask
             %run(testFPA_UtilFunFPAClassVer, 'testDemIQTMiract')
             close all
             iptsetpref('ImshowBorder','tight');
