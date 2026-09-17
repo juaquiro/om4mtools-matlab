@@ -1,18 +1,19 @@
 classdef UnwrapperFlynMd < Unwrapper
-    %UnwrapperFynMd Flyn Minimum discontinuity PU
-    
-    %% props    
+    % UnwrapperFlynMd Flynn minimum-discontinuity phase unwrapper, backed
+    % by the compiled PUFlynMdMex MEX function (see mex/build.m)
+
+    %% props
     %private
     properties (Access=private)
         Lib,
         LibH,
         LibFun,
     end
-    
+
     %% public methods
     methods
-        % constructor
         function  this=UnwrapperFlynMd()
+            % UnwrapperFlynMd constructs a Flynn min-discontinuity unwrapper
             %%% Pre Initialization %%%
             % Any code not using first output argument (this)
             
@@ -35,14 +36,14 @@ classdef UnwrapperFlynMd < Unwrapper
     %% private methods
     methods (Access=private)
         function this=Init(this)
-            %%private INIT for class comes here
+            % Init no-op: UnwrapperFlynMd needs no extra state beyond Unwrapper's
         end
     end
-    
+
     %% protected abstract interface
     methods (Access=protected)
-        % abstract interface
         function this=DoUnwrapp(this)
+            % DoUnwrapp unwraps phase via the PUFlynMdMex MEX function
             %get data for unwrapping, already validates and normaliced
             bmask=this.Get(char(UnwrapperProps.bmask));
             phase=this.Get(char(UnwrapperProps.phase));

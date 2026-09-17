@@ -1,6 +1,6 @@
 classdef UnwrapperProps
-    % UnwrapperProps enumeration of unwrapper props
-    
+    % UnwrapperProps enumeration of the allowed Get/Set prop names for
+    % Unwrapper and its subclasses
     enumeration
         bmask; %array which defines the ROI [0-1]
         qual; %quality map [0-1]
