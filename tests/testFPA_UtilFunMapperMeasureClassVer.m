@@ -2439,15 +2439,13 @@ classdef testFPA_UtilFunMapperMeasureClassVer < matlab.unittest.TestCase
         end
 
 
-        % ======================================================================
-        %> @brief testCheckLMapperHarmonics is a test for checking an extra harmonic appearing in the X igrams
-        %> @details As of 27/8/2020 there is an extra harmonics that do not correspond tp the w0 harmonics.
-        %> For well imaged igrams, namely T=8, 16 o 32 px for example, this extra harmonic only apears in the X igrams and do not appear in the Y igrams
-        %> The non-linearities affect specially the Dx gradient of the phase in the X grams and can be observed in the FT of the X igrams
-        %> @see testMejoraCaluloDPM_APR20 onenote->Mejoras calculo DPM APR20 for experimental
-        %> @author AQ 14AUG20
-        % ======================================================================
         function testCheckLMapperHarmonics(testCase)
+            % testCheckLMapperHarmonics visually investigates a spurious
+            % extra harmonic (unrelated to the w0 carrier) that appears
+            % only in X-direction igrams (not Y) of a real
+            % LensMapperMeasurement fixture, by inspecting the FT
+            % spectrum and directional derivatives (phaseGradientDirect)
+            % of both the X and Y demodulated phasors
             %run(testFPA_UtilFunMapperMeasureClassVer, 'testCheckLMapperHarmonics')
             import OM4MClassLib.Util.*;
             fprintf('\ntest %s...\n ',Logging.WhoCalledMe());
@@ -2598,18 +2596,12 @@ classdef testFPA_UtilFunMapperMeasureClassVer < matlab.unittest.TestCase
         end
 
 
-        % ======================================================================
-        %> @brief testCheckIOTMapperHarmonicsDirectImages is a test for
-        %> checking an extra harmonic appearing in the direct images obtained
-        %> in the IOT-Mapper in the X direction
-        %> @details As of 27/8/2020 there is an extra harmonics in the X direction that do not correspond tp the w0 harmonics.
-        %> it appears that is a problem associated with the digitizer
-        %> resolution
-        %> @see testMejoraCaluloDPM_APR20 onenote->Mejoras calculo DPM APR20 for experimental
-        %> @see testCheckLMapperHarmonics
-        %> @author AQ 14SEP20
-        % ======================================================================
         function testCheckIOTMapperHarmonicsDirectImages(testCase)
+            % testCheckIOTMapperHarmonicsDirectImages visually
+            % investigates the same spurious X-direction harmonic as
+            % testCheckLMapperHarmonics, but on a single raw direct
+            % image acquired via the IOT-Mapper digitizer (suspected to
+            % be a digitizer-resolution artifact), inspecting its FT spectrum
             %run(testFPA_UtilFunMapperMeasureClassVer, 'testCheckIOTMapperHarmonicsDirectImages')
             import OM4MClassLib.Util.*;
             fprintf('\ntest %s...\n ',Logging.WhoCalledMe());
@@ -2701,19 +2693,14 @@ classdef testFPA_UtilFunMapperMeasureClassVer < matlab.unittest.TestCase
 
 
 
-        % ======================================================================
-        %> @brief testLMM_Calibration_5MAY20 aqui vamos a hacer un test de la calibracion con lentes de
-        %> referencia usando la calibracionde MAYO de 2020 using only the LensMapperMeasurement class
-        %> @details here we use the camera calibration params generated with testUndistortImagesCVTbx_5MAY20
-        %> using run(testFPA_UtilFunFPAClassVer, 'testUndistortImagesCVTbx_5MAY20')
-        %> optionally we can undistort the LMM images with the static
-        %> function testFPA_UtilFunMapperMeasureClassVer.undistortLMMImages
-        %> @see testMejoraCaluloDPM_APR20 onenote->Mejoras calculo DPM APR20 for experimental
-        %> @details the measurement was obtained usin the
-        %> TransDeflAppInterface class of the repo https://bitbucket.org/iot_development_es/perseus/src/master/src/Deflectometer/FFVAppInt/
-        %> @author AQ 14APR20
-        % ======================================================================
         function testLMM_Calibration_5MAY20(testCase)
+            % testLMM_Calibration_5MAY20 loads every valid (Pnom known,
+            % geometrically undistorted) real LensMapperMeasurement
+            % fixture from the 5MAY20 calibration session, derives a K
+            % calibration factor via LMM.Calibrate, and visually
+            % compares the resulting Seq error (nominal vs measured)
+            % against a second K derived purely from the geometrical
+            % (screen/camera distance and pixel size) setup
             %run(testFPA_UtilFunMapperMeasureClassVer, 'testLMM_Calibration_5MAY20')
             import OM4MClassLib.Util.*;
             fprintf('\ntest %s...\n ',Logging.WhoCalledMe());
@@ -2844,18 +2831,11 @@ classdef testFPA_UtilFunMapperMeasureClassVer < matlab.unittest.TestCase
         end
 
 
-        % ======================================================================
-        %> @brief testLMM_Calibracion_1OCT20 aqui vamos a hacer un test de la calibracion con lentes de
-        %> referencia usando la calibracionde 1 OCT 20 using only the LensMapperMeasurement class
-        %> There is a bug in the compiled version of 30SEP20
-        %> @details here we use the camera calibration params generated with testUndistortImagesCVTbx_5MAY20
-        %> using run(testFPA_UtilFunFPAClassVer, 'testUndistortImagesCVTbx_5MAY20')
-        %> optionally we can undistort the LMM images with the static
-        %> function testFPA_UtilFunMapperMeasureClassVer.undistortLMMImages
-        %> @see testMejoraCaluloDPM_APR20 onenote->Mejoras calculo DPM APR20 for experimental
-        %> @author AQ 1OCT20
-        % ======================================================================
         function testLMM_Calibracion_1OCT20(testCase)
+            % testLMM_Calibracion_1OCT20 repeats
+            % testLMM_Calibration_5MAY20's K1 (test-lens) vs K2
+            % (geometrical) calibration comparison on the 1OCT20
+            % calibration session's fixtures (undistortion disabled here)
             %run(testFPA_UtilFunMapperMeasureClassVer, 'testLMM_Calibracion_1OCT20')
             import OM4MClassLib.Util.*;
             fprintf('\ntest %s...\n ',Logging.WhoCalledMe());
@@ -2986,17 +2966,11 @@ classdef testFPA_UtilFunMapperMeasureClassVer < matlab.unittest.TestCase
         end
 
 
-        % ======================================================================
-        %> @brief testLMM_Calibracion_15DIC20 aqui vamos a hacer un test de la calibracion con lentes de
-        %> referencia usando la calibracionde 15DIC20 using only the LensMapperMeasurement class
-        %> @details here we use the camera calibration params generated with
-        %> using run(testFPA_UtilFunFPAClassVer, 'testCameraCalibrationCVTbx_15DIC20');
-        %> optionally we can undistort the LMM images with the static
-        %> function testFPA_UtilFunMapperMeasureClassVer.undistortLMMImages
-        %> @see "Calibraci�n 15DIC20" doc en onenote
-        %> @author AQ 15DIC20
-        % ======================================================================
         function testLMM_Calibracion_15DIC20(testCase)
+            % testLMM_Calibracion_15DIC20 repeats
+            % testLMM_Calibration_5MAY20's K1 (test-lens) vs K2
+            % (geometrical) calibration comparison on the 15DIC20
+            % calibration session's fixtures (undistortion disabled here)
             %run(testFPA_UtilFunMapperMeasureClassVer, 'testLMM_Calibracion_15DIC20')
             import OM4MClassLib.Util.*;
             fprintf('\ntest %s...\n ',Logging.WhoCalledMe());
@@ -3135,18 +3109,13 @@ classdef testFPA_UtilFunMapperMeasureClassVer < matlab.unittest.TestCase
 
         end
 
-        % ======================================================================
-        %> @brief testLMM_Calibracion_GeomVsPower_15DIC20 aqui vamos comparas los resultados
-        %> de la calibracion segun el modelo thin-lens y los obtenidos de la
-        %> correlacion entre potencia en D (def-rad/m) y la potencia en
-        %> pha-rad/px (ver doc deflectometry.docx) usando los datos de la calibracion geometrica y la correlacion
-        %> entre potencia del fichero de calibracion del 15DIC20. Esto lo
-        %> hacemos para validar el modelo geometrico de lente delgada y
-        %> hacer la calibracion de aqui en adelante segun el modelo geometrico
-        %> @see "Calibraci�n 15DIC20" doc en onenote
-        %> @author AQ 1JAN21
-        % ======================================================================
         function testLMM_Calibracion_GeomVsPower_15DIC20(testCase)
+            % testLMM_Calibracion_GeomVsPower_15DIC20 validates the
+            % thin-lens geometrical model by checking that the K
+            % calibration factor derived purely from geometry (focal
+            % length, screen/lens distance, fringe period) matches the K
+            % measured empirically via the power-vs-phase correlation,
+            % both loaded from the same 15DIC20 calibration config file
             %run(testFPA_UtilFunMapperMeasureClassVer, 'testLMM_Calibracion_GeomVsPower_15DIC20')
             import OM4MClassLib.Util.*;
             fprintf('\ntest %s...\n ',Logging.WhoCalledMe());
@@ -3194,13 +3163,11 @@ classdef testFPA_UtilFunMapperMeasureClassVer < matlab.unittest.TestCase
 
 
 
-        % ======================================================================
-        %> @brief 'testLMM2AndFromStruct' %verificamos las funciones para pasar a struct y cargar desde
-        %> struct
-        %> @author AQ 6JUN20
-        %>
-        % ======================================================================
         function testLMM2AndFromStruct(testCase)
+            % testLMM2AndFromStruct loads a real legacy-format
+            % LensMapperMeasurement fixture, converts it to a plain
+            % struct via class2struct and checks every property
+            % round-trips unchanged
             %run(testFPA_UtilFunMapperMeasureClassVer, 'testLMM2AndFromStruct')
             import OM4MClassLib.Util.*;
             fprintf('\ntest %s...\n ',Logging.WhoCalledMe());
@@ -3237,14 +3204,13 @@ classdef testFPA_UtilFunMapperMeasureClassVer < matlab.unittest.TestCase
         end
 
 
-        % ======================================================================
-        %> @brief ttest_SetParamsForCalculateLensPower vemos que parametros usaremos 
-        %> para medir la DPM en el mapper
-        %> de la resolucion 
-        %> @author AQ 27JUN23
-        %>
-        % ======================================================================        
         function test_SetParamsForCalculateLensPower(testCase)
+            % test_SetParamsForCalculateLensPower loads real
+            % LensMapperMeasurement fixtures selected from a sample
+            % database (xlsx), computes power maps with
+            % CalculateLensPower's default filtering params and again
+            % with tuned ones ('LPCycles','Nmed','NS'), visually
+            % comparing the resulting S/C maps and their mean/std
             %run(testFPA_UtilFunMapperMeasureClassVer, 'test_SetParamsForCalculateLensPower')
             %Only the xlsx sample DB and the CalibracionIOTMapper_15JUN23
             %sample dir it references (the only rows this test actually
@@ -3371,12 +3337,12 @@ classdef testFPA_UtilFunMapperMeasureClassVer < matlab.unittest.TestCase
     end
 
     methods (Static)
-        %> @brief this function is a draft for undistorting the LMM images and chek
-        %> if the measured power changes from using distorted vs undistorted
-        %> images
-        %> @param cameraParams  is a cameraParameters object
-        %> @author AQ 6JUN20
         function LMM=undistortLMMImages(LMM, cameraParams)
+            % undistortLMMImages is a draft helper that undistorts every
+            % g/gr igram and the mask M of LMM in place (using
+            % cameraParams, a cameraParameters object, with
+            % 'OutputView','same'), used by several tests above to
+            % compare distorted vs undistorted power calculation
             N=length(LMM.g);
             for n=1:N
                 %Undistort the image and get newOrigin in px
