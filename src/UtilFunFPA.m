@@ -1942,18 +1942,18 @@ classdef UtilFunFPA
             sd=conj(ifft2(CH));
         end
         
-        % FUNCION DE ESTIMADOR REGULARIZADO PARA
-        % EL CALCULO DE LA FASE ASOCIADA A LAS ISOCLINAS
-        % EN FOTOELASTICIDAD
-        % wtheta = mapa del angulo de orientacion (mod pi)
-        % wbeta = mapa del angulo de direccion (mod 2pi)
-        % q = Mapa de calidad para la estimacion
-        % m = mascara
-        % t = Tama�o de la region para el estimador (t*2+1)
-        % mu = Parametro de regularizacion
-        % r0 pto inicial, [] lo busca automaticamente del maximo de q
-        
         function [wbeta]=calcDirection(wtheta,q,m,t,mu,r0)
+            % calcDirection is a regularized estimator for the isoclinic
+            % direction phase in photoelasticity: derives the direction
+            % map wbeta (mod 2*pi) from the orientation map wtheta
+            % (mod pi), following the quality map q outward from a
+            % starting point via Strobel's algorithm (region-growing
+            % with a priority histogram over quality levels).
+            %
+            % Inputs: wtheta orientation map (mod pi); q quality map; m
+            % mask; t region size for the estimator (2*t+1); mu
+            % regularization parameter; r0 starting point ([] to auto-pick
+            % the max-quality point).
             %% INICIALIZA VALORES
             n=size(wtheta);
             px=ones(n);py=ones(n);q=abs(q).*m;
@@ -2044,20 +2044,16 @@ classdef UtilFunFPA
         
         
         function s=Vortex(c, dir)
-            %Vortex Vortex transform transform
-            % s=Vortex(c, dir) computes the quadrture term of c still corrected by
-            % the direction phase factor. Therefore for a real c=b*cos(phi)
-            % s=Vortex(c)=b*sin(phi). If we use orientation instead of direction we
-            % will obtain s=b*sin(phi).*sign(sin(dir))
-            % Ref: Kieran G. Larkin, Donald J. Bone, and Michael A. Oldfield, "Natural
-            % demodulation of two-dimensional fringe patterns. I. General background of the spiral phase quadrature transform," J. Opt. Soc. Am. A 18, 1862-1870 (2001)
-            
-            %   AQ, 19/8/09
-            %   Copyright 2009 OM4M
-            %   $ Revision: 1.0.0.0 $
-            %   $ Date: 19-08-2009 $
-            
-            
+            % Vortex vortex transform: computes the quadrature term of c
+            % corrected by the direction phase factor dir, so for a real
+            % c=b*cos(phi), s=b*sin(phi) (using orientation instead of
+            % direction instead gives s=b*sin(phi).*sign(sin(dir))).
+            % (Same algorithm as the standalone Vortex.m.)
+            %
+            % Ref: Larkin, Bone & Oldfield, "Natural demodulation of
+            % two-dimensional fringe patterns. I. General background of
+            % the spiral phase quadrature transform," J. Opt. Soc. Am. A
+            % 18, 1862-1870 (2001)
             TH=max(abs(c(:)));
             if mean(real(c(:)))>0.01*TH
                 warning('OM4M:SPHT:OutOfRange', ...
@@ -2079,17 +2075,16 @@ classdef UtilFunFPA
         
         
         function [orn, ornMod]=OrMinDer(FP, varargin)
-            %OrMinDer Orientation by minmum diference fit
-            % [orn, ornMod]=OrMinDer(FP, N) computes the orientation using a window
-            % size N.Default values are N=5 px
-            % References
-            % [1] Yang, Xia; Yu, Qifeng, and Fu, Sihua. An algorithm for estimating both fringe orientation and fringe density. Optics Communications. 2007 Jun 15; 274(2):286-292
-            
-            %   AQ, 28/8/09
-            %   Copyright 2009 OM4M
-            %   $ Revision: 1.0.0.0 $
-            %   $ Date: 28-08-2009 $
-            
+            % OrMinDer estimates fringe orientation orn (mod pi) and its
+            % confidence ornMod from fringe pattern FP, via
+            % minimum-difference fitting over a window of size N
+            % (varargin{1}, default 5 px). (Same algorithm as the
+            % standalone OrMinDer.m.)
+            %
+            % Ref: Yang, Yu & Fu, "An algorithm for estimating both
+            % fringe orientation and fringe density," Optics
+            % Communications 274(2), 286-292 (2007)
+
             % get input parameters
             % only want 1 optional inputs at most
             numvarargs = length(varargin);
@@ -2138,15 +2133,19 @@ classdef UtilFunFPA
             
         end
         
-        %DEMIQT  Phase demodulation using the Isotropic Quadrature Transform method.
-        %   [z, zo, zd]=DemIQT(g, gm, onlyOrFlag, R, N, Lambda) returns the igram phasor z,
-        %   orientation phasor zo and direction phasor zd  associated with
-        %   the igram g. gm is the processing mask. onlyOrFlag is a logical flag that indicates if it
-        %   is necessary the Direction calculation or Orientation and
-        %   Direction should be calculated.
-        %   R the DC filter size, N the neigbourhood size for orientation and
-        %   lambda the regularization parameter.
         function [z, zor, zdir]=DemIQT(g,varargin)
+            % DemIQT demodulates igram g via the Isotropic Quadrature
+            % Transform method: DC-filters g (radius R), estimates
+            % orientation (OrMinDer, neighborhood N) and its phasor zor,
+            % then either reuses it as direction (if onlyOrFlag) or
+            % derives a direction phasor zdir (calcDirection,
+            % regularization Lambda), and demodulates via the Vortex
+            % transform using that direction, giving phasor z.
+            %
+            % Optional args: gm (ones) processing mask; onlyOrFlag
+            % (false) skip direction estimation, reuse orientation; R (2
+            % FF) DC filter radius; N (5 px) orientation neighborhood
+            % size; Lambda (1) direction regularization parameter.
             import OM4MClassLib.Util.*
             callFunc=Logging.WhoCalledMe();
             
