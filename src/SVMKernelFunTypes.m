@@ -1,9 +1,8 @@
 classdef SVMKernelFunTypes
-    %SVMKernelFunTypes
-    %   alowed kernel functions     
+    % SVMKernelFunTypes enumeration of allowed SVM kernel functions
     enumeration
         rbf,
         linear,
         polynomial,
-    end   
+    end
 end
